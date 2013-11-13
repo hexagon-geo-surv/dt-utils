@@ -1,5 +1,5 @@
 /*
- * base.c - basic devicetree functions
+ * of.c - basic devicetree functions
  *
  * Copyright (c) 2012 Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix
  *
@@ -17,7 +17,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <linux/types.h>
 #include <asm/byteorder.h>
@@ -34,7 +33,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <libudev.h>
-#include "of.h"
+#include <dt.h>
 
 static int is_printable_string(const void *data, int len)
 {
@@ -1888,10 +1887,13 @@ int scan_proc_dir(struct device_node *node, const char *path)
 		if (dirent->d_name[0] == '.')
 			continue;
 
-		asprintf(&cur, "%s/%s", path, dirent->d_name);
+		ret = asprintf(&cur, "%s/%s", path, dirent->d_name);
+		if (ret < 0)
+			return -ENOMEM;
+
 		ret = stat(cur, &s);
 		if (ret)
-			return ret;
+			return -errno;
 
 		if (S_ISREG(s.st_mode)) {
 			int fd;
@@ -1903,7 +1905,7 @@ int scan_proc_dir(struct device_node *node, const char *path)
 			buf = xzalloc(s.st_size);
 			ret = read(fd, buf, s.st_size);
 			if (ret < 0)
-				return ret;
+				return -errno;
 			close(fd);
 
 			of_new_property(node, dirent->d_name, buf, s.st_size);
@@ -1930,13 +1932,16 @@ struct device_node *of_read_proc_devicetree(void)
 
 	root = of_new_node(NULL, NULL);
 
-	ret = scan_proc_dir(root, "/proc/device-tree");
-	if (ret) {
-		of_delete_node(root);
-		return NULL;
-	}
+	ret = scan_proc_dir(root, "/sys/firmware/devicetree/base");
+	if (!ret)
+		return root;
 
-	return root;
+	ret = scan_proc_dir(root, "/proc/device-tree");
+	if (!ret)
+		return root;
+
+	of_delete_node(root);
+	return ERR_PTR(ret);
 }
 
 struct udev_device *of_find_device_by_node_path(const char *of_full_path)
@@ -1948,19 +1953,22 @@ struct udev_device *of_find_device_by_node_path(const char *of_full_path)
 	
 	udev = udev_new();
 	if (!udev) {
-		printf("Can't create udev\n");
-		exit(1);
+		fprintf(stderr, "Can't create udev\n");
+		return NULL;
 	}
 	
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_property(enumerate, "OF_FULLNAME", of_full_path);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
+
 	udev_list_entry_foreach(dev_list_entry, devices) {
 		const char *path;
 		
-		/* Get the filename of the /sys entry for the device
-		   and create a udev_device object (dev) representing it */
+		/*
+		 * Get the filename of the /sys entry for the device
+		 * and create a udev_device object (dev) representing it
+		 */
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
 
@@ -1982,11 +1990,10 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 	struct udev_list_entry *devices, *dev_list_entry;
 	struct udev_device *part;
 
-	/* Create the udev object */
 	udev = udev_new();
 	if (!udev) {
-		printf("Can't create udev\n");
-		exit(1);
+		fprintf(stderr, "Can't create udev\n");
+		return NULL;
 	}
 
 	enumerate = udev_enumerate_new(udev);
@@ -2009,14 +2016,6 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 
 	return NULL;
 }
-
-struct of_path {
-	char *devpath;
-	off_t offset;
-	size_t size;
-	struct udev_device *dev;
-	struct device_node *node;
-};
 
 struct of_path_type {
 	const char *name;
@@ -2046,10 +2045,13 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		return 0;
 	}
 
-	asprintf(&op->devpath, "%s/eeprom", udev_device_get_syspath(op->dev));
+	ret = asprintf(&op->devpath, "%s/eeprom", udev_device_get_syspath(op->dev));
+	if (ret < 0)
+		return -ENOMEM;
+
 	ret = stat(op->devpath, &s);
 	if (ret)
-		return ret;
+		return -errno;
 
 	for_each_child_of_node(op->node, node) {
 		const char *partname;
@@ -2066,8 +2068,10 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 
 			a_cells = of_n_addr_cells(node);
 			s_cells = of_n_size_cells(node);
-			op->offset = of_read_number(reg, a_cells);;
-			op->size = of_read_number(reg + a_cells, s_cells);;
+
+			op->offset = of_read_number(reg, a_cells);
+			op->size = of_read_number(reg + a_cells, s_cells);
+
 			break;
 		}
 	}
@@ -2137,12 +2141,13 @@ out:
  * device-path = &mmc0, "partname:0";
  * device-path = &norflash, "partname:barebox-environment";
  */
-int of_find_path(struct device_node *node, const char *propname, char **outpath)
+int of_find_path(struct device_node *node, const char *propname, struct of_path *op)
 {
-	struct of_path op = {};
 	struct device_node *rnode;
 	const char *path, *str;
 	int i, len, ret;
+
+	memset(op, 0, sizeof(*op));
 
 	path = of_get_property(node, propname, &len);
 	if (!path)
@@ -2152,10 +2157,10 @@ int of_find_path(struct device_node *node, const char *propname, char **outpath)
 	if (!rnode)
 		return -ENODEV;
 
-	op.node = rnode;
+	op->node = rnode;
 
-	op.dev = of_find_device_by_node_path(rnode->full_name);
-	if (!op.dev)
+	op->dev = of_find_device_by_node_path(rnode->full_name);
+	if (!op->dev)
 		return -ENODEV;
 
 	i = 1;
@@ -2165,42 +2170,16 @@ int of_find_path(struct device_node *node, const char *propname, char **outpath)
 		if (ret)
 			break;
 
-		ret = of_path_parse_one(&op, str);
+		ret = of_path_parse_one(op, str);
 		if (ret)
 			return ret;
 	}
 
-	if (!op.devpath)
+	if (!op->devpath)
 		return -ENOENT;
 
-	printf("devpath: %s ofs: 0x%08lx size: 0x%08x\n", op.devpath, op.offset, op.size);
-
-	return 0;
-}
-
-int main(int argc, char *argv[])
-{
-	struct device_node *root, *node;
-	char *devnode;
-
-	root = of_read_proc_devicetree();
-	root_node = root;
-
-	node = of_find_node_by_path_or_alias(root, argv[1]);
-	if (!node) {
-		printf("no such node: %s\n", argv[1]);
-		return 1;
-	}
-
-	of_find_path(node, argv[2], &devnode);
-
-	return 0;
-
-	of_print_nodes(root, 0);
-
-	for_each_compatible_node(node, NULL, "barebox,state") {
-		of_print_nodes(node, 0);
-	}
+	pr_debug("%s: devpath: %s ofs: 0x%08llx size: 0x%08lx\n",
+			__func__, op->devpath, op->offset, op->size);
 
 	return 0;
 }

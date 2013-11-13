@@ -1,5 +1,9 @@
+#ifndef __DT_COMMON_H
+#define __DT_COMMON_H
 
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -105,4 +109,17 @@ static inline size_t strlcpy(char *dest, const char *src, size_t size)
 	return ret;
 }
 
+#define cpu_to_be32 __cpu_to_be32
+#define be32_to_cpu __be32_to_cpu
+
+#define ALIGN(x, a)		__ALIGN_MASK(x, (typeof(x))(a) - 1)
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+
+#define ARRAY_SIZE(arr)		(sizeof(arr) / sizeof((arr)[0]))
+
 #endif
+
+uint32_t crc32(uint32_t crc, const void *_buf, unsigned int len);
+uint32_t crc32_no_comp(uint32_t crc, const void *_buf, unsigned int len);
+
+#endif /* __DT_COMMON_H */

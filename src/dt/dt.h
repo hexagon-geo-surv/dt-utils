@@ -1,7 +1,10 @@
-#ifndef __OF_H
-#define __OF_H
+#ifndef __DT_DT_H
+#define __DT_DT_H
 
-#include "list.h"
+#include <stdint.h>
+#include <dt/list.h>
+#include <dt/common.h>
+#include <asm/byteorder.h>
 
 /* Default string compare functions */
 #define of_compat_cmp(s1, s2, l)	strcasecmp((s1), (s2))
@@ -224,7 +227,16 @@ void *of_flatten_dtb(struct device_node *node);
 int of_add_memory(struct device_node *node, bool dump);
 void of_add_memory_bank(struct device_node *node, bool dump, int r,
 		uint64_t base, uint64_t size);
-int of_find_path(struct device_node *node, const char *propname, char **outpath);
+
+struct of_path {
+	char *devpath;
+	off_t offset;
+	size_t size;
+	struct udev_device *dev;
+	struct device_node *node;
+};
+
+int of_find_path(struct device_node *node, const char *propname, struct of_path *op);
 
 #define for_each_node_by_name(dn, name) \
 	for (dn = of_find_node_by_name(NULL, name); dn; \
@@ -365,4 +377,7 @@ static inline struct device_node *of_find_root_node(struct device_node *node)
 
 	return node;
 }
-#endif /* __OF_H */
+
+struct device_node *of_read_proc_devicetree(void);
+
+#endif /* __DT_DT_H */
