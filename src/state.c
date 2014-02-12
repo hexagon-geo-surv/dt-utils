@@ -1067,7 +1067,8 @@ int state_backend_raw_file(struct state *state, const char *path, off_t offset,
 	if (!ret) {
 		if (!size)
 			size = meminfo.size;
-		backend_raw->need_erase = 1;
+		if (!(meminfo.flags & MTD_NO_ERASE))
+			backend_raw->need_erase = 1;
 		backend_raw->step = ALIGN(backend_raw->size_full, meminfo.erasesize);
 		if (verbose)
 			fprintf(stderr, "%s is a mtd of size %d, adjust stepsize to %ld\n",
