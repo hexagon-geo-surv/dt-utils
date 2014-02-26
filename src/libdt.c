@@ -2017,6 +2017,41 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 	return NULL;
 }
 
+struct udev_device *device_find_devnode(struct udev_device *dev)
+{
+	struct udev *udev;
+	struct udev_enumerate *enumerate;
+	struct udev_list_entry *devices, *dev_list_entry;
+	struct udev_device *devnode;
+
+	udev = udev_new();
+	if (!udev) {
+		fprintf(stderr, "Can't create udev\n");
+		return NULL;
+	}
+
+	enumerate = udev_enumerate_new(udev);
+	udev_enumerate_add_match_parent(enumerate, dev);
+	udev_enumerate_scan_devices(enumerate);
+	devices = udev_enumerate_get_list_entry(enumerate);
+	udev_list_entry_foreach(dev_list_entry, devices) {
+		const char *path;
+
+		path = udev_list_entry_get_name(dev_list_entry);
+		devnode = udev_device_new_from_syspath(udev, path);
+
+		if (!udev_device_get_devnode(devnode))
+			continue;
+		else
+			return devnode;
+	}
+
+	udev_enumerate_unref(enumerate);
+	udev_unref(udev);
+
+	return NULL;
+}
+
 struct of_path_type {
 	const char *name;
 	int (*parse)(struct of_path *op, const char *str);
