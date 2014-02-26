@@ -2013,7 +2013,8 @@ int of_parse_partition_from_path(struct of_path *op, const char *name)
 	return -EINVAL;
 }
 
-struct udev_device *device_find_partition(struct udev_device *dev, const char *name)
+struct udev_device *device_find_partition(struct udev_device *dev, const char *name,
+					  const char *sysattr)
 {
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
@@ -2034,7 +2035,7 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 		const char *path, *partname;
 		path = udev_list_entry_get_name(dev_list_entry);
 		part = udev_device_new_from_syspath(udev, path);
-		partname = udev_device_get_sysattr_value(part, "name");
+		partname = udev_device_get_sysattr_value(part, sysattr);
 		if (!partname)
 			continue;
 		if (!strcmp(partname, name))
@@ -2103,7 +2104,20 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 	if (!op->dev)
 		return -EINVAL;
 
-	part = device_find_partition(op->dev, name);
+	part = device_find_partition(op->dev, name, "name");
+	if (part) {
+		if (udev_device_get_devnode(part) != NULL) {
+			op->devpath = strdup(udev_device_get_devnode(part));
+			pr_debug("%s: found part '%s'\n", __func__, name);
+			ret = of_parse_partition_from_path(op, name);
+		} else {
+			pr_debug("%s: '%s' not found\n", __func__, name);
+			ret = -EINVAL;
+		}
+		return ret;
+	}
+
+	part = device_find_partition(op->dev, name, "partition");
 	if (part) {
 		if (udev_device_get_devnode(part) != NULL) {
 			op->devpath = strdup(udev_device_get_devnode(part));
