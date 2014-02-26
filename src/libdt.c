@@ -1950,13 +1950,13 @@ struct udev_device *of_find_device_by_node_path(const char *of_full_path)
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *dev_list_entry;
 	struct udev_device *dev;
-	
+
 	udev = udev_new();
 	if (!udev) {
 		fprintf(stderr, "Can't create udev\n");
 		return NULL;
 	}
-	
+
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_property(enumerate, "OF_FULLNAME", of_full_path);
 	udev_enumerate_scan_devices(enumerate);
@@ -1964,7 +1964,7 @@ struct udev_device *of_find_device_by_node_path(const char *of_full_path)
 
 	udev_list_entry_foreach(dev_list_entry, devices) {
 		const char *path;
-		
+
 		/*
 		 * Get the filename of the /sys entry for the device
 		 * and create a udev_device object (dev) representing it
@@ -1980,7 +1980,7 @@ out:
 	udev_enumerate_unref(enumerate);
 	udev_unref(udev);
 
-	return dev;       
+	return dev;
 }
 
 int of_parse_partition_from_path(struct of_path *op, const char *name)
