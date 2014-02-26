@@ -1983,6 +1983,36 @@ out:
 	return dev;       
 }
 
+int of_parse_partition_from_path(struct of_path *op, const char *name)
+{
+	struct device_node *node;
+
+	for_each_child_of_node(op->node, node) {
+		const char *partname;
+		int len;
+
+		partname = of_get_property(node, "label", &len);
+		if (!strcmp(partname, name)) {
+			const __be32 *reg;
+			int a_cells, s_cells;
+
+			reg = of_get_property(node, "reg", &len);
+			if (!reg)
+				continue;
+
+			a_cells = of_n_addr_cells(node);
+			s_cells = of_n_size_cells(node);
+
+			op->offset = of_read_number(reg, a_cells);
+			op->size = of_read_number(reg + a_cells, s_cells);
+
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
 struct udev_device *device_find_partition(struct udev_device *dev, const char *name)
 {
 	struct udev *udev;
@@ -2078,10 +2108,12 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		if (udev_device_get_devnode(part) != NULL) {
 			op->devpath = strdup(udev_device_get_devnode(part));
 			pr_debug("%s: found part '%s'\n", __func__, name);
+			ret = of_parse_partition_from_path(op, name);
 		} else {
 			pr_debug("%s: '%s' not found\n", __func__, name);
+			ret = -EINVAL;
 		}
-		return 0;
+		return ret;
 	}
 
 	part = device_find_devnode(op->dev);
@@ -2112,28 +2144,7 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 	if (ret)
 		return -errno;
 
-	for_each_child_of_node(op->node, node) {
-		const char *partname;
-		int len;
-
-		partname = of_get_property(node, "label", &len);
-		if (!strcmp(partname, name)) {
-			const __be32 *reg;
-			int a_cells, s_cells;
-
-			reg = of_get_property(node, "reg", &len);
-			if (!reg)
-				continue;
-
-			a_cells = of_n_addr_cells(node);
-			s_cells = of_n_size_cells(node);
-
-			op->offset = of_read_number(reg, a_cells);
-			op->size = of_read_number(reg + a_cells, s_cells);
-
-			break;
-		}
-	}
+	of_parse_partition_from_path(op, name);
 
 	return 0;
 }
