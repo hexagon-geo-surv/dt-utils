@@ -2084,6 +2084,26 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		return 0;
 	}
 
+	part = device_find_devnode(op->dev);
+	if (part) {
+		if (udev_device_get_devnode(part) != NULL) {
+			op->devpath = strdup(udev_device_get_devnode(part));
+
+			if (!op->devpath)
+				return -EINVAL;
+
+			ret = stat(op->devpath, &s);
+			if (ret)
+				return -errno;
+
+			ret = of_parse_partition_from_path(op, name);
+		} else {
+			pr_debug("%s: '%s' not found\n", __func__, name);
+			ret = -EINVAL;
+		}
+		return ret;
+	}
+
 	ret = asprintf(&op->devpath, "%s/eeprom", udev_device_get_syspath(op->dev));
 	if (ret < 0)
 		return -ENOMEM;
