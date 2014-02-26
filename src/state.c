@@ -1039,7 +1039,7 @@ int state_backend_raw_file(struct state *state, const char *path, off_t offset,
 		return -EBUSY;
 
 	ret = stat(path, &s);
-	if (!ret && !S_ISCHR(s.st_mode)) {
+	if (!ret && !S_ISCHR(s.st_mode) && !S_ISBLK(s.st_mode)) {
 		if (size == 0)
 			size = s.st_size;
 		else if (offset + size > s.st_size)
