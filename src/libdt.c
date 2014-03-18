@@ -2098,6 +2098,52 @@ struct of_path_type {
 	int (*parse)(struct of_path *op, const char *str);
 };
 
+/*
+ * mtd device:
+ *	&gpmi {
+ *		partition@0 {
+ *			label = "state";
+ *			reg = <0x0 0x400000>;
+ *		};
+ *	};
+ *
+ * -> device-path = &gpmi, "partname:state";
+ *
+ * The kernel creates /dev/mtdx which is the partition,
+ *
+ * ==========================================================
+ *
+ * eeprom:
+ *	&at24 {
+ *		partition@0 {
+ *			label = "state";
+ *			reg = <0x0 0x400000>;
+ *		};
+ *	};
+ *
+ * -> device-path = &at24, "partname:state";
+ *
+ * The kernel creates /sys/.../eeprom which is the whole device. We have to
+ * parse the partition in userspace and have to lseek to the correct partition
+ * offset.
+ *
+ * ==========================================================
+ *
+ * mmc/sd:
+ *	&mmc1 {
+ *		partition@0 {
+ *			label = "state";
+ *			reg = <0x0 0x400000>;
+ *		};
+ *	};
+ *
+ * -> device-path = &mmc1, "partname:state";
+ *
+ * The kernel creates /dev/sda and ignores the oftree partitions. We have to
+ * parse the partition in userspace and have to lseek to the correct partition
+ * offset.
+ */
+
 /**
  * of_path_type_partname - find a partition based on physical device and
  *                         partition name
@@ -2114,6 +2160,11 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 	if (!op->dev)
 		return -EINVAL;
 
+	/*
+	 * mtd partitions have a 'name' attribute
+	 * FIXME: MMC/SD have a 'name' attribute aswell so we accidently
+	 *        use the code below.
+	 */
 	part = device_find_partition(op->dev, name, "name");
 	if (part) {
 		if (udev_device_get_devnode(part) != NULL) {
@@ -2127,6 +2178,12 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		return ret;
 	}
 
+	/*
+	 * This handles a partition specified in the devicetree for devices
+	 * which do not handle devicetree partitions themselves, like devicetree
+	 * partitions on MMC/SD cards which normally contain a partition table on
+	 * the cards.
+	 */
 	part = device_find_devnode(op->dev);
 	if (part) {
 		if (udev_device_get_devnode(part) != NULL) {
@@ -2147,6 +2204,11 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		return ret;
 	}
 
+	/*
+	 * EEPROMs do not have a device node under /dev/ and no partitions in the
+	 * kernel. They show up as a complete device under /sys/. Here we parse
+	 * devicetree partitions manually for the EEPROMs.
+	 */
 	ret = asprintf(&op->devpath, "%s/eeprom", udev_device_get_syspath(op->dev));
 	if (ret < 0)
 		return -ENOMEM;
