@@ -2127,19 +2127,6 @@ static int of_path_type_partname(struct of_path *op, const char *name)
 		return ret;
 	}
 
-	part = device_find_partition(op->dev, name, "partition");
-	if (part) {
-		if (udev_device_get_devnode(part) != NULL) {
-			op->devpath = strdup(udev_device_get_devnode(part));
-			pr_debug("%s: found part '%s'\n", __func__, name);
-			ret = of_parse_partition_from_path(op, name);
-		} else {
-			pr_debug("%s: '%s' not found\n", __func__, name);
-			ret = -EINVAL;
-		}
-		return ret;
-	}
-
 	part = device_find_devnode(op->dev);
 	if (part) {
 		if (udev_device_get_devnode(part) != NULL) {
