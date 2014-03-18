@@ -1983,6 +1983,16 @@ out:
 	return dev;
 }
 
+/*
+ * of_parse_partition_from_path - parse devicenode for partition 'name'
+ * @op		the context to work on
+ * @name	the partition name to look for
+ *
+ * search devicetree node for a partition subnode with label 'name'.
+ * When found, fill in op->offset and op->size accordingly. This is for
+ * resembling the OF partition parser for devices which do not parse
+ * OF partitions in the kernel.
+ */
 int of_parse_partition_from_path(struct of_path *op, const char *name)
 {
 	struct device_node *node;
