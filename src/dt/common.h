@@ -20,12 +20,12 @@
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 #ifdef DEBUG
-#define pr_debug(fmt, arg...)       printf(fmt, ##arg)
+#define pr_debug(fmt, arg...)       fprintf(stderr, fmt, ##arg)
 #else
 #define pr_debug(fmt, arg...)
 #endif
 
-#define pr_err(fmt, arg...)       printf(fmt, ##arg)
+#define pr_err(fmt, arg...)       fprintf(stderr, fmt, ##arg)
 
 static inline void *xzalloc(size_t size)
 {
