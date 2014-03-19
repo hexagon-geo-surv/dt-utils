@@ -29,7 +29,7 @@ AC_ARG_ENABLE([debug],
         AS_HELP_STRING([--enable-debug], [enable debug messages @<:@default=disabled@:>@]),
         [], [enable_debug=no])
 AS_IF([test "x$enable_debug" = "xyes"], [
-        AC_DEFINE(ENABLE_DEBUG, [1], [Debug messages.])
+        AC_DEFINE(DEBUG, [1], [Debug messages.])
 ])
 
 AC_CHECK_FUNCS([__secure_getenv secure_getenv])
