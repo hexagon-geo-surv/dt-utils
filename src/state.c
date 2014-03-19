@@ -1022,7 +1022,7 @@ out:
  * protected with a magic value which has to match and a crc32 that must be valid.
  * Up to four copies are stored if there is sufficient space available.
  * @path can be a path to a device or a regular file. When it's a device @size may
- * be 0. The four copies a spread to different eraseblocks if approriate for this
+ * be 0. The four copies are spread to different eraseblocks if approriate for this
  * device.
  */
 int state_backend_raw_file(struct state *state, const char *path, off_t offset,
