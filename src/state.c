@@ -938,8 +938,7 @@ static int backend_raw_write_one(struct state_backend_raw *backend_raw,
 	int ret;
 	off_t offset = backend_raw->offset + num * backend_raw->step;
 
-	pr_debug(&backend_raw->state->dev, "%s: 0x%08lx 0x%08x\n",
-			__func__, offset, size);
+	pr_debug("%s: 0x%08lx 0x%08x\n", __func__, offset, size);
 
 	if (backend_raw->need_erase) {
 		struct erase_info_user erase = {
