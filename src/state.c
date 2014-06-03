@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (state->dirty) {
+	if (do_initialize || state->dirty) {
 		ret = state_save(state);
 		if (ret) {
 			fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
