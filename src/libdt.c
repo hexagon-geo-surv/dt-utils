@@ -1909,6 +1909,8 @@ int scan_proc_dir(struct device_node *node, const char *path)
 			close(fd);
 
 			of_new_property(node, dirent->d_name, buf, s.st_size);
+			if (!strcmp(dirent->d_name, "phandle"))
+				node->phandle = be32_to_cpu(*(__be32 *)buf);
 		}
 
 		if (S_ISDIR(s.st_mode)) {
