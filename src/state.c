@@ -1093,13 +1093,15 @@ err:
 
 static struct state *state_get(const char *name)
 {
-	struct device_node *root, *node;
+	struct device_node *root, *node, *partition_node;
 	char *path;
 	struct state *state;
 	int ret;
 	const char *backend_type = NULL;
-	struct of_path op;
 	struct state_variable *v;
+	char *devpath;
+	off_t offset;
+	size_t size;
 
 	root = of_read_proc_devicetree();
 	if (IS_ERR(root)) {
@@ -1128,7 +1130,13 @@ static struct state *state_get(const char *name)
 		return ERR_CAST(state);
 	}
 
-	ret = of_find_path(node, "backend", &op);
+	partition_node = of_parse_phandle(node, "backend", 0);
+	if (!partition_node) {
+		fprintf(stderr, "cannot find backend node in %s\n", node->full_name);
+		exit (1);
+	}
+
+	ret = of_get_devicepath(partition_node, &devpath, &offset, &size);
 	if (ret) {
 		fprintf(stderr, "Cannot find backend path in %s\n", node->full_name);
 		return ERR_PTR(ret);
@@ -1136,7 +1144,7 @@ static struct state *state_get(const char *name)
 
 	of_property_read_string(node, "backend-type", &backend_type);
 	if (!strcmp(backend_type, "raw"))
-		ret = state_backend_raw_file(state, op.devpath, op.offset, op.size);
+		ret = state_backend_raw_file(state, devpath, offset, size);
 	else
                 fprintf(stderr, "invalid backend type: %s\n", backend_type);
 

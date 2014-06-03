@@ -1985,48 +1985,8 @@ out:
 	return dev;
 }
 
-/*
- * of_parse_partition_from_path - parse devicenode for partition 'name'
- * @op		the context to work on
- * @name	the partition name to look for
- *
- * search devicetree node for a partition subnode with label 'name'.
- * When found, fill in op->offset and op->size accordingly. This is for
- * resembling the OF partition parser for devices which do not parse
- * OF partitions in the kernel.
- */
-int of_parse_partition_from_path(struct of_path *op, const char *name)
-{
-	struct device_node *node;
-
-	for_each_child_of_node(op->node, node) {
-		const char *partname;
-		int len;
-
-		partname = of_get_property(node, "label", &len);
-		if (!strcmp(partname, name)) {
-			const __be32 *reg;
-			int a_cells, s_cells;
-
-			reg = of_get_property(node, "reg", &len);
-			if (!reg)
-				continue;
-
-			a_cells = of_n_addr_cells(node);
-			s_cells = of_n_size_cells(node);
-
-			op->offset = of_read_number(reg, a_cells);
-			op->size = of_read_number(reg + a_cells, s_cells);
-
-			return 0;
-		}
-	}
-
-	return -EINVAL;
-}
-
-struct udev_device *device_find_partition(struct udev_device *dev, const char *name,
-					  const char *sysattr)
+static struct udev_device *device_find_mtd_partition(struct udev_device *dev,
+		const char *name)
 {
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
@@ -2047,7 +2007,7 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 		const char *path, *partname;
 		path = udev_list_entry_get_name(dev_list_entry);
 		part = udev_device_new_from_syspath(udev, path);
-		partname = udev_device_get_sysattr_value(part, sysattr);
+		partname = udev_device_get_sysattr_value(part, "name");
 		if (!partname)
 			continue;
 		if (!strcmp(partname, name))
@@ -2060,12 +2020,144 @@ struct udev_device *device_find_partition(struct udev_device *dev, const char *n
 	return NULL;
 }
 
-struct udev_device *device_find_devnode(struct udev_device *dev)
+/*
+ * of_parse_partition - extract offset and size from a partition device_node
+ *
+ * returns true for success, negative error code otherwise
+ */
+static int of_parse_partition(struct device_node *node, off_t *offset, size_t *size)
+{
+	const __be32 *reg;
+	int len;
+	int a_cells, s_cells;
+
+	reg = of_get_property(node, "reg", &len);
+	if (!reg)
+		return -EINVAL;
+
+	a_cells = of_n_addr_cells(node);
+	s_cells = of_n_size_cells(node);
+	*offset = of_read_number(reg, a_cells);
+	*size = of_read_number(reg + a_cells, s_cells);
+
+	return 0;
+}
+
+/*
+ * udev_device_is_mtd - test if udev_device is a mtd device
+ *
+ * returns true if this is a mtd device, false otherwise
+ */
+static int udev_device_is_mtd(struct udev_device *dev)
+{
+	const char *devtype;
+
+	devtype = udev_device_get_devtype(dev);
+	if (!devtype)
+		return 0;
+
+	if (strcmp(devtype, "mtd"))
+		return 0;
+	else
+		return 1;
+}
+
+/*
+ * udev_device_is_eeprom - test if udev_device is a EEPROM
+ *
+ * returns true if this is a EEPROM, false otherwise
+ */
+static int udev_device_is_eeprom(struct udev_device *dev)
+{
+	char *path;
+	struct stat s;
+	int ret;
+
+	ret = asprintf(&path, "%s/eeprom", udev_device_get_syspath(dev));
+	if (ret < 0)
+		return 0;
+
+	ret = stat(path, &s);
+
+	free(path);
+
+	if (ret)
+		return 0;
+	else
+		return 1;
+}
+
+/*
+ * udev_parse_mtd - get information from a mtd udev_device
+ * @dev:	the udev_device to extract information from
+ * @devpath:	returns the devicepath under which the mtd device is accessible
+ * @size:	returns the size of the mtd device
+ *
+ * returns 0 for success or negative error value on failure. *devpath
+ * will be valid on success and must be freed after usage.
+ */
+static int udev_parse_mtd(struct udev_device *dev, char **devpath, size_t *size)
+{
+	const char *devtype;
+	const char *sizestr;
+	const char *outpath;
+
+	if (!udev_device_is_mtd(dev))
+		return -EINVAL;
+
+	sizestr = udev_device_get_sysattr_value(dev, "size");
+	if (!sizestr)
+		return -EINVAL;
+
+	*size = atol(sizestr);
+
+	outpath = udev_device_get_devnode(dev);
+	if (!outpath)
+		return -ENOENT;
+
+	*devpath = strdup(outpath);
+
+	return 0;
+}
+
+/*
+ * udev_parse_eeprom - get information from an EEPROM udev_device
+ * @dev:	the udev_device to extract information from
+ * @devpath:	returns the devicepath under which the EEPROM is accessible
+ *
+ * returns 0 for success or negative error value on failure. *devpath
+ * will be valid on success and must be freed after usage.
+ */
+static int udev_parse_eeprom(struct udev_device *dev, char **devnode)
+{
+	struct stat s;
+	char *path;
+	int ret;
+
+	/*
+	 * EEPROMs do not have a device node under /dev/ and no partitions in the
+	 * kernel. They show up as a complete device under /sys/. Here we parse
+	 * devicetree partitions manually for the EEPROMs.
+	 */
+	ret = asprintf(&path, "%s/eeprom", udev_device_get_syspath(dev));
+	if (ret < 0)
+		return -ENOMEM;
+
+	ret = stat(path, &s);
+	if (ret)
+		return -errno;
+
+	*devnode = path;
+
+	return 0;
+}
+
+static struct udev_device *of_find_mtd_device(struct udev_device *parent)
 {
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *dev_list_entry;
-	struct udev_device *devnode;
+	struct udev_device *dev;
 
 	udev = udev_new();
 	if (!udev) {
@@ -2074,257 +2166,107 @@ struct udev_device *device_find_devnode(struct udev_device *dev)
 	}
 
 	enumerate = udev_enumerate_new(udev);
-	udev_enumerate_add_match_parent(enumerate, dev);
+	udev_enumerate_add_match_parent(enumerate, parent);
+	udev_enumerate_add_match_subsystem(enumerate, "mtd");
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
+
 	udev_list_entry_foreach(dev_list_entry, devices) {
 		const char *path;
 
+		/*
+		 * Get the filename of the /sys entry for the device
+		 * and create a udev_device object (dev) representing it
+		 */
 		path = udev_list_entry_get_name(dev_list_entry);
-		devnode = udev_device_new_from_syspath(udev, path);
+		dev = udev_device_new_from_syspath(udev, path);
 
-		if (!udev_device_get_devnode(devnode))
-			continue;
-		else
-			return devnode;
+		goto out;
 	}
 
+	dev = NULL;
+out:
 	udev_enumerate_unref(enumerate);
 	udev_unref(udev);
 
-	return NULL;
+	return dev;
 }
-
-struct of_path_type {
-	const char *name;
-	int (*parse)(struct of_path *op, const char *str);
-};
 
 /*
- * mtd device:
- *	&gpmi {
- *		partition@0 {
- *			label = "state";
- *			reg = <0x0 0x400000>;
- *		};
- *	};
+ * of_get_devicepath - get information how to access device corresponding to a device_node
+ * @partition_node:	The device_node which shall be accessed
+ * @devpath:		Returns the devicepath under which the device is accessible
+ * @offset:		Returns the offset in the device
+ * @size:		Returns the size of the device
  *
- * -> device-path = &gpmi, "partname:state";
+ * This function takes a device_node which represents a partition.
+ * For this partition the function returns the device path and the offset
+ * and size in the device. For mtd devices the path will be /dev/mtdx, for
+ * EEPROMs it will be /sys/.../eeprom. For mtd devices the device path returned
+ * will be the partition itself. Since EEPROMs do not have partitions under
+ * Linux @offset and @size will describe the offset and size inside the full
+ * device.
  *
- * The kernel creates /dev/mtdx which is the partition,
- *
- * ==========================================================
- *
- * eeprom:
- *	&at24 {
- *		partition@0 {
- *			label = "state";
- *			reg = <0x0 0x400000>;
- *		};
- *	};
- *
- * -> device-path = &at24, "partname:state";
- *
- * The kernel creates /sys/.../eeprom which is the whole device. We have to
- * parse the partition in userspace and have to lseek to the correct partition
- * offset.
- *
- * ==========================================================
- *
- * mmc/sd:
- *	&mmc1 {
- *		partition@0 {
- *			label = "state";
- *			reg = <0x0 0x400000>;
- *		};
- *	};
- *
- * -> device-path = &mmc1, "partname:state";
- *
- * The kernel creates /dev/sda and ignores the oftree partitions. We have to
- * parse the partition in userspace and have to lseek to the correct partition
- * offset.
+ * returns 0 for success or negative error value on failure.
  */
-
-/**
- * of_path_type_partname - find a partition based on physical device and
- *                         partition name
- * @op: of_path context
- * @name: the partition name to find
- */
-static int of_path_type_partname(struct of_path *op, const char *name)
+int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t *offset,
+		size_t *size)
 {
-	struct udev_device *part;
-	struct stat s;
-	int ret;
 	struct device_node *node;
+	struct udev_device *dev, *partdev, *mtd;
+	const char *outpath, *partname;
+	int ret;
 
-	if (!op->dev)
-		return -EINVAL;
+	*offset = 0;
 
 	/*
-	 * mtd partitions have a 'name' attribute
-	 * FIXME: MMC/SD have a 'name' attribute aswell so we accidently
-	 *        use the code below.
+	 * simplest case: This nodepath can directly be translated into
+	 * a mtd device. This requires that the mtd partitions have a
+	 * device_node set in the kernel. This requires an out-of-tree kernel
+	 * patch.
 	 */
-	part = device_find_partition(op->dev, name, "name");
-	if (part) {
-		if (udev_device_get_devnode(part) != NULL) {
-			op->devpath = strdup(udev_device_get_devnode(part));
-			pr_debug("%s: found part '%s'\n", __func__, name);
-			ret = of_parse_partition_from_path(op, name);
-		} else {
-			pr_debug("%s: '%s' not found\n", __func__, name);
-			ret = -EINVAL;
-		}
+	dev = of_find_device_by_node_path(partition_node->full_name);
+	if (dev)
+		return udev_parse_mtd(dev, devpath, size);
+
+	/*
+	 * Ok, the partition node has no udev_device. Try parent node.
+	 */
+
+	node = partition_node->parent;
+
+	dev = of_find_device_by_node_path(node->full_name);
+	if (!dev) {
+		fprintf(stderr, "cannot find device from node %s", __func__,
+				node->full_name);
+		return -ENODEV;
+	}
+
+	/* find the name of the partition... */
+	ret = of_property_read_string(partition_node, "label", &partname);
+	if (ret) {
+		fprintf(stderr, "%s: no 'label' property found in %s\n", partition_node->full_name);
 		return ret;
 	}
 
-	/*
-	 * This handles a partition specified in the devicetree for devices
-	 * which do not handle devicetree partitions themselves, like devicetree
-	 * partitions on MMC/SD cards which normally contain a partition table on
-	 * the cards.
-	 */
-	part = device_find_devnode(op->dev);
-	if (part) {
-		if (udev_device_get_devnode(part) != NULL) {
-			op->devpath = strdup(udev_device_get_devnode(part));
+	mtd = of_find_mtd_device(dev);
+	if (mtd) {
+		/* ...find the udev_device by partition name... */
+		partdev = device_find_mtd_partition(dev, partname);
+		if (!partdev)
+			return -ENODEV;
 
-			if (!op->devpath)
-				return -EINVAL;
-
-			ret = stat(op->devpath, &s);
-			if (ret)
-				return -errno;
-
-			ret = of_parse_partition_from_path(op, name);
-		} else {
-			pr_debug("%s: '%s' not found\n", __func__, name);
-			ret = -EINVAL;
-		}
-		return ret;
+		/* ...find the desired information by mtd udev_device */
+		return udev_parse_mtd(partdev, devpath, size);
 	}
 
-	/*
-	 * EEPROMs do not have a device node under /dev/ and no partitions in the
-	 * kernel. They show up as a complete device under /sys/. Here we parse
-	 * devicetree partitions manually for the EEPROMs.
-	 */
-	ret = asprintf(&op->devpath, "%s/eeprom", udev_device_get_syspath(op->dev));
-	if (ret < 0)
-		return -ENOMEM;
-
-	ret = stat(op->devpath, &s);
-	if (ret)
-		return -errno;
-
-	of_parse_partition_from_path(op, name);
-
-	return 0;
-}
-
-static struct of_path_type of_path_types[] = {
-	{
-		.name = "partname",
-		.parse = of_path_type_partname,
-	},
-};
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-static int of_path_parse_one(struct of_path *op, const char *str)
-{
-	int i, ret;
-	char *name, *desc;
-
-	pr_debug("parsing: %s\n", str);
-
-	name = strdup(str);
-	desc = strchr(name, ':');
-	if (!desc) {
-		free(name);
-		return -EINVAL;
-	}
-
-	*desc = 0;
-	desc++;
-
-	for (i = 0; i < ARRAY_SIZE(of_path_types); i++) {
-		if (!strcmp(of_path_types[i].name, name)) {
-			ret = of_path_types[i].parse(op, desc);
-			goto out;
-		}
-	}
-
-	ret = -EINVAL;
-out:
-	free(name);
-
-	return ret;
-}
-
-/**
- * of_find_path - translate a path description in the devicetree to a device node
- *                path
- *
- * @node: the node containing the property with the path description
- * @propname: the property name of the path description
- * @outpath: if this function returns 0 outpath will contain the path belonging
- *           to the input path description. Must be freed with free().
- *
- * pathes in the devicetree have the form of a multistring property. The first
- * string contains the full path to the physical device containing the path.
- * The remaining strings have the form "<type>:<options>". Currently supported
- * for <type> are:
- *
- * partname:<partname> - find a partition by its partition name. For mtd
- *                       partitions this is the label. For DOS partitions
- *                       this is the number beginning with 0.
- *
- * examples:
- *
- * device-path = &mmc0, "partname:0";
- * device-path = &norflash, "partname:barebox-environment";
- */
-int of_find_path(struct device_node *node, const char *propname, struct of_path *op)
-{
-	struct device_node *rnode;
-	const char *path, *str;
-	int i, len, ret;
-
-	memset(op, 0, sizeof(*op));
-
-	path = of_get_property(node, propname, &len);
-	if (!path)
-		return -EINVAL;
-
-	rnode = of_find_node_by_path(path);
-	if (!rnode)
-		return -ENODEV;
-
-	op->node = rnode;
-
-	op->dev = of_find_device_by_node_path(rnode->full_name);
-	if (!op->dev)
-		return -ENODEV;
-
-	i = 1;
-
-	while (1) {
-		ret = of_property_read_string_index(node, propname, i++, &str);
-		if (ret)
-			break;
-
-		ret = of_path_parse_one(op, str);
+	if (udev_device_is_eeprom(dev)) {
+		ret = udev_parse_eeprom(dev, devpath);
 		if (ret)
 			return ret;
+
+		return of_parse_partition(partition_node, offset, size);
 	}
 
-	if (!op->devpath)
-		return -ENOENT;
-
-	pr_debug("%s: devpath: %s ofs: 0x%08llx size: 0x%08lx\n",
-			__func__, op->devpath, op->offset, op->size);
-
-	return 0;
+	return -EINVAL;
 }

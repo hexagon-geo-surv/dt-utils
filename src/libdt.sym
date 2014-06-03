@@ -65,10 +65,10 @@ global:
 	of_read_proc_devicetree;
 	of_find_device_by_node_path;
 	device_find_partition;
-	of_find_path;
 	of_unflatten_dtb;
 	crc32;
 	crc32_no_comp;
+	of_get_devicepath;
 local:
         *;
 };
