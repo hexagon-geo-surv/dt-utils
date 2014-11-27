@@ -1,6 +1,6 @@
 AC_PREREQ(2.60)
 AC_INIT([dt],
-        [4],
+        [2014.11.0],
         [s.hauer@pengutronix.de],
         [dt],
         [http://www.pengutronix.de/dt/])
