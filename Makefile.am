@@ -69,9 +69,3 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libdt.pc
 EXTRA_DIST += src/libdt.pc.in
 CLEANFILES += src/libdt.pc
-
-TESTS = src/test-libdt
-
-check_PROGRAMS = src/test-libdt
-src_test_libdt_SOURCES = src/test-libdt.c
-src_test_libdt_LDADD = src/libdt.la
