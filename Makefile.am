@@ -52,7 +52,6 @@ fdtdump_LDADD = src/libdt.la
 
 src_libdt_la_SOURCES =\
 	src/crc32.c \
-	src/libdt-private.h \
 	src/libdt.c \
 	src/fdt.c
 
