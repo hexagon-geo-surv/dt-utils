@@ -94,7 +94,7 @@ void of_print_property(const void *data, int len)
 		while (j < len) {
 			if (j > 0)
 				printf("\", \"");
-			printf(data);
+			printf("%s", data);
 			j    += strlen(data) + 1;
 			data += strlen(data) + 1;
 		}
@@ -2237,7 +2237,7 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 
 	dev = of_find_device_by_node_path(node->full_name);
 	if (!dev) {
-		fprintf(stderr, "cannot find device from node %s", __func__,
+		fprintf(stderr, "%s: cannot find device from node %s", __func__,
 				node->full_name);
 		return -ENODEV;
 	}
@@ -2245,7 +2245,8 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 	/* find the name of the partition... */
 	ret = of_property_read_string(partition_node, "label", &partname);
 	if (ret) {
-		fprintf(stderr, "%s: no 'label' property found in %s\n", partition_node->full_name);
+		fprintf(stderr, "%s: no 'label' property found in %s\n", __func__,
+			partition_node->full_name);
 		return ret;
 	}
 
