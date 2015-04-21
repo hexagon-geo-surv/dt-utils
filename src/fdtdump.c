@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
-		root = of_unflatten_dtb(NULL, fdt);
+		root = of_unflatten_dtb(fdt);
 	} else {
 		root = of_read_proc_devicetree();
 	}

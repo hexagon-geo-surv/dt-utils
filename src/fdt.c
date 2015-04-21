@@ -64,22 +64,22 @@ static inline char *dt_string(struct fdt_header *f, char *strstart, uint32_t ofs
  * Parse a flat device tree binary blob and return a pointer to the
  * unflattened tree.
  */
-struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
+struct device_node *of_unflatten_dtb(const void *infdt)
 {
 	const void *nodep;	/* property node pointer */
 	uint32_t tag;		/* tag */
 	int  len;		/* length of the property */
 	const struct fdt_property *fdt_prop;
 	const char *pathp, *name;
-	struct device_node *node = NULL;
+	struct device_node *root, *node = NULL;
 	struct property *p;
 	uint32_t dt_struct;
-	struct fdt_node_header *fnh;
+	const struct fdt_node_header *fnh;
 	void *dt_strings;
 	struct fdt_header f;
-	int ret, merge = 0;
+	int ret;
 	unsigned int maxlen;
-	struct fdt_header *fdt = infdt;
+	const struct fdt_header *fdt = infdt;
 
 	if (fdt->magic != cpu_to_fdt32(FDT_MAGIC)) {
 		pr_err("bad magic: 0x%08x\n", fdt32_to_cpu(fdt->magic));
@@ -110,14 +110,9 @@ struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
 	dt_struct = f.off_dt_struct;
 	dt_strings = (void *)fdt + f.off_dt_strings;
 
-	if (root) {
-		pr_debug("unflatten: merging into existing tree\n");
-		merge = 1;
-	} else {
-		root = of_new_node(NULL, NULL);
-		if (!root)
-			return ERR_PTR(-ENOMEM);
-	}
+	root = of_new_node(NULL, NULL);
+	if (!root)
+		return ERR_PTR(-ENOMEM);
 
 	while (1) {
 		tag = be32_to_cpu(*(uint32_t *)(infdt + dt_struct));
@@ -135,22 +130,13 @@ struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
 				goto err;
 			}
 
+			if (!node)
+				node = root;
+			else
+				node = of_new_node(node, pathp);
+
 			dt_struct = dt_struct_advance(&f, dt_struct,
 					sizeof(struct fdt_node_header) + len + 1);
-			if (!dt_struct) {
-				ret = -ESPIPE;
-				goto err;
-			}
-
-			if (!node) {
-				node = root;
-			} else {
-				if (merge)
-					node = of_get_child_by_name(node,
-								    pathp);
-				if (!merge || !node)
-					node = of_new_node(node, pathp);
-			}
 
 			break;
 
@@ -164,10 +150,6 @@ struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
 			node = node->parent;
 
 			dt_struct = dt_struct_advance(&f, dt_struct, FDT_TAGSIZE);
-			if (!dt_struct) {
-				ret = -ESPIPE;
-				goto err;
-			}
 
 			break;
 
@@ -182,35 +164,17 @@ struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
 				goto err;
 			}
 
+			p = of_new_property(node, name, nodep, len);
+			if (!strcmp(name, "phandle") && len == 4)
+				node->phandle = be32_to_cpu(*(__be32 *)p->value);
+
 			dt_struct = dt_struct_advance(&f, dt_struct,
 					sizeof(struct fdt_property) + len);
-			if (!dt_struct) {
-				ret = -ESPIPE;
-				goto err;
-			}
-
-			p = NULL;
-			if (merge)
-				p = of_find_property(node, name, NULL);
-			if (merge && p) {
-				free(p->value);
-				p->value = xzalloc(len);
-				p->length = len;
-				memcpy(p->value, nodep, len);
-			} else {
-				p = of_new_property(node, name, nodep, len);
-				if (!strcmp(name, "phandle") && len == 4)
-					node->phandle = be32_to_cpu(*(__be32 *)p->value);
-			}
 
 			break;
 
 		case FDT_NOP:
 			dt_struct = dt_struct_advance(&f, dt_struct, FDT_TAGSIZE);
-			if (!dt_struct) {
-				ret = -ESPIPE;
-				goto err;
-			}
 
 			break;
 
@@ -220,6 +184,11 @@ struct device_node *of_unflatten_dtb(struct device_node *root, void *infdt)
 		default:
 			pr_err("unflatten: Unknown tag 0x%08X\n", tag);
 			ret = -EINVAL;
+			goto err;
+		}
+
+		if (!dt_struct) {
+			ret = -ESPIPE;
 			goto err;
 		}
 	}
