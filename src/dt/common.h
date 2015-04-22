@@ -1,9 +1,14 @@
 #ifndef __DT_COMMON_H
 #define __DT_COMMON_H
 
+#include <fcntl.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
+#include <unistd.h>
+
+#include <sys/stat.h>
+
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -107,6 +112,40 @@ static inline size_t strlcpy(char *dest, const char *src, size_t size)
 		dest[len] = '\0';
 	}
 	return ret;
+}
+
+static inline void *read_file(const char *filename, size_t *size)
+{
+	int fd;
+	struct stat s;
+	void *buf = NULL;
+	int ret;
+
+	if (stat(filename, &s))
+		return NULL;
+
+	buf = xzalloc(s.st_size + 1);
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+		goto err_out;
+
+	if (read(fd, buf, s.st_size) < s.st_size)
+		goto err_out1;
+
+	close(fd);
+
+	if (size)
+		*size = s.st_size;
+
+	return buf;
+
+err_out1:
+	close(fd);
+err_out:
+	free(buf);
+
+	return NULL;
 }
 
 #define cpu_to_be32 __cpu_to_be32

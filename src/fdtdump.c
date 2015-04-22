@@ -1,46 +1,9 @@
-#include <linux/types.h>
-
-#include <stdio.h>
-#include <dt/dt.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 
-void *read_file(const char *filename, size_t *size)
-{
-	int fd;
-	struct stat s;
-	void *buf = NULL;
-	int ret;
-
-	if (stat(filename, &s))
-		return NULL;
-
-	buf = xzalloc(s.st_size + 1);
-
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
-		goto err_out;
-
-	if (read(fd, buf, s.st_size) < s.st_size)
-		goto err_out1;
-
-	close(fd);
-
-	if (size)
-		*size = s.st_size;
-
-	return buf;
-
-err_out1:
-	close(fd);
-err_out:
-	free(buf);
-
-	return NULL;
-}
+#include <common.h>
+#include <dt/dt.h>
 
 int main(int argc, char *argv[])
 {
