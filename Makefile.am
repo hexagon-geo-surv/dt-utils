@@ -35,7 +35,7 @@ LIBDT_CURRENT=2
 LIBDT_REVISION=0
 LIBDT_AGE=2
 
-pkginclude_HEADERS =\
+pkginclude_HEADERS = \
 		src/dt/dt.h \
 		src/dt/fdt.h \
 		src/dt/list.h
@@ -53,7 +53,8 @@ fdtdump_LDADD = src/libdt.la
 src_libdt_la_SOURCES =\
 	src/crc32.c \
 	src/libdt.c \
-	src/fdt.c
+	src/fdt.c \
+	src/dt/common.h
 
 src_libdt_la_CFLAGS = $(UDEV_CFLAGS)
 src_libdt_la_LIBADD = $(UDEV_LIBS)
