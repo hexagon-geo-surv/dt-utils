@@ -1,3 +1,4 @@
+*~
 *.o
 .deps/
 .libs/
@@ -8,5 +9,13 @@ Makefile.in
 /build-aux
 /config.*
 /configure
+/cscope.*
+/dt-utils-*.tar.xz
 /libtool
 /stamp-h1
+/tags
+/TAGS
+
+/fdtdump
+/src/libdt.pc
+/state
