@@ -114,6 +114,32 @@ static inline size_t strlcpy(char *dest, const char *src, size_t size)
 	return ret;
 }
 
+/*
+ * read_full - read from filedescriptor
+ *
+ * Like read, but this function only returns less bytes than
+ * requested when the end of file is reached.
+ */
+static inline int read_full(int fd, void *buf, size_t size)
+{
+	size_t insize = size;
+	int now;
+	int total = 0;
+
+	while (size) {
+		now = read(fd, buf, size);
+		if (now == 0)
+			return total;
+		if (now < 0)
+			return now;
+		total += now;
+		size -= now;
+		buf += now;
+	}
+
+	return insize;
+}
+
 static inline void *read_file(const char *filename, size_t *size)
 {
 	int fd;
@@ -130,7 +156,7 @@ static inline void *read_file(const char *filename, size_t *size)
 	if (fd < 0)
 		goto err_out;
 
-	if (read(fd, buf, s.st_size) < s.st_size)
+	if (read_full(fd, buf, s.st_size) < s.st_size)
 		goto err_out1;
 
 	close(fd);
