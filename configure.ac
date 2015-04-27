@@ -1,9 +1,9 @@
 AC_PREREQ(2.60)
-AC_INIT([dt],
+AC_INIT([dt-utils],
         [2014.11.0],
-        [s.hauer@pengutronix.de],
-        [dt],
-        [http://www.pengutronix.de/dt/])
+        [bugs@pengutronix.de],
+        [dt-utils],
+        [http://git.pengutronix.de/?p=tools/dt-utils.git;a=summary])
 AC_CONFIG_SRCDIR([src/libdt.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([check-news foreign 1.11 -Wall -Wno-portability silent-rules tar-pax no-dist-gzip dist-xz subdir-objects])

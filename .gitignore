@@ -17,5 +17,5 @@ Makefile.in
 /TAGS
 
 /fdtdump
-/src/libdt.pc
-/state
+/src/libdt-utils.pc
+/barebox-state

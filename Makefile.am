@@ -36,37 +36,37 @@ LIBDT_REVISION=0
 LIBDT_AGE=2
 
 pkginclude_HEADERS = \
-		src/dt/dt.h \
-		src/dt/fdt.h \
-		src/dt/list.h
-lib_LTLIBRARIES = src/libdt.la
+	src/dt/dt.h \
+	src/dt/fdt.h \
+	src/dt/list.h
+lib_LTLIBRARIES = src/libdt-utils.la
 
-bin_PROGRAMS = state fdtdump
-state_SOURCES = src/state.c
-state_CFLAGS = $(LIBDT_CFLAGS)
-state_LDADD = src/libdt.la
+bin_PROGRAMS = barebox-state fdtdump
+barebox_state_SOURCES = src/barebox-state.c
+barebox_state_CFLAGS = $(LIBDT_CFLAGS)
+barebox_state_LDADD = src/libdt-utils.la
 
 fdtdump_SOURCES = src/fdtdump.c
 fdtdump_CFLAGS = $(LIBDT_CFLAGS)
-fdtdump_LDADD = src/libdt.la
+fdtdump_LDADD = src/libdt-utils.la
 
-src_libdt_la_SOURCES =\
+src_libdt_utils_la_SOURCES = \
 	src/crc32.c \
 	src/libdt.c \
 	src/fdt.c \
 	src/dt/common.h
 
-src_libdt_la_CFLAGS = $(UDEV_CFLAGS)
-src_libdt_la_LIBADD = $(UDEV_LIBS)
+src_libdt_utils_la_CFLAGS = $(UDEV_CFLAGS)
+src_libdt_utils_la_LIBADD = $(UDEV_LIBS)
 
-EXTRA_DIST += src/libdt.sym
+EXTRA_DIST += src/libdt-utils.sym
 
-src_libdt_la_LDFLAGS = $(AM_LDFLAGS) \
+src_libdt_utils_la_LDFLAGS = $(AM_LDFLAGS) \
 	-version-info $(LIBDT_CURRENT):$(LIBDT_REVISION):$(LIBDT_AGE) \
-	-Wl,--version-script=$(top_srcdir)/src/libdt.sym
-src_libdt_la_DEPENDENCIES = ${top_srcdir}/src/libdt.sym
+	-Wl,--version-script=$(top_srcdir)/src/libdt-utils.sym
+src_libdt_utils_la_DEPENDENCIES = ${top_srcdir}/src/libdt-utils.sym
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = src/libdt.pc
-EXTRA_DIST += src/libdt.pc.in
-CLEANFILES += src/libdt.pc
+pkgconfig_DATA = src/libdt-utils.pc
+EXTRA_DIST += src/libdt-utils.pc.in
+CLEANFILES += src/libdt-utils.pc
