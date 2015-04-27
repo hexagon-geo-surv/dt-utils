@@ -1,14 +1,18 @@
 #ifndef __DT_COMMON_H
 #define __DT_COMMON_H
 
+#include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 
+#include <mtd/mtd-abi.h>
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -31,18 +35,15 @@
 #endif
 
 #define pr_err(fmt, arg...)       fprintf(stderr, fmt, ##arg)
+#define dev_err(dev, fmt, arg...) pr_err(fmt, ##arg)
+#define dev_warn(dev, fmt, arg...) pr_err(fmt, ##arg)
+#define dev_info(dev, fmt, arg...) pr_err(fmt, ##arg)
+#define dev_dbg(dev, fmt, arg...) pr_debug(fmt, ##arg)
 
 static inline void *xzalloc(size_t size)
 {
 	return calloc(1, size);
 }
-
-typedef _Bool                  bool;
-
-enum {
-	false	= 0,
-	true	= 1
-};
 
 /*
  * Kernel pointers have redundant information, so we can use a
@@ -114,6 +115,34 @@ static inline size_t strlcpy(char *dest, const char *src, size_t size)
 	return ret;
 }
 
+/* Like strncpy but make sure the resulting string is always 0 terminated. */
+static inline char * safe_strncpy(char *dst, const char *src, size_t size)
+{
+	if (!size) return dst;
+	dst[--size] = '\0';
+	return strncpy(dst, src, size);
+}
+
+static inline char *xstrdup(const char *s)
+{
+	char *p = strdup(s);
+
+	if (!p)
+		exit(EXIT_FAILURE);
+
+	return p;
+}
+
+static inline int erase(int fd, size_t count, loff_t offset)
+{
+	struct erase_info_user erase = {
+		.start = offset,
+		.length = count,
+	};
+
+	return ioctl(fd, MEMERASE, &erase);
+}
+
 /*
  * read_full - read from filedescriptor
  *
@@ -174,6 +203,88 @@ err_out:
 	return NULL;
 }
 
+
+/*
+ * write_full - write to filedescriptor
+ *
+ * Like write, but guarantees to write the full buffer out, else
+ * it returns with an error.
+ */
+static inline int write_full(int fd, void *buf, size_t size)
+{
+	size_t insize = size;
+	int now;
+
+	while (size) {
+		now = write(fd, buf, size);
+		if (now <= 0)
+			return now;
+		size -= now;
+		buf += now;
+	}
+
+	return insize;
+}
+
+
+#define MAX_DRIVER_NAME		32
+#define DEVICE_ID_SINGLE	-1
+
+struct device_d {
+	char name[MAX_DRIVER_NAME];
+	int id;
+	struct device_node *device_node;
+};
+
+static inline struct param_d *dev_add_param_int(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		int *value, const char *format, void *priv)
+{
+	return NULL;
+}
+
+static inline struct param_d *dev_add_param_enum(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		int *value, const char **names, int max, void *priv)
+
+{
+	return NULL;
+}
+
+static inline struct param_d *dev_add_param_bool(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		int *value, void *priv)
+{
+	return NULL;
+}
+
+static inline struct param_d *dev_add_param_mac(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		uint8_t *mac, void *priv)
+{
+	return NULL;
+}
+
+struct driver_d;
+
+static inline int register_driver(struct driver_d *d)
+{
+	return 0;
+}
+
+static inline int register_device(struct device_d *d)
+{
+	return 0;
+}
+static inline int unregister_device(struct device_d *d)
+{
+	return 0;
+}
+
 #define cpu_to_be32 __cpu_to_be32
 #define be32_to_cpu __be32_to_cpu
 
@@ -181,6 +292,8 @@ err_out:
 #define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
 
 #define ARRAY_SIZE(arr)		(sizeof(arr) / sizeof((arr)[0]))
+
+#define __maybe_unused			__attribute__((unused))
 
 #endif
 
