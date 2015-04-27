@@ -1930,7 +1930,14 @@ int scan_proc_dir(struct device_node *node, const char *path)
 struct device_node *of_read_proc_devicetree(void)
 {
 	struct device_node *root;
+	void *fdt;
 	int ret;
+
+	fdt = read_file("/sys/firmware/fdt", NULL);
+	if (fdt) {
+		root = of_unflatten_dtb(fdt);
+		return root;
+	}
 
 	root = of_new_node(NULL, NULL);
 
