@@ -12,27 +12,27 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include <libudev.h>
-#include <common.h>
+
 #include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <getopt.h>
+#include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
+
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <mtd/mtd-abi.h>
+
+#include <common.h>
 #include <dt.h>
 #include <fdt.h>
-
-#include <asm/byteorder.h>
-#include <linux/types.h>
-#include <mtd/mtd-abi.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 static int verbose;
 
