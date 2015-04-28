@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -1473,7 +1474,7 @@ static struct state *state_get(const char *name)
 }
 
 enum opt {
-	OPT_DUMP_SHELL = 1,
+	OPT_DUMP_SHELL = UCHAR_MAX + 1,
 };
 
 static struct option long_options[] = {
@@ -1590,8 +1591,17 @@ int main(int argc, char *argv[])
 	if (do_dump_shell) {
 		state_for_each_var(state, v) {
 			struct variable_type *vtype;
+			char *name, *ptr;
+			int i;
+
+			/* replace "." by "_" to make it var name shell compatible */
+			name = strdup(v->name);
+			ptr = name;
+			while ((ptr = strchr(ptr, '.')))
+				*ptr++ = '_';
+
 			vtype = state_find_type(v->type);
-			printf("STATE_%s=\"%s\"\n", v->name, vtype->get(v));
+			printf("%s_%s=\"%s\"\n", statename, name, vtype->get(v));
 		}
 	}
 
