@@ -1497,7 +1497,7 @@ static void usage(char *name)
 "-n, --name <name>                         specify the state to use (default=\"state\")\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
-"--init                                    initialize the state (do not load from storage)\n"
+"-i, --init                                initialize the state (do not load from storage)\n"
 "-v, --verbose                             increase verbosity\n"
 "--help                                    this help\n",
 	name);
