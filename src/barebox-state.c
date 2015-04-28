@@ -1565,10 +1565,12 @@ int main(int argc, char *argv[])
 	if (IS_ERR(state))
 		exit(1);
 
-	ret = state_load(state);
-	if (!do_initialize && ret) {
-		fprintf(stderr, "Cannot load state: %s\n", strerror(-ret));
-		exit(1);
+	if (!do_initialize) {
+		ret = state_load(state);
+		if (ret) {
+			fprintf(stderr, "Cannot load state: %s\n", strerror(-ret));
+			exit(1);
+		}
 	}
 
 	if (do_dump) {
