@@ -1421,7 +1421,7 @@ static struct state *state_get(const char *name)
 
 	root = of_read_proc_devicetree();
 	if (IS_ERR(root)) {
-		fprintf(stderr, "Unable to read devicetree from /proc/device-tree: %s\n",
+		fprintf(stderr, "Unable to read devicetree. %s\n",
 				strerror(-PTR_ERR(root)));
 		return ERR_CAST(root);
 	}
