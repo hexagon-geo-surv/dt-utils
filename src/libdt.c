@@ -2244,7 +2244,7 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 
 	dev = of_find_device_by_node_path(node->full_name);
 	if (!dev) {
-		fprintf(stderr, "%s: cannot find device from node %s", __func__,
+		fprintf(stderr, "%s: cannot find device from node %s\n", __func__,
 				node->full_name);
 		return -ENODEV;
 	}
