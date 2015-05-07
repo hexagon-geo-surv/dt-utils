@@ -1571,7 +1571,7 @@ int main(int argc, char *argv[])
 	int do_dump = 0, do_dump_shell = 0, do_initialize = 0;
 	struct state_set_get *sg;
 	struct list_head sg_list;
-	char *statename = "state";
+	char *statename = "/state";
 
 	INIT_LIST_HEAD(&sg_list);
 
