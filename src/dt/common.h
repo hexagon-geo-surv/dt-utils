@@ -202,7 +202,6 @@ static inline void *read_file(const char *filename, size_t *size)
 	int fd;
 	struct stat s;
 	void *buf = NULL;
-	int ret;
 
 	if (stat(filename, &s))
 		return NULL;
