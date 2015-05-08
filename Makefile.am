@@ -70,3 +70,5 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libdt-utils.pc
 EXTRA_DIST += src/libdt-utils.pc.in
 CLEANFILES += src/libdt-utils.pc
+
+EXTRA_DIST += scripts/barebox-mark-successful-boot.sh
