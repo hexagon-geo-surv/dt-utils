@@ -61,9 +61,6 @@ void fdt_add_reserve_map(void *fdt);
 struct device_d;
 struct driver_d;
 
-int of_fix_tree(struct device_node *);
-int of_register_fixup(int (*fixup)(struct device_node *, void *), void *context);
-
 int of_match(struct device_d *dev, struct driver_d *drv);
 
 struct fdt_header *fdt_get_tree(void);

@@ -285,6 +285,16 @@ static inline int unregister_device(struct device_d *d)
 	return 0;
 }
 
+static int of_register_fixup(int (*fixup)(struct device_node *, void *), void *context)
+{
+	return 0;
+}
+
+static inline int of_unregister_fixup(int (*fixup)(struct device_node *, void *), void *context)
+{
+	return 0;
+}
+
 #define cpu_to_be32 __cpu_to_be32
 #define be32_to_cpu __be32_to_cpu
 
