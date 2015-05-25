@@ -1769,7 +1769,7 @@ int main(int argc, char *argv[])
 				*ptr++ = '_';
 
 			vtype = state_find_type(v->type);
-			printf("%s_%s=\"%s\"\n", statename, name, vtype->get(v));
+			printf("%s_%s=\"%s\"\n", state->name, name, vtype->get(v));
 		}
 	}
 
