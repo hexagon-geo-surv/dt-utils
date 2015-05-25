@@ -1608,7 +1608,7 @@ static struct state *state_get(const char *name)
 		of_print_nodes(node, 0);
 	}
 
-	state = state_new_from_node(name, node);
+	state = state_new_from_node(node->name, node);
 	if (IS_ERR(state)) {
 		fprintf(stderr, "unable to initlialize state: %s\n",
 				strerror(PTR_ERR(state)));
