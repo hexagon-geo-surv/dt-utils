@@ -38,7 +38,8 @@ LIBDT_AGE=2
 pkginclude_HEADERS = \
 	src/dt/dt.h \
 	src/dt/fdt.h \
-	src/dt/list.h
+	src/dt/list.h \
+	src/dt/common.h
 lib_LTLIBRARIES = src/libdt-utils.la
 
 bin_PROGRAMS = barebox-state fdtdump
