@@ -48,6 +48,7 @@ barebox_state_SOURCES = \
 	src/crypto/hmac.c \
 	src/crypto/sha1.c \
 	src/crypto/sha2.c \
+	src/keystore.c \
 	src/barebox-state.c
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)
 barebox_state_LDADD = src/libdt-utils.la

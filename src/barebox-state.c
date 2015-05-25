@@ -36,6 +36,7 @@
 #include <digest.h>
 #include <dt.h>
 #include <fdt.h>
+#include <keystore.h>
 
 static int verbose;
 
@@ -59,7 +60,7 @@ struct state_backend;
 
 struct state {
 	struct device_d dev;
-	const struct device_node *root;
+	struct device_node *root;
 	struct list_head variables;
 	const char *name;
 	struct list_head list;
@@ -74,6 +75,7 @@ struct state_backend {
 	const char *name;
 	const char *of_path;
 	const char *path;
+	struct digest *digest;
 };
 
 enum state_variable_type {
@@ -764,6 +766,16 @@ static int of_state_fixup(struct device_node *root, void *ctx)
 	if (ret)
 		goto out;
 
+	if (state->backend->digest) {
+		p = of_new_property(new_node, "algo",
+				    digest_name(state->backend->digest),
+				    strlen(digest_name(state->backend->digest)) + 1);
+		if (!p) {
+			ret = -ENOMEM;
+			goto out;
+		}
+	}
+
 	/* address-cells + size-cells */
 	ret = of_property_write_u32(root, "#address-cells", 1);
 	if (ret)
@@ -1059,7 +1071,7 @@ int state_backend_dtb_file(struct state *state, const char *of_path, const char 
 struct state_backend_raw {
 	struct state_backend backend;
 	unsigned long size_data; /* The raw data size (without header) */
-	unsigned long size_full; /* The size header + raw data */
+	unsigned long size_full; /* The size header + raw data + hmac */
 	unsigned long stride; /* The stride size in bytes of the copies */
 	off_t offset; /* offset in the storage file */
 	size_t size; /* size of the storage area */
@@ -1082,8 +1094,9 @@ static int backend_raw_load_one(struct state_backend_raw *backend_raw,
 	struct state_variable *sv;
 	struct backend_raw_header header = {};
 	unsigned long max_len;
+	int d_len = 0;
 	int ret;
-	void *buf;
+	void *buf, *data, *hmac;
 
 	max_len = backend_raw->stride;
 
@@ -1111,6 +1124,11 @@ static int backend_raw_load_one(struct state_backend_raw *backend_raw,
 		return -EINVAL;
 	}
 
+	if (backend_raw->backend.digest) {
+		d_len = digest_length(backend_raw->backend.digest);
+		max_len -= d_len;
+	}
+
 	if (header.data_len > max_len) {
 		dev_err(&state->dev,
 			"invalid data_len %u in header, max is %lu\n",
@@ -1118,13 +1136,19 @@ static int backend_raw_load_one(struct state_backend_raw *backend_raw,
 		return -EINVAL;
 	}
 
-	buf = xzalloc(header.data_len);
+	buf = xzalloc(sizeof(header) + header.data_len + d_len);
+	data = buf + sizeof(header);
+	hmac = data + header.data_len;
 
-	ret = read_full(fd, buf, header.data_len);
+	ret = lseek(fd, offset, SEEK_SET);
 	if (ret < 0)
 		goto out_free;
 
-	crc = crc32(0, buf, header.data_len);
+	ret = read_full(fd, buf, sizeof(header) + header.data_len + d_len);
+	if (ret < 0)
+		goto out_free;
+
+	crc = crc32(0, data, header.data_len);
 	if (crc != header.data_crc) {
 		dev_err(&state->dev,
 			"invalid crc, calculated 0x%08x, found 0x%08x\n",
@@ -1133,10 +1157,27 @@ static int backend_raw_load_one(struct state_backend_raw *backend_raw,
 		goto out_free;
 	}
 
+	if (backend_raw->backend.digest) {
+		struct digest *d = backend_raw->backend.digest;
+
+		ret = digest_init(d);
+		if (ret)
+			goto out_free;
+
+		/* hmac over header and data */
+		ret = digest_update(d, buf, sizeof(header) + header.data_len);
+		if (ret)
+			goto out_free;
+
+		ret = digest_verify(d, hmac);
+		if (ret < 0)
+			goto out_free;
+	}
+
 	list_for_each_entry(sv, &state->variables, list) {
 		if (sv->start + sv->size > header.data_len)
 			break;
-		memcpy(sv->raw, buf + sv->start, sv->size);
+		memcpy(sv->raw, data + sv->start, sv->size);
 	}
 
 	free(buf);
@@ -1207,7 +1248,7 @@ static int state_backend_raw_save(struct state_backend *backend,
 	struct state_backend_raw *backend_raw = container_of(backend,
 			struct state_backend_raw, backend);
 	int ret = 0, fd, i;
-	void *buf, *data;
+	void *buf, *data, *hmac;
 	struct backend_raw_header *header;
 	struct state_variable *sv;
 
@@ -1215,6 +1256,7 @@ static int state_backend_raw_save(struct state_backend *backend,
 
 	header = buf;
 	data = buf + sizeof(*header);
+	hmac = data + backend_raw->size_data;
 
 	list_for_each_entry(sv, &state->variables, list)
 		memcpy(data + sv->start, sv->raw, sv->size);
@@ -1224,6 +1266,23 @@ static int state_backend_raw_save(struct state_backend *backend,
 	header->data_crc = crc32(0, data, backend_raw->size_data);
 	header->header_crc = crc32(0, header,
 				   sizeof(*header) - sizeof(uint32_t));
+
+	if (backend_raw->backend.digest) {
+		struct digest *d = backend_raw->backend.digest;
+
+		ret = digest_init(d);
+		if (ret)
+			goto out_free;
+
+		/* hmac over header and data */
+		ret = digest_update(d, buf, sizeof(*header) + backend_raw->size_data);
+		if (ret)
+			goto out_free;
+
+		ret = digest_final(d, hmac);
+		if (ret < 0)
+			goto out_free;
+	}
 
 	fd = open(backend->path, O_WRONLY);
 	if (fd < 0)
@@ -1309,6 +1368,41 @@ static int state_backend_raw_file_get_size(const char *path, size_t *out_size)
 	return ret;
 }
 
+static int state_backend_raw_file_init_digest(struct state *state, struct state_backend_raw *backend_raw)
+{
+	struct digest *digest;
+	const char *algo;
+	const unsigned char *key;
+	int key_len, ret;
+
+	ret = of_property_read_string(state->root, "algo", &algo);
+	if (ret == -EINVAL)	/* -EINVAL == does not exist */
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = keystore_get_secret(state->name, &key, &key_len);
+	if (ret)
+		return ret;
+
+	digest = digest_alloc(algo);
+	if (!digest) {
+		dev_err(&state->dev, "unsupported algo %s\n", algo);
+		return -EINVAL;
+	}
+
+	ret = digest_set_key(digest, key, key_len);
+	if (ret) {
+		digest_free(digest);
+		return ret;
+	}
+
+	backend_raw->backend.digest = digest;
+	backend_raw->size_full += digest_length(digest);
+
+	return 0;
+}
+
 /*
  * state_backend_raw_file - create a raw file backend store for a state instance
  *
@@ -1366,6 +1460,10 @@ int state_backend_raw_file(struct state *state, const char *of_path,
 
 	state->backend = backend;
 
+	ret = state_backend_raw_file_init_digest(state, backend_raw);
+	if (ret)
+		return ret;
+
 	ret = mtd_get_meminfo(backend->path, &meminfo);
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE)) {
 		backend_raw->need_erase = true;
@@ -1387,6 +1485,9 @@ int state_backend_raw_file(struct state *state, const char *of_path,
 
 	return 0;
 err:
+	if (backend_raw->backend.digest)
+		digest_free(backend_raw->backend.digest);
+
 	free(backend_raw);
 	return ret;
 }
