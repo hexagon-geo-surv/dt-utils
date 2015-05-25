@@ -33,6 +33,7 @@
 #include <mtd/mtd-abi.h>
 
 #include <common.h>
+#include <digest.h>
 #include <dt.h>
 #include <fdt.h>
 
@@ -49,20 +50,6 @@ static int state_mac_set(struct state_variable *var, const char *val);
 static char *state_mac_get(struct state_variable *var);
 
 #define asprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
-
-char *barebox_asprintf(const char *fmt, ...) __attribute__ ((format(__printf__, 1, 2)));
-char *barebox_asprintf(const char *fmt, ...)
-{
-	va_list ap;
-	char *p;
-	int ret;
-
-	va_start(ap, fmt);
-	ret = vasprintf(&p, fmt, ap);
-	va_end(ap);
-
-	return ret == -1 ? NULL : p;
-}
 
 /* ------------------------------------------------------------ */
 

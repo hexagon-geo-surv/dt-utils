@@ -43,7 +43,12 @@ pkginclude_HEADERS = \
 lib_LTLIBRARIES = src/libdt-utils.la
 
 bin_PROGRAMS = barebox-state fdtdump
-barebox_state_SOURCES = src/barebox-state.c
+barebox_state_SOURCES = \
+	src/crypto/digest.c \
+	src/crypto/hmac.c \
+	src/crypto/sha1.c \
+	src/crypto/sha2.c \
+	src/barebox-state.c
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)
 barebox_state_LDADD = src/libdt-utils.la
 
