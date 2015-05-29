@@ -321,7 +321,8 @@ static inline int unregister_device(struct device_d *d)
 	return 0;
 }
 
-static int of_register_fixup(int (*fixup)(struct device_node *, void *), void *context)
+static inline int of_register_fixup(int (*fixup)(struct device_node *, void *),
+				    void *context)
 {
 	return 0;
 }
