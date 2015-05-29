@@ -19,3 +19,4 @@ Makefile.in
 /fdtdump
 /src/libdt-utils.pc
 /barebox-state
+/dtblint
