@@ -50,7 +50,18 @@ barebox_state_SOURCES = \
 	src/crypto/sha1.c \
 	src/crypto/sha2.c \
 	src/keystore.c \
-	src/barebox-state.c
+	src/barebox-state.c \
+	\
+	src/asm/unaligned.h \
+	src/crypto/internal.h \
+	src/crypto/sha.h \
+	src/digest.h \
+	src/fs.h \
+	src/init.h \
+	src/keystore.h \
+	src/linux/err.h \
+	src/linux/list.h \
+	src/module.h
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)
 barebox_state_LDADD = src/libdt-utils.la
 
