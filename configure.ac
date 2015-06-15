@@ -36,8 +36,7 @@ AC_CHECK_FUNCS([__secure_getenv secure_getenv])
 
 my_CFLAGS="-Wall \
 -Wmissing-declarations -Wmissing-prototypes \
--Wnested-externs -Wpointer-arith \
--Wpointer-arith -Wsign-compare -Wchar-subscripts \
+-Wnested-externs -Wsign-compare -Wchar-subscripts \
 -Wstrict-prototypes -Wshadow \
 -Wformat-security -Wtype-limits"
 AC_SUBST([my_CFLAGS])
