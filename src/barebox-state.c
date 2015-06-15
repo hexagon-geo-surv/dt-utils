@@ -42,13 +42,13 @@ static int verbose;
 
 struct state_variable;
 
-static int state_uint32_set(struct state_variable *var, const char *val);
-static char *state_uint32_get(struct state_variable *var);
-static int state_enum32_set(struct state_variable *sv, const char *val);
-static char *state_enum32_get(struct state_variable *var);
-static void state_enum32_info(struct state_variable *var);
-static int state_mac_set(struct state_variable *var, const char *val);
-static char *state_mac_get(struct state_variable *var);
+static int __state_uint32_set(struct state_variable *var, const char *val);
+static char *__state_uint32_get(struct state_variable *var);
+static int __state_enum32_set(struct state_variable *sv, const char *val);
+static char *__state_enum32_get(struct state_variable *var);
+static void __state_enum32_info(struct state_variable *var);
+static int __state_mac_set(struct state_variable *var, const char *val);
+static char *__state_mac_get(struct state_variable *var);
 
 #define asprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
 
@@ -400,25 +400,25 @@ static struct variable_type types[] =  {
 		.export = state_uint32_export,
 		.import = state_uint32_import,
 		.create = state_uint32_create,
-		.set = state_uint32_set,
-		.get = state_uint32_get,
+		.set = __state_uint32_set,
+		.get = __state_uint32_get,
 	}, {
 		.type = STATE_TYPE_ENUM,
 		.type_name = "enum32",
 		.export = state_enum32_export,
 		.import = state_enum32_import,
 		.create = state_enum32_create,
-		.set = state_enum32_set,
-		.get = state_enum32_get,
-		.info = state_enum32_info,
+		.set = __state_enum32_set,
+		.get = __state_enum32_get,
+		.info = __state_enum32_info,
 	}, {
 		.type = STATE_TYPE_MAC,
 		.type_name = "mac",
 		.export = state_mac_export,
 		.import = state_mac_import,
 		.create = state_mac_create,
-		.set = state_mac_set,
-		.get = state_mac_get,
+		.set = __state_mac_set,
+		.get = __state_mac_get,
 	},
 };
 
@@ -1509,7 +1509,7 @@ static struct variable_type *state_find_type(enum state_variable_type type)
 	return NULL;
 }
 
-static int state_uint32_set(struct state_variable *var, const char *val)
+static int __state_uint32_set(struct state_variable *var, const char *val)
 {
 	struct state_uint32 *su32 = to_state_uint32(var);
 
@@ -1518,7 +1518,7 @@ static int state_uint32_set(struct state_variable *var, const char *val)
 	return 0;
 }
 
-static char *state_uint32_get(struct state_variable *var)
+static char *__state_uint32_get(struct state_variable *var)
 {
 	struct state_uint32 *su32 = to_state_uint32(var);
 	char *str;
@@ -1532,7 +1532,7 @@ static char *state_uint32_get(struct state_variable *var)
 }
 
 
-static int state_enum32_set(struct state_variable *sv, const char *val)
+static int __state_enum32_set(struct state_variable *sv, const char *val)
 {
 	struct state_enum32 *enum32 = to_state_enum32(sv);
 	int i;
@@ -1547,7 +1547,7 @@ static int state_enum32_set(struct state_variable *sv, const char *val)
 	return -EINVAL;
 }
 
-static char *state_enum32_get(struct state_variable *var)
+static char *__state_enum32_get(struct state_variable *var)
 {
 	struct state_enum32 *enum32 = to_state_enum32(var);
 	char *str;
@@ -1560,7 +1560,7 @@ static char *state_enum32_get(struct state_variable *var)
 	return str;
 }
 
-static void state_enum32_info(struct state_variable *var)
+static void __state_enum32_info(struct state_variable *var)
 {
 	struct state_enum32 *enum32 = to_state_enum32(var);
 	int i;
@@ -1595,7 +1595,7 @@ static int string_to_ethaddr(const char *str, uint8_t enetaddr[6])
 	return 0;
 }
 
-static int state_mac_set(struct state_variable *var, const char *val)
+static int __state_mac_set(struct state_variable *var, const char *val)
 {
 	struct state_mac *mac = to_state_mac(var);
 	uint8_t mac_save[6];
@@ -1610,7 +1610,7 @@ static int state_mac_set(struct state_variable *var, const char *val)
 	return 0;
 }
 
-static char *state_mac_get(struct state_variable *var)
+static char *__state_mac_get(struct state_variable *var)
 {
 	struct state_mac *mac = to_state_mac(var);
 	char *str;
