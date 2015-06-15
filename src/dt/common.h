@@ -305,6 +305,14 @@ static inline struct param_d *dev_add_param_mac(struct device_d *dev, const char
 	return NULL;
 }
 
+static inline struct param_d *dev_add_param_string(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		char **value, void *priv)
+{
+	return NULL;
+}
+
 struct driver_d;
 
 static inline int register_driver(struct driver_d *d)
