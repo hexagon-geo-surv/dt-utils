@@ -42,6 +42,8 @@ static int verbose;
 
 struct state_variable;
 
+static int __state_uint8_set(struct state_variable *var, const char *val);
+static char *__state_uint8_get(struct state_variable *var);
 static int __state_uint32_set(struct state_variable *var, const char *val);
 static char *__state_uint32_get(struct state_variable *var);
 static int __state_enum32_set(struct state_variable *sv, const char *val);
@@ -49,6 +51,8 @@ static char *__state_enum32_get(struct state_variable *var);
 static void __state_enum32_info(struct state_variable *var);
 static int __state_mac_set(struct state_variable *var, const char *val);
 static char *__state_mac_get(struct state_variable *var);
+static int __state_string_set(struct state_variable *var, const char *val);
+static char *__state_string_get(struct state_variable *var);
 
 #define asprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
 
@@ -583,6 +587,8 @@ static struct variable_type types[] =  {
 		.export = state_uint32_export,
 		.import = state_uint32_import,
 		.create = state_uint8_create,
+		.set = __state_uint8_set,
+		.get = __state_uint32_get,
 	}, {
 		.type = STATE_TYPE_U32,
 		.type_name = "uint32",
@@ -614,6 +620,8 @@ static struct variable_type types[] =  {
 		.export = state_string_export,
 		.import = state_string_import,
 		.create = state_string_create,
+		.set = __state_string_set,
+		.get = __state_string_get,
 	},
 };
 
@@ -1722,6 +1730,20 @@ static int __state_uint32_set(struct state_variable *var, const char *val)
 	return 0;
 }
 
+static int __state_uint8_set(struct state_variable *var, const char *val)
+{
+	struct state_uint32 *su32 = to_state_uint32(var);
+	unsigned long num;
+
+	num = strtoul(val, NULL, 0);
+	if (num > UINT8_MAX)
+		return -ERANGE;
+
+	su32->value = num;
+
+	return 0;
+}
+
 static char *__state_uint32_get(struct state_variable *var)
 {
 	struct state_uint32 *su32 = to_state_uint32(var);
@@ -1823,6 +1845,33 @@ static char *__state_mac_get(struct state_variable *var)
 	ret = asprintf(&str, "%02x:%02x:%02x:%02x:%02x:%02x",
 			mac->value[0], mac->value[1], mac->value[2],
 			mac->value[3], mac->value[4], mac->value[5]);
+	if (ret < 0)
+		return ERR_PTR(-ENOMEM);
+
+	return str;
+}
+
+static int __state_string_set(struct state_variable *sv, const char *val)
+{
+	struct state_string *string = to_state_string(sv);
+	int ret;
+
+	ret = state_string_copy_to_raw(string, val);
+	if (ret)
+		return ret;
+	free(string->value);
+	string->value = xstrdup(val);
+
+	return 0;
+}
+
+static char *__state_string_get(struct state_variable *var)
+{
+	struct state_string *string = to_state_string(var);
+	char *str;
+	int ret;
+
+	ret = asprintf(&str, "%s", string->raw);
 	if (ret < 0)
 		return ERR_PTR(-ENOMEM);
 
