@@ -1159,8 +1159,10 @@ static int parse_function(struct device_node *funcnode,
 			conf_reg = -1;
 
 		input_reg = be32_to_cpu(*list++);
+		(void)input_reg;
 		mux_mode = be32_to_cpu(*list++);
 		input_val = be32_to_cpu(*list++);
+		(void)input_val;
 		config = be32_to_cpu(*list++);
 		if (config & IMX_PAD_SION)
 			mux_mode |= IOMUXC_CONFIG_SION;
