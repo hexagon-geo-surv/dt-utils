@@ -13,7 +13,9 @@
  * GNU General Public License for more details.
  */
 
+#include <errno.h>
+
 int __attribute__((weak)) keystore_get_secret(const char *name, const unsigned char **key, int *key_len)
 {
-	return 0;
+	return -ENOENT;
 }
