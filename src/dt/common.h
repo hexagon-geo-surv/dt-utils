@@ -161,6 +161,27 @@ static inline char *xstrdup(const char *s)
 	return p;
 }
 
+static inline char *xstrndup(const char *s, size_t n)
+{
+	int m;
+	char *t;
+
+	/* We can just xmalloc(n+1) and strncpy into it, */
+	/* but think about xstrndup("abc", 10000) wastage! */
+	m = n;
+	t = (char*) s;
+	while (m) {
+		if (!*t) break;
+		m--;
+		t++;
+	}
+	n -= m;
+	t = xmalloc(n + 1);
+	t[n] = '\0';
+
+	return memcpy(t, s, n);
+}
+
 static inline int erase(int fd, size_t count, loff_t offset)
 {
 	struct erase_info_user erase = {
