@@ -470,8 +470,8 @@ static int state_string_export(struct state_variable *var,
 	}
 
 	if (string->value)
-		ret = of_set_property(node, "value", string->raw,
-				      strlen(string->raw) + 1, 1);
+		ret = of_set_property(node, "value", string->value,
+				      strlen(string->value) + 1, 1);
 
 	return ret;
 }
@@ -482,7 +482,7 @@ static int state_string_copy_to_raw(struct state_string *string,
 	size_t len;
 
 	len = strlen(src);
-	if (len >= string->var.size)
+	if (len > string->var.size)
 		return -EILSEQ;
 
 	/* copy string and clear remaining contents of buffer */
@@ -503,7 +503,7 @@ static int state_string_import(struct state_variable *sv,
 	of_property_read_string(node, "default", &string->value_default);
 	if (string->value_default) {
 		len = strlen(string->value_default);
-		if (len >= string->var.size)
+		if (len > string->var.size)
 			return -EILSEQ;
 	}
 
@@ -536,7 +536,7 @@ static int state_string_get(struct param_d *p, void *priv)
 
 	free(string->value);
 	if (string->raw[0])
-		string->value = xstrdup(string->raw);
+		string->value = xstrndup(string->raw, string->var.size);
 	else
 		string->value = xstrdup("");
 
