@@ -1,3 +1,8 @@
+dt-utils 2015.06.1
+==================
+Resync with barebox.
+- string support: trailing zero not needed
+
 dt-utils 2015.06.0
 ==================
 Resync with barebox.
