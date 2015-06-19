@@ -2225,16 +2225,20 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 	int ret;
 
 	*offset = 0;
+	*size = 0;
 
 	/*
 	 * simplest case: This nodepath can directly be translated into
-	 * a mtd device. This requires that the mtd partitions have a
-	 * device_node set in the kernel. This requires an out-of-tree kernel
-	 * patch.
+	 * a mtd or eeprom device. A mtd device requires that the mtd
+	 * partitions have a device_node set in the kernel. This requires
+	 * an out-of-tree kernel patch.
 	 */
 	dev = of_find_device_by_node_path(partition_node->full_name);
 	if (dev)
-		return udev_parse_mtd(dev, devpath, size);
+		if (udev_device_is_eeprom(dev))
+			return udev_parse_eeprom(dev, devpath);
+		else
+			return udev_parse_mtd(dev, devpath, size);
 
 	/*
 	 * Ok, the partition node has no udev_device. Try parent node.
