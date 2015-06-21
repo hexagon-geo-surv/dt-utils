@@ -1871,8 +1871,12 @@ static char *__state_string_get(struct state_variable *var)
 	char *str;
 	int ret;
 
-	ret = asprintf(&str, "%s", string->raw);
-	if (ret < 0)
+	if (string->raw[0])
+		str = strndup(string->raw, string->var.size);
+	else
+		str = strdup("");
+
+	if (!str)
 		return ERR_PTR(-ENOMEM);
 
 	return str;
