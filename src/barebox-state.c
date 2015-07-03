@@ -118,9 +118,9 @@ struct variable_type {
 	int (*import)(struct state_variable *, struct device_node *);
 	struct state_variable *(*create)(struct state *state,
 			const char *name, struct device_node *);
-	char *(*get)(struct state_variable *);
-	int (*set)(struct state_variable *, const char *val);
-	void (*info)(struct state_variable *);
+	char *(*__get)(struct state_variable *);
+	int (*__set)(struct state_variable *, const char *val);
+	void (*__info)(struct state_variable *);
 };
 
 /* list of all registered state instances */
@@ -591,41 +591,41 @@ static struct variable_type types[] =  {
 		.export = state_uint32_export,
 		.import = state_uint32_import,
 		.create = state_uint8_create,
-		.set = __state_uint8_set,
-		.get = __state_uint32_get,
+		.__set = __state_uint8_set,
+		.__get = __state_uint32_get,
 	}, {
 		.type = STATE_TYPE_U32,
 		.type_name = "uint32",
 		.export = state_uint32_export,
 		.import = state_uint32_import,
 		.create = state_uint32_create,
-		.set = __state_uint32_set,
-		.get = __state_uint32_get,
+		.__set = __state_uint32_set,
+		.__get = __state_uint32_get,
 	}, {
 		.type = STATE_TYPE_ENUM,
 		.type_name = "enum32",
 		.export = state_enum32_export,
 		.import = state_enum32_import,
 		.create = state_enum32_create,
-		.set = __state_enum32_set,
-		.get = __state_enum32_get,
-		.info = __state_enum32_info,
+		.__set = __state_enum32_set,
+		.__get = __state_enum32_get,
+		.__info = __state_enum32_info,
 	}, {
 		.type = STATE_TYPE_MAC,
 		.type_name = "mac",
 		.export = state_mac_export,
 		.import = state_mac_import,
 		.create = state_mac_create,
-		.set = __state_mac_set,
-		.get = __state_mac_get,
+		.__set = __state_mac_set,
+		.__get = __state_mac_get,
 	}, {
 		.type = STATE_TYPE_STRING,
 		.type_name = "string",
 		.export = state_string_export,
 		.import = state_string_import,
 		.create = state_string_create,
-		.set = __state_string_set,
-		.get = __state_string_get,
+		.__set = __state_string_set,
+		.__get = __state_string_get,
 	},
 };
 
@@ -1899,7 +1899,7 @@ static char *state_get_var(struct state *state, const char *var)
 	if (!vtype)
 		return NULL;
 
-	return vtype->get(sv);
+	return vtype->__get(sv);
 }
 
 static int state_set_var(struct state *state, const char *var, const char *val)
@@ -1916,10 +1916,10 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 	if (!vtype)
 		return -ENODEV;
 
-	if (!vtype->set)
+	if (!vtype->__set)
 		return -EPERM;
 
-	ret = vtype->set(sv, val);
+	ret = vtype->__set(sv, val);
 	if (ret)
 		return ret;
 
@@ -2110,15 +2110,17 @@ int main(int argc, char *argv[])
 		state_for_each_var(state, v) {
 			struct variable_type *vtype;
 			vtype = state_find_type(v->type);
+
 			if (!vtype) {
 				fprintf(stderr, "no such type: %d\n", v->type);
 				exit(1);
 			}
-			printf("%s=%s", v->name, vtype->get(v));
+
+			printf("%s=%s", v->name, vtype->__get(v));
 			if (verbose) {
 				printf(", type=%s", vtype->type_name);
-				if (vtype->info)
-					vtype->info(v);
+				if (vtype->__info)
+					vtype->__info(v);
 			}
 			printf("\n");
 		}
@@ -2137,7 +2139,7 @@ int main(int argc, char *argv[])
 				*ptr++ = '_';
 
 			vtype = state_find_type(v->type);
-			printf("%s_%s=\"%s\"\n", state->name, name, vtype->get(v));
+			printf("%s_%s=\"%s\"\n", state->name, name, vtype->__get(v));
 		}
 	}
 
