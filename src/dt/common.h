@@ -16,6 +16,11 @@
 
 #include <mtd/mtd-abi.h>
 
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
 /**
  * container_of - cast a member of a structure out to the containing structure
  * @ptr:        the pointer to the member.
@@ -41,6 +46,10 @@
 #define dev_warn(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_info(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_dbg(dev, fmt, arg...) pr_debug(fmt, ##arg)
+
+#ifndef EPROBE_DEFER
+#define EPROBE_DEFER	517
+#endif
 
 #ifndef ENOTSUPP
 #define ENOTSUPP	524
@@ -192,6 +201,11 @@ static inline int erase(int fd, size_t count, loff_t offset)
 	return ioctl(fd, MEMERASE, &erase);
 }
 
+static inline int protect(int fd, size_t count, loff_t offset, int prot)
+{
+	return 0;
+}
+
 /*
  * read_full - read from filedescriptor
  *
@@ -282,6 +296,17 @@ static inline void *memmap(int fd, int flags)
 static inline int ctrlc (void)
 {
 	return 0;
+}
+
+/**
+ * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is all zeroes.
+ */
+static inline int is_zero_ether_addr(const u8 *addr)
+{
+	return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
 }
 
 #define MAX_DRIVER_NAME		32
@@ -380,11 +405,6 @@ static void __attribute__ ((constructor)) __initcall_##id##_##fn() { \
 #define late_initcall(fn)		__define_initcall("12",fn,12)
 #define environment_initcall(fn)	__define_initcall("13",fn,13)
 #define postenvironment_initcall(fn)	__define_initcall("14",fn,14)
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
 
 #define cpu_to_be32 __cpu_to_be32
 #define be32_to_cpu __be32_to_cpu
