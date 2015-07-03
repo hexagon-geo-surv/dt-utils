@@ -74,7 +74,6 @@ struct state {
 };
 
 struct state_backend {
-	int (*load)(struct state_backend *backend, struct state *state);
 	int (*save)(struct state_backend *backend, struct state *state);
 	const char *name;
 	const char *of_path;
@@ -170,12 +169,15 @@ static int state_uint32_export(struct state_variable *var,
 	struct state_uint32 *su32 = to_state_uint32(var);
 	int ret;
 
-	if (su32->value_default || conv == STATE_CONVERT_FIXUP) {
+	if (su32->value_default) {
 		ret = of_property_write_u32(node, "default",
 					    su32->value_default);
-		if (ret || conv == STATE_CONVERT_FIXUP)
+		if (ret)
 			return ret;
 	}
+
+	if (conv == STATE_CONVERT_FIXUP)
+		return 0;
 
 	return of_property_write_u32(node, "value", su32->value);
 }
@@ -276,16 +278,12 @@ static int state_enum32_export(struct state_variable *var,
 	int ret, i, len;
 	char *prop, *str;
 
-	if (enum32->value_default || conv == STATE_CONVERT_FIXUP) {
+	if (enum32->value_default) {
 		ret = of_property_write_u32(node, "default",
 					    enum32->value_default);
-		if (ret || conv == STATE_CONVERT_FIXUP)
+		if (ret)
 			return ret;
 	}
-
-	ret = of_property_write_u32(node, "value", enum32->value);
-	if (ret)
-		return ret;
 
 	len = 0;
 
@@ -301,6 +299,13 @@ static int state_enum32_export(struct state_variable *var,
 	ret = of_set_property(node, "names", prop, len, 1);
 
 	free(prop);
+
+	if (conv == STATE_CONVERT_FIXUP)
+		return 0;
+
+	ret = of_property_write_u32(node, "value", enum32->value);
+	if (ret)
+		return ret;
 
 	return ret;
 }
@@ -338,7 +343,7 @@ static struct state_variable *state_enum32_create(struct state *state,
 
 	num_names = of_property_count_strings(node, "names");
 	if (num_names < 0) {
-		fprintf(stderr, "enum32 node without \"names\" property\n");
+		pr_err("enum32 node without \"names\" property\n");
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -395,10 +400,15 @@ static int state_mac_export(struct state_variable *var,
 	struct state_mac *mac = to_state_mac(var);
 	int ret;
 
-	ret = of_property_write_u8_array(node, "default", mac->value_default,
-					 ARRAY_SIZE(mac->value_default));
-	if (ret || conv == STATE_CONVERT_FIXUP)
-		return ret;
+	if (!is_zero_ether_addr(mac->value_default)) {
+		ret = of_property_write_u8_array(node, "default", mac->value_default,
+						 ARRAY_SIZE(mac->value_default));
+		if (ret)
+			return ret;
+	}
+
+	if (conv == STATE_CONVERT_FIXUP)
+		return 0;
 
 	return of_property_write_u8_array(node, "value", mac->value,
 					  ARRAY_SIZE(mac->value));
@@ -465,13 +475,16 @@ static int state_string_export(struct state_variable *var,
 	struct state_string *string = to_state_string(var);
 	int ret = 0;
 
-	if (string->value_default || conv == STATE_CONVERT_FIXUP) {
+	if (string->value_default) {
 		ret = of_set_property(node, "default", string->value_default,
 				      strlen(string->value_default) + 1, 1);
 
-		if (ret || conv == STATE_CONVERT_FIXUP)
+		if (ret)
 			return ret;
 	}
+
+	if (conv == STATE_CONVERT_FIXUP)
+		return 0;
 
 	if (string->value)
 		ret = of_set_property(node, "value", string->value,
@@ -695,7 +708,7 @@ static int state_convert_node_variable(struct state *state,
 	struct state_variable *sv;
 	const char *type_name;
 	char *short_name, *name, *indexs;
-	u32 start_size[2];
+	unsigned int start_size[2];
 	int ret;
 
 	/* strip trailing @<ADDRESS> */
@@ -1083,30 +1096,6 @@ int state_get_name(const struct state *state, char const **name)
 }
 
 /*
- * state_load - load a state from the backing store
- *
- * @state	The state instance to load
- */
-int state_load(struct state *state)
-{
-	int ret;
-
-	if (!state->backend)
-		return -ENOSYS;
-
-	ret = state->backend->load(state->backend, state);
-	if (ret) {
-		dev_warn(&state->dev, "load failed\n");
-		state->dirty = 1;
-	} else {
-		dev_info(&state->dev, "load successful\n");
-		state->dirty = 0;
-	}
-
-	return ret;
-}
-
-/*
  * state_save - save a state to the backing store
  *
  * @state	The state instance to save
@@ -1260,7 +1249,6 @@ int state_backend_dtb_file(struct state *state, const char *of_path, const char 
 	backend_dtb = xzalloc(sizeof(*backend_dtb));
 	backend = &backend_dtb->backend;
 
-	backend->load = state_backend_dtb_load;
 	backend->save = state_backend_dtb_save;
 	backend->of_path = xstrdup(of_path);
 	backend->path = xstrdup(path);
@@ -1272,6 +1260,15 @@ int state_backend_dtb_file(struct state *state, const char *of_path, const char 
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE))
 		backend_dtb->need_erase = true;
 
+	ret = state_backend_dtb_load(backend, state);
+	if (ret) {
+		dev_warn(&state->dev, "load failed - using defaults\n");
+	} else {
+		dev_info(&state->dev, "load successful\n");
+		state->dirty = 0;
+	}
+
+	/* ignore return value of load() */
 	return 0;
 }
 
@@ -1318,7 +1315,7 @@ static int backend_raw_load_one(struct state_backend_raw *backend_raw,
 	max_len -= sizeof(header);
 	if (ret < 0) {
 		dev_err(&state->dev,
-			"cannot read header from backend device");
+			"cannot read header from backend device\n");
 		return ret;
 	}
 
@@ -1444,6 +1441,8 @@ static int backend_raw_save_one(struct state_backend_raw *backend_raw,
 	if (ret < 0)
 		return ret;
 
+	protect(fd, backend_raw->stride, offset, false);
+
 	if (backend_raw->need_erase) {
 		ret = erase(fd, backend_raw->stride, offset);
 		if (ret)
@@ -1453,6 +1452,8 @@ static int backend_raw_save_one(struct state_backend_raw *backend_raw,
 	ret = write_full(fd, buf, size);
 	if (ret < 0)
 		return ret;
+
+	protect(fd, backend_raw->stride, offset, true);
 
 	return 0;
 }
@@ -1597,13 +1598,15 @@ static int state_backend_raw_file_init_digest(struct state *state, struct state_
 		return ret;
 
 	ret = keystore_get_secret(state->name, &key, &key_len);
-	if (ret)
+	if (ret == -ENOENT)	/* -ENOENT == does not exist */
+		return -EPROBE_DEFER;
+	else if (ret)
 		return ret;
 
 	digest = digest_alloc(algo);
 	if (!digest) {
-		dev_err(&state->dev, "unsupported algo %s\n", algo);
-		return -EINVAL;
+		dev_info(&state->dev, "algo %s not found - probe deferred\n", algo);
+		return -EPROBE_DEFER;
 	}
 
 	ret = digest_set_key(digest, key, key_len);
@@ -1613,7 +1616,7 @@ static int state_backend_raw_file_init_digest(struct state *state, struct state_
 	}
 
 	backend_raw->backend.digest = digest;
-	backend_raw->size_full += digest_length(digest);
+	backend_raw->size_full = digest_length(digest);
 
 	return 0;
 }
@@ -1658,9 +1661,14 @@ int state_backend_raw_file(struct state *state, const char *of_path,
 		return -EINVAL;
 
 	backend_raw = xzalloc(sizeof(*backend_raw));
-	backend = &backend_raw->backend;
 
-	backend->load = state_backend_raw_load;
+	ret = state_backend_raw_file_init_digest(state, backend_raw);
+	if (ret) {
+		free(backend_raw);
+		return ret;
+	}
+
+	backend = &backend_raw->backend;
 	backend->save = state_backend_raw_save;
 	backend->of_path = xstrdup(of_path);
 	backend->path = xstrdup(path);
@@ -1670,14 +1678,10 @@ int state_backend_raw_file(struct state *state, const char *of_path,
 	backend_raw->size_data = sv->start + sv->size;
 	backend_raw->offset = offset;
 	backend_raw->size = size;
-	backend_raw->size_full = backend_raw->size_data +
+	backend_raw->size_full += backend_raw->size_data +
 		sizeof(struct backend_raw_header);
 
 	state->backend = backend;
-
-	ret = state_backend_raw_file_init_digest(state, backend_raw);
-	if (ret)
-		return ret;
 
 	ret = mtd_get_meminfo(backend->path, &meminfo);
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE)) {
@@ -1699,10 +1703,18 @@ int state_backend_raw_file(struct state *state, const char *of_path,
 		goto err;
 	}
 
+	ret = state_backend_raw_load(backend, state);
+	if (ret) {
+		dev_warn(&state->dev, "load failed - using defaults\n");
+	} else {
+		dev_info(&state->dev, "load successful\n");
+		state->dirty = 0;
+	}
+
+	/* ignore return value of load() */
 	return 0;
 err:
-	if (backend_raw->backend.digest)
-		digest_free(backend_raw->backend.digest);
+	digest_free(backend_raw->backend.digest);
 
 	free(backend_raw);
 	return ret;
@@ -2014,7 +2026,6 @@ static struct option long_options[] = {
 	{"name",	required_argument,	0,	'n' },
 	{"dump",	no_argument,		0,	'd' },
 	{"dump-shell",	no_argument,		0,	OPT_DUMP_SHELL },
-	{"init",	no_argument,		0,	'i' },
 	{"verbose",	no_argument,		0,	'v' },
 	{"help",	no_argument,		0,	'h' },
 };
@@ -2029,7 +2040,6 @@ static void usage(char *name)
 "-n, --name <name>                         specify the state to use (default=\"state\")\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
-"-i, --init                                initialize the state (do not load from storage)\n"
 "-v, --verbose                             increase verbosity\n"
 "--help                                    this help\n",
 	name);
@@ -2049,7 +2059,7 @@ int main(int argc, char *argv[])
 	struct state *state;
 	struct state_variable *v;
 	int ret, c, option_index;
-	int do_dump = 0, do_dump_shell = 0, do_initialize = 0;
+	int do_dump = 0, do_dump_shell = 0;
 	struct state_set_get *sg;
 	struct list_head sg_list;
 	char *statename = NULL;
@@ -2057,7 +2067,7 @@ int main(int argc, char *argv[])
 	INIT_LIST_HEAD(&sg_list);
 
 	while (1) {
-		c = getopt_long(argc, argv, "hg:s:divn:", long_options, &option_index);
+		c = getopt_long(argc, argv, "hg:s:dvn:", long_options, &option_index);
 		if (c < 0)
 			break;
 		switch (c) {
@@ -2079,9 +2089,6 @@ int main(int argc, char *argv[])
 		case 'd':
 			do_dump = 1;
 			break;
-		case 'i':
-			do_initialize = 1;
-			break;
 		case OPT_DUMP_SHELL:
 			do_dump_shell = 1;
 			break;
@@ -2097,14 +2104,6 @@ int main(int argc, char *argv[])
 	state = state_get(statename);
 	if (IS_ERR(state))
 		exit(1);
-
-	if (!do_initialize) {
-		ret = state_load(state);
-		if (ret) {
-			fprintf(stderr, "Cannot load state: %s\n", strerror(-ret));
-			exit(1);
-		}
-	}
 
 	if (do_dump) {
 		state_for_each_var(state, v) {
@@ -2171,7 +2170,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (do_initialize || state->dirty) {
+	if (state->dirty) {
 		ret = state_save(state);
 		if (ret) {
 			fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
