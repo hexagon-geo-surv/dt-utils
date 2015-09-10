@@ -2080,6 +2080,7 @@ int main(int argc, char *argv[])
 			break;
 		case 'n':
 			statename = optarg;
+			break;
 		}
 	}
 
