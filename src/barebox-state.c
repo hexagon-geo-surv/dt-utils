@@ -1896,6 +1896,8 @@ static char *state_get_var(struct state *state, const char *var)
 		return NULL;
 
 	vtype = state_find_type(sv->type);
+	if (!vtype)
+		return NULL;
 
 	return vtype->get(sv);
 }
@@ -1911,6 +1913,8 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 		return PTR_ERR(sv);
 
 	vtype = state_find_type(sv->type);
+	if (!vtype)
+		return -ENODEV;
 
 	if (!vtype->set)
 		return -EPERM;
@@ -2095,6 +2099,10 @@ int main(int argc, char *argv[])
 		state_for_each_var(state, v) {
 			struct variable_type *vtype;
 			vtype = state_find_type(v->type);
+			if (!vtype) {
+				fprintf(stderr, "no such type: %d\n", v->type);
+				exit(1);
+			}
 			printf("%s=%s", v->name, vtype->get(v));
 			if (verbose) {
 				printf(", type=%s", vtype->type_name);
