@@ -1950,10 +1950,20 @@ static struct state *state_get(const char *name)
 
 	of_set_root_node(root);
 
-	node = of_find_node_by_path_or_alias(root, name);
-	if (!node) {
-		fprintf(stderr, "no such node: %s\n", name);
-		return ERR_PTR(-ENOENT);
+	if (name) {
+		node = of_find_node_by_path_or_alias(root, name);
+		if (!node) {
+			fprintf(stderr, "no such node: %s\n", name);
+			return ERR_PTR(-ENOENT);
+		}
+	} else {
+		node = of_find_node_by_path_or_alias(root, "state");
+		if (!node)
+			node = of_find_node_by_path_or_alias(root, "/state");
+		if (!node) {
+			fprintf(stderr, "Neither /aliases/state nor /state found\n");
+			return ERR_PTR(-ENOENT);
+		}
 	}
 
 	if (verbose > 1) {
@@ -2042,7 +2052,7 @@ int main(int argc, char *argv[])
 	int do_dump = 0, do_dump_shell = 0, do_initialize = 0;
 	struct state_set_get *sg;
 	struct list_head sg_list;
-	char *statename = "/state";
+	char *statename = NULL;
 
 	INIT_LIST_HEAD(&sg_list);
 
