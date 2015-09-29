@@ -1181,7 +1181,7 @@ static int parse_function(struct device_node *funcnode,
 			       padinfo->padname);
 
 		if (conf_reg == -1) {
-			if (config != 0 && config != 0x80000000)
+			if (config != 0x80000000)
 				printf("E: config value without config register (%s)\n",
 				       padinfo->padname);
 		} else {
