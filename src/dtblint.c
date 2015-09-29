@@ -1180,7 +1180,7 @@ static int parse_function(struct device_node *funcnode,
 			printf("E: wrong offset for SW_PAD register (%s)\n",
 			       padinfo->padname);
 
-		if (conf_reg == (uint32_t)-1) {
+		if (conf_reg == -1) {
 			if (config != 0 && config != 0x80000000)
 				printf("E: config value without config register (%s)\n",
 				       padinfo->padname);
