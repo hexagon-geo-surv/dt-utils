@@ -3,7 +3,7 @@
 DEFAULT_REMAINING_ATTEMPTS=3
 DEFAULT_PRIORITY=20
 
-system=$(sed /proc/cmdline -ne "s/.*root=ubi0:\([^ ]*\).*/\1/p")
+system=$(sed /proc/cmdline -ne "s/\(^\|.* \)bootstate.active=\([^ ]*\).*/\2/p")
 if [ -z "${system}" ]; then
 	echo "unable to detect system partition" >&2
 	exit 1
