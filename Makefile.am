@@ -54,6 +54,7 @@ barebox_state_SOURCES = \
 	src/barebox-state.c \
 	\
 	src/asm/unaligned.h \
+	src/barebox-state.h \
 	src/base64.h \
 	src/crypto/internal.h \
 	src/crypto/sha.h \

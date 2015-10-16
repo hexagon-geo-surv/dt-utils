@@ -32,6 +32,7 @@
 #include <linux/fs.h>
 #include <mtd/mtd-abi.h>
 
+#include <barebox-state.h>
 #include <common.h>
 #include <digest.h>
 #include <dt.h>
@@ -1898,7 +1899,7 @@ static char *__state_string_get(struct state_variable *var)
 	return str;
 }
 
-static char *state_get_var(struct state *state, const char *var)
+char *state_get_var(struct state *state, const char *var)
 {
 	struct state_variable *sv;
 	struct variable_type *vtype;
@@ -1941,7 +1942,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 }
 
 
-static struct state *state_get(const char *name)
+struct state *state_get(const char *name)
 {
 	struct device_node *root, *node, *partition_node;
 	char *path;
