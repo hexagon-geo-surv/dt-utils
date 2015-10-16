@@ -49,7 +49,7 @@ barebox_state_SOURCES = \
 	src/crypto/hmac.c \
 	src/crypto/sha1.c \
 	src/crypto/sha2.c \
-	src/keystore.c \
+	src/keystore-blob.c \
 	src/base64.c \
 	src/barebox-state.c \
 	\
