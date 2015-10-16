@@ -50,9 +50,11 @@ barebox_state_SOURCES = \
 	src/crypto/sha1.c \
 	src/crypto/sha2.c \
 	src/keystore.c \
+	src/base64.c \
 	src/barebox-state.c \
 	\
 	src/asm/unaligned.h \
+	src/base64.h \
 	src/crypto/internal.h \
 	src/crypto/sha.h \
 	src/digest.h \
