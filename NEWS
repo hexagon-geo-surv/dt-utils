@@ -1,3 +1,7 @@
+dt-utils 2016.02.0
+==================
+keystore-blob: Uses system independent path to blob_gen
+
 dt-utils 2015.10.0
 ==================
 Resync with barebox.

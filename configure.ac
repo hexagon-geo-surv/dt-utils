@@ -1,6 +1,6 @@
 AC_PREREQ(2.60)
 AC_INIT([dt-utils],
-        [2015.10.0],
+        [2016.02.0],
         [bugs@pengutronix.de],
         [dt-utils],
         [http://git.pengutronix.de/?p=tools/dt-utils.git;a=summary])
