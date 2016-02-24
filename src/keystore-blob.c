@@ -12,9 +12,9 @@
 #include <base64.h>
 
 static const char keystore_state_name[] = "/blobs";
-static const char blob_gen_payload[] = "/sys/devices/soc0/soc/2100000.aips-bus/2100000.caam/blob_gen/payload";
-static const char blob_gen_modifier[] = "/sys/devices/soc0/soc/2100000.aips-bus/2100000.caam/blob_gen/modifier";
-static const char blob_gen_blob[] = "/sys/devices/soc0/soc/2100000.aips-bus/2100000.caam/blob_gen/blob";
+static const char blob_gen_payload[] = "/sys/bus/platform/devices/blob_gen/payload";
+static const char blob_gen_modifier[] = "/sys/bus/platform/devices/blob_gen/modifier";
+static const char blob_gen_blob[] = "/sys/bus/platform/devices/blob_gen/blob";
 
 static struct state *state;
 
