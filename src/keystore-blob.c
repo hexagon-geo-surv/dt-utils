@@ -7,9 +7,10 @@
  */
 
 #include <common.h>
-#include <barebox-state.h>
-#include <keystore.h>
+#include <crypto/keystore.h>
 #include <base64.h>
+#include <barebox-state.h>
+#include <state.h>
 
 static const char keystore_state_name[] = "/blobs";
 static const char blob_gen_payload[] = "/sys/bus/platform/devices/blob_gen/payload";

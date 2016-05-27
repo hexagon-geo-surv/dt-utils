@@ -368,4 +368,16 @@ static inline struct device_node *of_find_root_node(struct device_node *node)
 
 struct device_node *of_read_proc_devicetree(void);
 
+static inline int of_find_path(struct device_node *node, const char *propname,
+			       char **outpath, unsigned flags)
+{
+	return -ENOSYS;
+}
+
+static inline int of_find_path_by_node(struct device_node *node, char **outpath,
+				       unsigned flags)
+{
+	return -ENOSYS;
+}
+
 #endif /* __DT_DT_H */

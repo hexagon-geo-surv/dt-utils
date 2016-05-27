@@ -42,10 +42,25 @@ typedef uint64_t u64;
 #endif
 
 #define pr_err(fmt, arg...)       fprintf(stderr, fmt, ##arg)
+#define pr_warn(fmt, arg...)      pr_err(fmt, ##arg)
+#define pr_info(fmt, arg...)      fprintf(stdout, fmt, ##arg)
 #define dev_err(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_warn(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_info(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_dbg(dev, fmt, arg...) pr_debug(fmt, ##arg)
+
+#define __WARN() do { 								\
+	printf("WARNING: at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__);	\
+} while (0)
+
+#ifndef WARN_ON
+#define WARN_ON(condition) ({						\
+	int __ret_warn_on = !!(condition);				\
+	if (__ret_warn_on)						\
+		__WARN();						\
+	__ret_warn_on;							\
+})
+#endif
 
 #ifndef EPROBE_DEFER
 #define EPROBE_DEFER	517
@@ -63,6 +78,15 @@ static inline void *xzalloc(size_t size)
 static inline void *xmalloc(size_t size)
 {
 	return xzalloc(size);
+}
+
+static inline void *xmemdup(const void *orig, size_t size)
+{
+	void *buf = xmalloc(size);
+
+	memcpy(buf, orig, size);
+
+	return buf;
 }
 
 #define EXPORT_SYMBOL(sym)
@@ -272,7 +296,7 @@ err_out:
  * Like write, but guarantees to write the full buffer out, else
  * it returns with an error.
  */
-static inline int write_full(int fd, void *buf, size_t size)
+static inline int write_full(int fd, const void *buf, size_t size)
 {
 	size_t insize = size;
 	int now;
@@ -414,6 +438,7 @@ static void __attribute__ ((constructor)) __initcall_##id##_##fn() { \
 
 #define ALIGN(x, a)		__ALIGN_MASK(x, (typeof(x))(a) - 1)
 #define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define IS_ALIGNED(x, a)                (((x) & ((typeof(x))(a) - 1)) == 0)
 
 #define ARRAY_SIZE(arr)		(sizeof(arr) / sizeof((arr)[0]))
 
@@ -553,5 +578,39 @@ static inline __u32 ror32(__u32 word, unsigned int shift)
 
 uint32_t crc32(uint32_t crc, const void *_buf, unsigned int len);
 uint32_t crc32_no_comp(uint32_t crc, const void *_buf, unsigned int len);
+
+#define flush(fd) fsync(fd)
+
+static inline int mtd_buf_all_ff(const void *buf, unsigned int len)
+{
+	while ((unsigned long)buf & 0x3) {
+		if (*(const uint8_t *)buf != 0xff)
+			return 0;
+		len--;
+		if (!len)
+			return 1;
+		buf++;
+	}
+
+	while (len > 0x3) {
+		if (*(const uint32_t *)buf != 0xffffffff)
+			return 0;
+
+		len -= sizeof(uint32_t);
+		if (!len)
+			return 1;
+
+		buf += sizeof(uint32_t);
+	}
+
+	while (len) {
+		if (*(const uint8_t *)buf != 0xff)
+			return 0;
+		len--;
+		buf++;
+	}
+
+	return 1;
+}
 
 #endif /* __DT_COMMON_H */

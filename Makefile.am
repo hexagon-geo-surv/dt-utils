@@ -51,20 +51,39 @@ barebox_state_SOURCES = \
 	src/crypto/sha2.c \
 	src/keystore-blob.c \
 	src/base64.c \
+	src/barebox-state/backend_bucket_circular.c \
+	src/barebox-state/backend_bucket_direct.c \
+	src/barebox-state/backend.c \
+	src/barebox-state/backend_format_dtb.c \
+	src/barebox-state/backend_format_raw.c \
+	src/barebox-state/backend_storage.c \
+	src/barebox-state/state.c \
+	src/barebox-state/state.h \
+	src/barebox-state/state_variables.c \
 	src/barebox-state.c \
+	src/barebox-state.h \
 	\
 	src/asm/unaligned.h \
-	src/barebox-state.h \
 	src/base64.h \
 	src/crypto/internal.h \
 	src/crypto/sha.h \
 	src/digest.h \
 	src/fs.h \
 	src/init.h \
-	src/keystore.h \
+	src/crypto/keystore.h \
 	src/linux/err.h \
 	src/linux/list.h \
-	src/module.h
+	src/module.h \
+	src/libfile.h \
+	src/linux/mtd/mtd-abi.h \
+	src/printk.h \
+	src/net.h \
+	src/state.h \
+	src/libbb.h \
+	src/fdt.h \
+	src/of.h \
+	src/mtd/mtd-peb.h \
+	src/driver.h
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)
 barebox_state_LDADD = src/libdt-utils.la
 
