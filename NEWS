@@ -1,3 +1,8 @@
+dt-utils 2016.05.0
+==================
+barebox-state: Update to refactored state code from barebox
+barebox-state: Add a global lock
+
 dt-utils 2016.02.0
 ==================
 keystore-blob: Uses system independent path to blob_gen
