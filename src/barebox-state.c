@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -419,6 +420,7 @@ int main(int argc, char *argv[])
 	struct state_set_get *sg;
 	struct list_head sg_list;
 	char *statename = NULL;
+	int lock_fd;
 
 	INIT_LIST_HEAD(&sg_list);
 
@@ -457,9 +459,24 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	state = state_get(statename);
-	if (IS_ERR(state))
+	lock_fd = open("/var/lock/barebox-state", O_CREAT | O_RDWR, 0600);
+	if (lock_fd < 0) {
+		fprintf(stderr, "Failed to open lock-file /var/lock/barebox-state\n");
 		exit(1);
+	}
+
+	ret = flock(lock_fd, LOCK_EX | LOCK_NB);
+	if (ret < 0) {
+		fprintf(stderr, "Failed to lock. Already locked by other process /var/lock/barebox-state.\n");
+		close(lock_fd);
+		exit(1);
+	}
+
+	state = state_get(statename);
+	if (IS_ERR(state)) {
+		ret = 1;
+		goto out_unlock;
+	}
 
 	if (do_dump) {
 		state_for_each_var(state, v) {
@@ -468,7 +485,8 @@ int main(int argc, char *argv[])
 
 			if (!vtype) {
 				fprintf(stderr, "no such type: %d\n", v->type);
-				exit(1);
+				ret = 1;
+				goto out_unlock;
 			}
 
 			printf("%s=%s", v->name, vtype->get(v));
@@ -503,7 +521,8 @@ int main(int argc, char *argv[])
 			char *val = state_get_var(state, sg->arg);
 			if (!val) {
 				fprintf(stderr, "no such variable: %s\n", sg->arg);
-				exit (1);
+				ret = 1;
+				goto out_unlock;
 			}
 
 			printf("%s\n", val);
@@ -514,14 +533,16 @@ int main(int argc, char *argv[])
 			val = index(sg->arg, '=');
 			if (!val) {
 				fprintf(stderr, "usage: -s var=val\n");
-				exit (1);
+				ret = 1;
+				goto out_unlock;
 			}
 			*val++ = '\0';
 			ret = state_set_var(state, var, val);
 			if (ret) {
 				fprintf(stderr, "Failed to set variable %s to %s: %s\n",
 						var, val, strerror(-ret));
-				exit(1);
+				ret = 1;
+				goto out_unlock;
 			}
 		}
 	}
@@ -530,9 +551,15 @@ int main(int argc, char *argv[])
 		ret = state_save(state);
 		if (ret) {
 			fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
-			exit(1);
+			ret = 1;
+			goto out_unlock;
 		}
 	}
 
-	return 0;
+	ret = 0;
+out_unlock:
+	flock(lock_fd, LOCK_UN);
+	close(lock_fd);
+
+	return ret;
 }
