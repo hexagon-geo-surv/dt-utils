@@ -47,6 +47,8 @@ struct state_backend_storage_bucket_circular {
 	u8 *current_data;
 	ssize_t current_data_len;
 
+	bool force_rewrite; /* In case of degradation, force a rewrite */
+
 	/* For outputs */
 	struct device_d *dev;
 };
@@ -85,7 +87,20 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 				ret);
 			return ret;
 		}
-	} else if (ret < 0 && ret != -EUCLEAN) {
+		/*
+		 * Fill with invalid data so that the next write is done
+		 * behind this area
+		 */
+		memset(buf, 0, len);
+		circ->force_rewrite = true;
+		circ->write_area = 0;
+		dev_dbg(circ->dev, "PEB %u has ECC error, forcing rewrite\n",
+			circ->eraseblock);
+	} else if (ret == -EUCLEAN) {
+		circ->force_rewrite = true;
+		dev_dbg(circ->dev, "PEB %u is unclean, forcing rewrite\n",
+			circ->eraseblock);
+	} else if (ret < 0) {
 		dev_err(circ->dev, "Failed to read PEB %u, %d\n",
 			circ->eraseblock, ret);
 		return ret;
@@ -111,6 +126,7 @@ static int state_mtd_peb_write(struct state_backend_storage_bucket_circular *cir
 				ret);
 			return ret;
 		}
+		circ->force_rewrite = true;
 	} else if (ret < 0 && ret != -EUCLEAN) {
 		dev_err(circ->dev, "Failed to write PEB %u, %d\n",
 			circ->eraseblock, ret);
@@ -130,6 +146,8 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 {
 	int ret;
 	off_t offset = suboffset;
+	struct mtd_ecc_stats stat1, stat2;
+	bool nostats = false;
 
 	offset += (off_t)circ->eraseblock * circ->mtd->erasesize;
 
@@ -143,12 +161,33 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 	dev_dbg(circ->dev, "Read state from %ld length %zd\n", offset,
 		len);
 
+	ret = ioctl(circ->fd, ECCGETSTATS, &stat1);
+	if (ret)
+		nostats = true;
+
 	ret = read_full(circ->fd, buf, len);
 	if (ret < 0) {
 		dev_err(circ->dev, "Failed to read circular storage len %zd, %d\n",
 			len, ret);
 		free(buf);
 		return ret;
+	}
+
+	if (nostats)
+		return 0;
+
+	ret = ioctl(circ->fd, ECCGETSTATS, &stat2);
+	if (ret)
+		return 0;
+
+	if (stat2.failed - stat1.failed > 0) {
+		circ->force_rewrite = true;
+		dev_dbg(circ->dev, "PEB %u has ECC error, forcing rewrite\n",
+			circ->eraseblock);
+	} else if (stat2.corrected - stat1.corrected > 0) {
+		circ->force_rewrite = true;
+		dev_dbg(circ->dev, "PEB %u is unclean, forcing rewrite\n",
+			circ->eraseblock);
 	}
 
 	return 0;
@@ -329,7 +368,8 @@ static int state_backend_bucket_circular_write(struct state_backend_storage_buck
 	if (circ->current_data) {
 		dev_dbg(circ->dev, "Comparing cached data, writing %zd bytes, cached %zd bytes\n",
 			written_length, circ->current_data_len);
-		if (written_length == circ->current_data_len &&
+		if (!circ->force_rewrite &&
+		    written_length == circ->current_data_len &&
 		    !memcmp(circ->current_data, write_buf, written_length)) {
 			dev_dbg(circ->dev, "Data already on device, not writing again\n");
 			goto out_free;
@@ -382,6 +422,7 @@ static int state_backend_bucket_circular_write(struct state_backend_storage_buck
 	circ->current_data = write_buf;
 	circ->current_data_len = written_length;
 	write_buf = NULL;
+	circ->force_rewrite = false;
 
 out_free:
 	if (write_buf)
@@ -518,11 +559,14 @@ int state_backend_bucket_circular_create(struct device_d *dev, const char *path,
 		goto out_free;
 	}
 
-	circ->bucket.init = state_backend_bucket_circular_init;
 	circ->bucket.read = state_backend_bucket_circular_read;
 	circ->bucket.write = state_backend_bucket_circular_write;
 	circ->bucket.free = state_backend_bucket_circular_free;
 	*bucket = &circ->bucket;
+
+	ret = state_backend_bucket_circular_init(*bucket);
+	if (ret)
+		goto out_free;
 
 	return 0;
 
