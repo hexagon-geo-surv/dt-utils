@@ -1,3 +1,7 @@
+dt-utils 2016.05.1
+==================
+barebox-state: Update bitflip handling
+
 dt-utils 2016.05.0
 ==================
 barebox-state: Update to refactored state code from barebox
