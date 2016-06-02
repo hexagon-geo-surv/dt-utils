@@ -370,12 +370,14 @@ static int of_state_fixup(struct device_node *root, void *ctx)
 		}
 	}
 
-	p = of_new_property(new_node, "backend-storage-type",
-			    state->backend.storage.name,
-			    strlen(state->backend.storage.name) + 1);
-	if (!p) {
-		ret = -ENOMEM;
-		goto out;
+	if (state->backend.storage.name) {
+		p = of_new_property(new_node, "backend-storage-type",
+				    state->backend.storage.name,
+				    strlen(state->backend.storage.name) + 1);
+		if (!p) {
+			ret = -ENOMEM;
+			goto out;
+		}
 	}
 
 	/* address-cells + size-cells */
