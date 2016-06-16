@@ -1,3 +1,7 @@
+dt-utils 2016.05.2
+==================
+barebox-state: Fix info outputs to be on stderr
+
 dt-utils 2016.05.1
 ==================
 barebox-state: Update bitflip handling
