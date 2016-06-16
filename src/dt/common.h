@@ -43,7 +43,7 @@ typedef uint64_t u64;
 
 #define pr_err(fmt, arg...)       fprintf(stderr, fmt, ##arg)
 #define pr_warn(fmt, arg...)      pr_err(fmt, ##arg)
-#define pr_info(fmt, arg...)      fprintf(stdout, fmt, ##arg)
+#define pr_info(fmt, arg...)      pr_err(fmt, ##arg)
 #define dev_err(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_warn(dev, fmt, arg...) pr_err(fmt, ##arg)
 #define dev_info(dev, fmt, arg...) pr_err(fmt, ##arg)
