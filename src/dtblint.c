@@ -884,7 +884,7 @@ static const struct padinfo imx25_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000000,
 		.swmux_writeable_mask = 0x00000017,
 		.swpad_regoffset = 0x3b0,
-		.swpad_reset_default = 0x00e8,
+		.swpad_reset_default = 0x00a8,
 		.swpad_writeable_mask = 0x00b8,
 	}, {
 		.padname = "KPP_COL1",
@@ -892,7 +892,7 @@ static const struct padinfo imx25_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000000,
 		.swmux_writeable_mask = 0x00000017,
 		.swpad_regoffset = 0x3b4,
-		.swpad_reset_default = 0x00e8,
+		.swpad_reset_default = 0x00a8,
 		.swpad_writeable_mask = 0x00b8,
 	}, {
 		.padname = "KPP_COL2",
@@ -900,7 +900,7 @@ static const struct padinfo imx25_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000000,
 		.swmux_writeable_mask = 0x00000017,
 		.swpad_regoffset = 0x3b8,
-		.swpad_reset_default = 0x00e8,
+		.swpad_reset_default = 0x00a8,
 		.swpad_writeable_mask = 0x00b8,
 	}, {
 		.padname = "KPP_COL3",
@@ -908,7 +908,7 @@ static const struct padinfo imx25_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000000,
 		.swmux_writeable_mask = 0x00000017,
 		.swpad_regoffset = 0x3bc,
-		.swpad_reset_default = 0x00e8,
+		.swpad_reset_default = 0x00a8,
 		.swpad_writeable_mask = 0x00b8,
 	}, {
 		.padname = "FEC_MDC",
