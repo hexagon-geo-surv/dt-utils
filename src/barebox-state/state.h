@@ -27,6 +27,7 @@ struct state_backend_storage_bucket {
 		     uint8_t ** buf, ssize_t * len_hint);
 	void (*free) (struct state_backend_storage_bucket * bucket);
 
+	bool initialized;
 	struct list_head bucket_list;
 };
 
@@ -70,6 +71,9 @@ struct state_backend_storage {
 	struct device_d *dev;
 
 	const char *name;
+	uint32_t stridesize;
+
+	bool readonly;
 };
 
 /**
@@ -200,13 +204,18 @@ int state_storage_init(struct state_backend_storage *storage,
 		       struct device_d *dev, const char *path,
 		       off_t offset, size_t max_size, uint32_t stridesize,
 		       const char *storagetype);
+void state_storage_set_readonly(struct state_backend_storage *storage);
 void state_add_var(struct state *state, struct state_variable *var);
 struct variable_type *state_find_type_by_name(const char *name);
 int state_backend_bucket_circular_create(struct device_d *dev, const char *path,
-					 struct state_backend_storage_bucket
-					 **bucket, unsigned int eraseblock,
+					 struct state_backend_storage_bucket **bucket,
+					 unsigned int eraseblock,
 					 ssize_t writesize,
-					 struct mtd_info_user *mtd_uinfo);
+					 struct mtd_info_user *mtd_uinfo,
+					 bool lazy_init);
+int state_backend_bucket_cached_create(struct device_d *dev,
+				       struct state_backend_storage_bucket *raw,
+				       struct state_backend_storage_bucket **out);
 struct state_variable *state_find_var(struct state *state, const char *name);
 struct digest *state_backend_format_raw_get_digest(struct state_backend_format
 						   *format);
@@ -215,6 +224,7 @@ int state_backend_init(struct state_backend *backend, struct device_d *dev,
 		       const char *storage_path, const char *state_name, const
 		       char *of_path, off_t offset, size_t max_size,
 		       uint32_t stridesize, const char *storagetype);
+void state_backend_set_readonly(struct state_backend *backend);
 void state_backend_free(struct state_backend *backend);
 void state_storage_free(struct state_backend_storage *storage);
 int state_backend_bucket_direct_create(struct device_d *dev, const char *path,

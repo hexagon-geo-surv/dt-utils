@@ -21,7 +21,9 @@
 #include <digest.h>
 #include <linux/kernel.h>
 #include <malloc.h>
+#include <crc.h>
 #include <of.h>
+#include <crc.h>
 
 #include "state.h"
 

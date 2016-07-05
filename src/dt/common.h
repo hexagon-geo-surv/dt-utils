@@ -153,6 +153,8 @@ static inline char *barebox_asprintf(const char *fmt, ...)
 	return ret == -1 ? NULL : p;
 }
 
+#define basprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
+
 /**
  * strlcpy - Copy a %NUL terminated string into a sized buffer
  * @dest: Where to copy the string to
@@ -579,7 +581,19 @@ static inline __u32 ror32(__u32 word, unsigned int shift)
 uint32_t crc32(uint32_t crc, const void *_buf, unsigned int len);
 uint32_t crc32_no_comp(uint32_t crc, const void *_buf, unsigned int len);
 
-#define flush(fd) fsync(fd)
+static inline int flush(int fd)
+{
+	int ret;
+
+	ret = fsync(fd);
+	if (!ret)
+		return 0;
+
+	if (errno == EINVAL)
+		return 0;
+
+	return -errno;
+}
 
 static inline int mtd_buf_all_ff(const void *buf, unsigned int len)
 {

@@ -309,7 +309,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 }
 
 
-struct state *state_get(const char *name)
+struct state *state_get(const char *name, bool readonly)
 {
 	struct device_node *root, *node, *partition_node;
 	char *path;
@@ -363,7 +363,7 @@ struct state *state_get(const char *name)
                 return ERR_PTR(ret);
         }
 
-	state = state_new_from_node(node, devpath, offset, size);
+	state = state_new_from_node(node, devpath, offset, size, readonly);
 	if (IS_ERR(state)) {
 		fprintf(stderr, "unable to initlialize state: %s\n",
 				strerror(PTR_ERR(state)));
@@ -421,6 +421,7 @@ int main(int argc, char *argv[])
 	struct list_head sg_list;
 	char *statename = NULL;
 	int lock_fd;
+	bool readonly = true;
 
 	INIT_LIST_HEAD(&sg_list);
 
@@ -443,6 +444,7 @@ int main(int argc, char *argv[])
 			sg->get = 0;
 			sg->arg = optarg;
 			list_add_tail(&sg->list, &sg_list);
+			readonly = false;
 			break;
 		case 'd':
 			do_dump = 1;
@@ -472,7 +474,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	state = state_get(statename);
+	state = state_get(statename, readonly);
 	if (IS_ERR(state)) {
 		ret = 1;
 		goto out_unlock;

@@ -43,12 +43,6 @@ struct state_backend_storage_bucket_circular {
 	int fd;
 #endif
 
-	/* Cached data of the last read/write */
-	u8 *current_data;
-	ssize_t current_data_len;
-
-	bool force_rewrite; /* In case of degradation, force a rewrite */
-
 	/* For outputs */
 	struct device_d *dev;
 };
@@ -92,21 +86,19 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 		 * behind this area
 		 */
 		memset(buf, 0, len);
-		circ->force_rewrite = true;
+		ret = -EUCLEAN;
 		circ->write_area = 0;
 		dev_dbg(circ->dev, "PEB %u has ECC error, forcing rewrite\n",
 			circ->eraseblock);
 	} else if (ret == -EUCLEAN) {
-		circ->force_rewrite = true;
 		dev_dbg(circ->dev, "PEB %u is unclean, forcing rewrite\n",
 			circ->eraseblock);
 	} else if (ret < 0) {
 		dev_err(circ->dev, "Failed to read PEB %u, %d\n",
 			circ->eraseblock, ret);
-		return ret;
 	}
 
-	return 0;
+	return ret;
 }
 
 static int state_mtd_peb_write(struct state_backend_storage_bucket_circular *circ,
@@ -126,14 +118,13 @@ static int state_mtd_peb_write(struct state_backend_storage_bucket_circular *cir
 				ret);
 			return ret;
 		}
-		circ->force_rewrite = true;
+		ret = -EUCLEAN;
 	} else if (ret < 0 && ret != -EUCLEAN) {
 		dev_err(circ->dev, "Failed to write PEB %u, %d\n",
 			circ->eraseblock, ret);
-		return ret;
 	}
 
-	return 0;
+	return ret;
 }
 
 static int state_mtd_peb_erase(struct state_backend_storage_bucket_circular *circ)
@@ -181,16 +172,16 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 		return 0;
 
 	if (stat2.failed - stat1.failed > 0) {
-		circ->force_rewrite = true;
+		ret = -EUCLEAN;
 		dev_dbg(circ->dev, "PEB %u has ECC error, forcing rewrite\n",
 			circ->eraseblock);
 	} else if (stat2.corrected - stat1.corrected > 0) {
-		circ->force_rewrite = true;
+		ret = -EUCLEAN;
 		dev_dbg(circ->dev, "PEB %u is unclean, forcing rewrite\n",
 			circ->eraseblock);
 	}
 
-	return 0;
+	return ret;
 }
 
 static int state_mtd_peb_write(struct state_backend_storage_bucket_circular *circ,
@@ -234,8 +225,9 @@ static int state_mtd_peb_erase(struct state_backend_storage_bucket_circular *cir
 }
 #endif
 
-static int state_backend_bucket_circular_fill_cache(
-		struct state_backend_storage_bucket *bucket)
+static int state_backend_bucket_circular_read(struct state_backend_storage_bucket *bucket,
+					      uint8_t ** buf_out,
+					      ssize_t * len_hint)
 {
 	struct state_backend_storage_bucket_circular *circ =
 	    get_bucket_circular(bucket);
@@ -282,44 +274,17 @@ static int state_backend_bucket_circular_fill_cache(
 		circ->eraseblock, offset, read_len);
 
 	ret = state_mtd_peb_read(circ, buf, offset, read_len);
-	if (ret < 0) {
+	if (ret < 0 && ret != -EUCLEAN) {
 		dev_err(circ->dev, "Failed to read circular storage len %zd, %d\n",
 			read_len, ret);
 		free(buf);
 		return ret;
 	}
 
-	circ->current_data = buf;
-	circ->current_data_len = read_len;
+	*buf_out = buf;
+	*len_hint = read_len - sizeof(struct state_backend_storage_bucket_circular_meta);
 
-	return 0;
-}
-
-static int state_backend_bucket_circular_read(struct state_backend_storage_bucket *bucket,
-					      uint8_t ** buf_out,
-					      ssize_t * len_hint)
-{
-	struct state_backend_storage_bucket_circular *circ =
-	    get_bucket_circular(bucket);
-	int ret;
-
-	if (!circ->current_data) {
-		ret = state_backend_bucket_circular_fill_cache(bucket);
-		if (ret)
-			return ret;
-	}
-
-	/*
-	 * We keep the internal copy in the cache and duplicate the data for
-	 * external use
-	 */
-	*buf_out = xmemdup(circ->current_data, circ->current_data_len);
-	if (!*buf_out)
-		return -ENOMEM;
-
-	*len_hint = circ->current_data_len - sizeof(struct state_backend_storage_bucket_circular_meta);
-
-	return 0;
+	return ret;
 }
 
 static int state_backend_bucket_circular_write(struct state_backend_storage_bucket *bucket,
@@ -354,31 +319,6 @@ static int state_backend_bucket_circular_write(struct state_backend_storage_buck
 	meta->magic = circular_magic;
 	meta->written_length = written_length;
 
-	/* Nothing in cache? Then read to see what is on the device currently */
-	if (!circ->current_data) {
-		state_backend_bucket_circular_fill_cache(bucket);
-	}
-
-	/*
-	 * If we would write the same data that is currently on the device, we
-	 * can return successfully without writing.
-	 * Note that the cache may still be empty if the storage is empty or
-	 * errors occured.
-	 */
-	if (circ->current_data) {
-		dev_dbg(circ->dev, "Comparing cached data, writing %zd bytes, cached %zd bytes\n",
-			written_length, circ->current_data_len);
-		if (!circ->force_rewrite &&
-		    written_length == circ->current_data_len &&
-		    !memcmp(circ->current_data, write_buf, written_length)) {
-			dev_dbg(circ->dev, "Data already on device, not writing again\n");
-			goto out_free;
-		} else {
-			free(circ->current_data);
-			circ->current_data = NULL;
-		}
-	}
-
 	if (circ->write_area + written_length >= circ->max_size) {
 		circ->write_area = 0;
 	}
@@ -408,7 +348,7 @@ static int state_backend_bucket_circular_write(struct state_backend_storage_buck
 	circ->write_area += written_length;
 
 	ret = state_mtd_peb_write(circ, write_buf, offset, written_length);
-	if (ret < 0) {
+	if (ret < 0 && ret != -EUCLEAN) {
 		dev_err(circ->dev, "Failed to write circular to %ld length %zd, %d\n",
 			offset, written_length, ret);
 		goto out_free;
@@ -417,17 +357,9 @@ static int state_backend_bucket_circular_write(struct state_backend_storage_buck
 	dev_dbg(circ->dev, "Written state to PEB %u offset %ld length %zd data length %zd\n",
 		circ->eraseblock, offset, written_length, len);
 
-	/* Put written data into the cache */
-	WARN_ON(circ->current_data);
-	circ->current_data = write_buf;
-	circ->current_data_len = written_length;
-	write_buf = NULL;
-	circ->force_rewrite = false;
-
 out_free:
-	if (write_buf)
-		free(write_buf);
-	return 0;
+	free(write_buf);
+	return ret;
 }
 
 /**
@@ -492,8 +424,6 @@ static void state_backend_bucket_circular_free(struct
 	struct state_backend_storage_bucket_circular *circ =
 	    get_bucket_circular(bucket);
 
-	if (circ->current_data)
-		free(circ->current_data);
 	free(circ);
 }
 
@@ -528,7 +458,8 @@ int state_backend_bucket_circular_create(struct device_d *dev, const char *path,
 					 struct state_backend_storage_bucket **bucket,
 					 unsigned int eraseblock,
 					 ssize_t writesize,
-					 struct mtd_info_user *mtd_uinfo)
+					 struct mtd_info_user *mtd_uinfo,
+					 bool lazy_init)
 {
 	struct state_backend_storage_bucket_circular *circ;
 	int ret;
@@ -564,9 +495,13 @@ int state_backend_bucket_circular_create(struct device_d *dev, const char *path,
 	circ->bucket.free = state_backend_bucket_circular_free;
 	*bucket = &circ->bucket;
 
-	ret = state_backend_bucket_circular_init(*bucket);
-	if (ret)
-		goto out_free;
+	if (!lazy_init) {
+		ret = state_backend_bucket_circular_init(*bucket);
+		if (ret)
+			goto out_free;
+	} else {
+		circ->bucket.init = state_backend_bucket_circular_init;
+	}
 
 	return 0;
 

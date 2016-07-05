@@ -53,6 +53,7 @@ barebox_state_SOURCES = \
 	src/base64.c \
 	src/barebox-state/backend_bucket_circular.c \
 	src/barebox-state/backend_bucket_direct.c \
+	src/barebox-state/backend_bucket_cached.c \
 	src/barebox-state/backend.c \
 	src/barebox-state/backend_format_dtb.c \
 	src/barebox-state/backend_format_raw.c \
@@ -82,6 +83,7 @@ barebox_state_SOURCES = \
 	src/libbb.h \
 	src/fdt.h \
 	src/of.h \
+	src/crc.h \
 	src/mtd/mtd-peb.h \
 	src/driver.h
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)

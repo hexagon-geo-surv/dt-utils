@@ -153,8 +153,6 @@ int state_backend_init(struct state_backend *backend, struct device_d *dev,
 		       char *of_path, off_t offset, size_t max_size,
 		       uint32_t stridesize, const char *storagetype)
 {
-	struct state_backend_storage_bucket *bucket;
-	struct state_backend_storage_bucket *bucket_tmp;
 	int ret;
 
 	ret = state_format_init(backend, dev, backend_format, node, state_name);
@@ -166,39 +164,20 @@ int state_backend_init(struct state_backend *backend, struct device_d *dev,
 	if (ret)
 		goto out_free_format;
 
-	list_for_each_entry_safe(bucket, bucket_tmp, &backend->storage.buckets,
-				 bucket_list) {
-		if (!bucket->init)
-			continue;
-
-		ret = bucket->init(bucket);
-		if (ret) {
-			dev_warn(dev, "Bucket init failed, state degraded, %d\n",
-				 ret);
-			list_del(&bucket->bucket_list);
-			bucket->free(bucket);
-			continue;
-		}
-	}
-
-	if (list_empty(&backend->storage.buckets)) {
-		dev_err(dev, "Failed to initialize any state bucket\n");
-		ret = -EIO;
-		goto out_free_storage;
-	}
-
-
 	backend->of_path = of_path;
 
 	return 0;
 
-out_free_storage:
-	state_storage_free(&backend->storage);
 out_free_format:
 	state_format_free(backend->format);
 	backend->format = NULL;
 
 	return ret;
+}
+
+void state_backend_set_readonly(struct state_backend *backend)
+{
+	state_storage_set_readonly(&backend->storage);
 }
 
 void state_backend_free(struct state_backend *backend)

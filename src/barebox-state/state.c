@@ -19,6 +19,7 @@
 #include <digest.h>
 #include <errno.h>
 #include <fs.h>
+#include <crc.h>
 #include <linux/err.h>
 #include <linux/list.h>
 
@@ -66,10 +67,6 @@ static struct state *state_new(const char *name)
 	return state;
 }
 
-#ifndef __BAREBOX__
-#define asprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
-#endif
-
 static int state_convert_node_variable(struct state *state,
 				       struct device_node *node,
 				       struct device_node *parent,
@@ -92,8 +89,8 @@ static int state_convert_node_variable(struct state *state,
 		*indexs = 0;
 
 	/* construct full name */
-	name = asprintf("%s%s%s", parent_name, parent_name[0] ? "." : "",
-			short_name);
+	name = basprintf("%s%s%s", parent_name, parent_name[0] ? "." : "",
+			 short_name);
 	free(short_name);
 
 	if ((conv == STATE_CONVERT_TO_NODE) || (conv == STATE_CONVERT_FIXUP))
@@ -380,6 +377,13 @@ static int of_state_fixup(struct device_node *root, void *ctx)
 		}
 	}
 
+	if (state->backend.storage.stridesize) {
+		ret = of_property_write_u32(new_node, "backend-stridesize",
+				state->backend.storage.stridesize);
+		if (ret)
+			goto out;
+	}
+
 	/* address-cells + size-cells */
 	ret = of_property_write_u32(new_node, "#address-cells", 1);
 	if (ret)
@@ -417,9 +421,11 @@ void state_release(struct state *state)
  * @offset	Offset in the device path. May be 0 to start at the beginning.
  * @max_size	Maximum size of the area used. This may be 0 to use the full
  *		size.
+ * @readonly	This is a read-only state. Note that with this option set,
+ *		there are no repairs done.
  */
 struct state *state_new_from_node(struct device_node *node, char *path,
-				  off_t offset, size_t max_size)
+				  off_t offset, size_t max_size, bool readonly)
 {
 	struct state *state;
 	int ret = 0;
@@ -459,7 +465,7 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 			ret = of_find_path_by_node(partition_node, &path, 0);
 		}
 		if (!path) {
-			pr_err("state failed to parse path to backend\n");
+			dev_err(&state->dev, "state failed to parse path to backend\n");
 			ret = -EINVAL;
 			goto out_release_state;
 		}
@@ -479,7 +485,7 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 				      &storage_type);
 	if (ret) {
 		storage_type = NULL;
-		pr_info("No backend-storage-type found, using default.\n");
+		dev_info(&state->dev, "No backend-storage-type found, using default.\n");
 	}
 
 	ret = state_backend_init(&state->backend, &state->dev, node,
@@ -487,6 +493,9 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 				 max_size, stridesize, storage_type);
 	if (ret)
 		goto out_release_state;
+
+	if (readonly)
+		state_backend_set_readonly(&state->backend);
 
 	ret = state_from_node(state, node, 1);
 	if (ret) {
@@ -500,11 +509,11 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 
 	ret = state_load(state);
 	if (ret) {
-		pr_warn("Failed to load persistent state, continuing with defaults, %d\n", ret);
+		dev_warn(&state->dev, "Failed to load persistent state, continuing with defaults, %d\n", ret);
 		state->state_default = 1;
 	}
 
-	pr_info("New state registered '%s'\n", alias);
+	dev_info(&state->dev, "New state registered '%s'\n", alias);
 
 	return state;
 

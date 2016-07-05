@@ -27,6 +27,23 @@
 
 const unsigned int min_copies_written = 1;
 
+static int bucket_lazy_init(struct state_backend_storage_bucket *bucket)
+{
+	int ret;
+
+	if (bucket->initialized)
+		return 0;
+
+	if (bucket->init) {
+		ret = bucket->init(bucket);
+		if (ret)
+			return ret;
+	}
+	bucket->initialized = true;
+
+	return 0;
+}
+
 /**
  * state_storage_write - Writes the given data to the storage
  * @param storage Storage object
@@ -48,9 +65,19 @@ int state_storage_write(struct state_backend_storage *storage,
 	int ret;
 	int copies_written = 0;
 
+	if (storage->readonly)
+		return 0;
+
 	list_for_each_entry(bucket, &storage->buckets, bucket_list) {
-		ret = bucket->write(bucket, buf, len);
+		ret = bucket_lazy_init(bucket);
 		if (ret) {
+			dev_warn(storage->dev, "Failed to init bucket/write state backend bucket, %d\n",
+				 ret);
+			continue;
+		}
+
+		ret = bucket->write(bucket, buf, len);
+		if (ret < 0) {
 			dev_warn(storage->dev, "Failed to write state backend bucket, %d\n",
 				 ret);
 		} else {
@@ -78,9 +105,8 @@ int state_storage_write(struct state_backend_storage *storage,
  * to all buckets. Bucket implementations that need to keep the number of writes
  * low, can read their own copy first and compare it.
  */
-int state_storage_restore_consistency(struct state_backend_storage
-				      *storage, const uint8_t * buf,
-				      ssize_t len)
+int state_storage_restore_consistency(struct state_backend_storage *storage,
+				      const uint8_t * buf, ssize_t len)
 {
 	return state_storage_write(storage, buf, len);
 }
@@ -111,6 +137,13 @@ int state_storage_read(struct state_backend_storage *storage,
 
 	list_for_each_entry(bucket, &storage->buckets, bucket_list) {
 		*len = len_hint;
+		ret = bucket_lazy_init(bucket);
+		if (ret) {
+			dev_warn(storage->dev, "Failed to init bucket/read state backend bucket, %d\n",
+				 ret);
+			continue;
+		}
+
 		ret = bucket->read(bucket, buf, len);
 		if (ret) {
 			dev_warn(storage->dev, "Failed to read from state backend bucket, trying next, %d\n",
@@ -250,6 +283,7 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 		int ret;
 		ssize_t writesize = meminfo->writesize;
 		unsigned int eraseblock = offset / meminfo->erasesize;
+		bool lazy_init = true;
 
 		if (non_circular)
 			writesize = meminfo->erasesize;
@@ -258,11 +292,19 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 							   &bucket,
 							   eraseblock,
 							   writesize,
-							   meminfo);
+							   meminfo,
+							   lazy_init);
 		if (ret) {
 			dev_warn(storage->dev, "Failed to create bucket at '%s' eraseblock %u\n",
 				 path, eraseblock);
 			continue;
+		}
+
+		ret = state_backend_bucket_cached_create(storage->dev, bucket,
+							 &bucket);
+		if (ret) {
+			dev_warn(storage->dev, "Failed to setup cache bucket, continuing without cache, %d\n",
+				 ret);
 		}
 
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
@@ -387,6 +429,13 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 			continue;
 		}
 
+		ret = state_backend_bucket_cached_create(storage->dev, bucket,
+							 &bucket);
+		if (ret) {
+			dev_warn(storage->dev, "Failed to setup cache bucket, continuing without cache, %d\n",
+				 ret);
+		}
+
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
 		++nr_copies;
 		if (nr_copies >= desired_copies)
@@ -428,6 +477,7 @@ int state_storage_init(struct state_backend_storage *storage,
 	INIT_LIST_HEAD(&storage->buckets);
 	storage->dev = dev;
 	storage->name = storagetype;
+	storage->stridesize = stridesize;
 
 	ret = mtd_get_meminfo(path, &meminfo);
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE)) {
@@ -448,6 +498,11 @@ int state_storage_init(struct state_backend_storage *storage,
 	}
 
 	dev_err(storage->dev, "storage init done\n");
+}
+
+void state_storage_set_readonly(struct state_backend_storage *storage)
+{
+	storage->readonly = true;
 }
 
 /**
