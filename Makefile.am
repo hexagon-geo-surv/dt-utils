@@ -89,7 +89,7 @@ barebox_state_SOURCES = \
 barebox_state_CFLAGS = $(LIBDT_CFLAGS)
 barebox_state_LDADD = src/libdt-utils.la
 
-dtblint_SOURCES = src/dtblint.c
+dtblint_SOURCES = src/dtblint.c src/dtblint-imx-pinmux.c
 dtblint_LDADD = src/libdt-utils.la
 
 fdtdump_SOURCES = src/fdtdump.c
