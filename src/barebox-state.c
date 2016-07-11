@@ -394,7 +394,7 @@ static void usage(char *name)
 "\n"
 "-g, --get <variable>                      get the value of a variable\n"
 "-s, --set <variable>=<value>              set the value of a variable\n"
-"-n, --name <name>                         specify the state to use (default=\"state\")\n"
+"-n, --name <name>                         specify the state to use (default=\"state\"). Multiple states are allowed.\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
 "-v, --verbose                             increase verbosity\n"
@@ -411,19 +411,27 @@ struct state_set_get {
 	struct list_head list;
 };
 
+struct state_list {
+	const char *name;
+	struct state *state;
+	struct list_head list;
+};
+
 int main(int argc, char *argv[])
 {
-	struct state *state;
 	struct state_variable *v;
 	int ret, c, option_index;
 	int do_dump = 0, do_dump_shell = 0;
 	struct state_set_get *sg;
 	struct list_head sg_list;
-	char *statename = NULL;
+	struct state_list state_list;
+	struct state_list *state;
 	int lock_fd;
+	int nr_states = 0;
 	bool readonly = true;
 
 	INIT_LIST_HEAD(&sg_list);
+	INIT_LIST_HEAD(&state_list.list);
 
 	while (1) {
 		c = getopt_long(argc, argv, "hg:s:dvn:", long_options, &option_index);
@@ -456,8 +464,16 @@ int main(int argc, char *argv[])
 			verbose++;
 			break;
 		case 'n':
-			statename = optarg;
+		{
+			struct state_list *name;
+
+			name = xzalloc(sizeof(*name));
+			name->name = optarg;
+
+			list_add_tail(&name->list, &state_list.list);
+			++nr_states;
 			break;
+		}
 		}
 	}
 
@@ -474,87 +490,117 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	state = state_get(statename, readonly);
-	if (IS_ERR(state)) {
-		ret = 1;
-		goto out_unlock;
+	list_for_each_entry(state, &state_list.list, list) {
+		state->state = state_get(state->name, readonly);
+		if (IS_ERR(state->state)) {
+			ret = 1;
+			goto out_unlock;
+		}
 	}
 
 	if (do_dump) {
-		state_for_each_var(state, v) {
-			struct variable_str_type *vtype;
-			vtype = state_find_type(v->type);
+		list_for_each_entry(state, &state_list.list, list) {
+			state_for_each_var(state->state, v) {
+				struct variable_str_type *vtype;
+				vtype = state_find_type(v->type);
 
-			if (!vtype) {
-				fprintf(stderr, "no such type: %d\n", v->type);
-				ret = 1;
-				goto out_unlock;
-			}
+				if (!vtype) {
+					fprintf(stderr, "no such type: %d\n", v->type);
+					ret = 1;
+					goto out_unlock;
+				}
 
-			printf("%s=%s", v->name, vtype->get(v));
-			if (verbose) {
-				printf(", type=%s", vtype->type_name);
-				if (vtype->info)
-					vtype->info(v);
+				if (nr_states > 1)
+					printf("%s.%s=%s", state->name, v->name,
+					       vtype->get(v));
+				else
+					printf("%s=%s", v->name, vtype->get(v));
+				if (verbose) {
+					printf(", type=%s", vtype->type_name);
+					if (vtype->info)
+						vtype->info(v);
+				}
+				printf("\n");
 			}
-			printf("\n");
 		}
 	}
 
 	if (do_dump_shell) {
-		state_for_each_var(state, v) {
-			struct variable_str_type *vtype;
-			char *name, *ptr;
-			int i;
+		list_for_each_entry(state, &state_list.list, list) {
+			state_for_each_var(state->state, v) {
+				struct variable_str_type *vtype;
+				char *name, *ptr;
+				int i;
 
-			/* replace "." by "_" to make it var name shell compatible */
-			name = strdup(v->name);
-			ptr = name;
-			while ((ptr = strchr(ptr, '.')))
-				*ptr++ = '_';
+				/* replace "." by "_" to make it var name shell compatible */
+				name = strdup(v->name);
+				ptr = name;
+				while ((ptr = strchr(ptr, '.')))
+					*ptr++ = '_';
 
-			vtype = state_find_type(v->type);
-			printf("%s_%s=\"%s\"\n", state->name, name, vtype->get(v));
+				vtype = state_find_type(v->type);
+				printf("%s_%s=\"%s\"\n", state->name, name, vtype->get(v));
+			}
 		}
 	}
 
 	list_for_each_entry(sg, &sg_list, list) {
+		char *arg = sg->arg;
+		char *statename_end = strchr(sg->arg, '.');
+		int statename_len;
+		state = &state_list;
+
+		if (statename_end) {
+			statename_len = statename_end - sg->arg;
+			arg = statename_end + 1;
+
+			list_for_each_entry(state, &state_list.list, list) {
+				if (strlen(state->name) == statename_len &&
+				    !strncmp(state->name, sg->arg, statename_len))
+					break;
+			}
+		}
+		if (state == &state_list) {
+			state = list_first_entry(&state_list.list, struct state_list, list);
+		}
 		if (sg->get) {
-			char *val = state_get_var(state, sg->arg);
+			char *val = state_get_var(state->state, arg);
 			if (!val) {
-				fprintf(stderr, "no such variable: %s\n", sg->arg);
+				fprintf(stderr, "no such variable: %s\n", arg);
 				ret = 1;
 				goto out_unlock;
 			}
 
-			printf("%s\n", val);
 		} else {
 			char *var, *val;
 
-			var = sg->arg;
-			val = index(sg->arg, '=');
+			var = arg;
+			val = index(arg, '=');
 			if (!val) {
 				fprintf(stderr, "usage: -s var=val\n");
 				ret = 1;
 				goto out_unlock;
 			}
 			*val++ = '\0';
-			ret = state_set_var(state, var, val);
+			ret = state_set_var(state->state, var, val);
 			if (ret) {
-				fprintf(stderr, "Failed to set variable %s to %s: %s\n",
-						var, val, strerror(-ret));
+				fprintf(stderr, "Failed to set variable %s in state %s to %s: %s\n",
+						var, state->name, val,
+						strerror(-ret));
 				ret = 1;
 				goto out_unlock;
 			}
 		}
 	}
 
-	if (state->dirty) {
-		ret = state_save(state);
-		if (ret) {
-			fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
-			ret = 1;
-			goto out_unlock;
+	list_for_each_entry(state, &state_list.list, list) {
+		if (state->state->dirty) {
+			ret = state_save(state->state);
+			if (ret) {
+				fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
+				ret = 1;
+				goto out_unlock;
+			}
 		}
 	}
 
