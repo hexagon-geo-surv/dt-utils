@@ -1,3 +1,8 @@
+dt-utils 2016.07.1
+==================
+barebox-state: Support to use multiple state frameworks at for the same call.
+dtblint: new checks for pinctrl-imx6q and imx*-fec.
+
 dt-utils 2016.07.0
 ==================
 barebox-state: Update to latest mainline state. This also speeds up reading of
