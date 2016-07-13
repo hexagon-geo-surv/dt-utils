@@ -429,6 +429,7 @@ int main(int argc, char *argv[])
 	int lock_fd;
 	int nr_states = 0;
 	bool readonly = true;
+	const char *default_state = "state";
 
 	INIT_LIST_HEAD(&sg_list);
 	INIT_LIST_HEAD(&state_list.list);
@@ -475,6 +476,16 @@ int main(int argc, char *argv[])
 			break;
 		}
 		}
+	}
+
+	if (nr_states == 0) {
+		struct state_list *new_state;
+
+		new_state = xzalloc(sizeof(*new_state));
+		new_state->name = default_state;
+
+		list_add_tail(&new_state->list, &state_list.list);
+		++nr_states;
 	}
 
 	lock_fd = open("/var/lock/barebox-state", O_CREAT | O_RDWR, 0600);
