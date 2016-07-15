@@ -2295,11 +2295,13 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 			return udev_parse_eeprom(dev, devpath);
 		} else {
 			/* try to find a block device */
-			ret = device_find_block_device(dev, devpath);
-			if (!ret)
+			ret = udev_parse_mtd(dev, devpath, size);
+			if (ret) {
+				ret = device_find_block_device(dev, devpath);
+				if (ret)
+					return ret;
 				return of_parse_partition(partition_node, offset, size);
-			else
-				return udev_parse_mtd(dev, devpath, size);
+			}
 		}
 	}
 
