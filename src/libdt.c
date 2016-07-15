@@ -2028,6 +2028,61 @@ static struct udev_device *device_find_mtd_partition(struct udev_device *dev,
 }
 
 /*
+ * device_find_block_device - extract device path from udev block device
+ *
+ * @dev:	the udev_device to extract information from
+ * @devpath:	returns the devicepath under which the block device is accessible
+ *
+ * returns 0 for success or negative error value on failure.
+ */
+int device_find_block_device(struct udev_device *dev,
+		char **devpath)
+{
+
+	struct udev *udev;
+	struct udev_enumerate *enumerate;
+	struct udev_list_entry *devices, *dev_list_entry;
+	struct udev_device *part;
+	const char *outpath;
+	int ret;
+
+	udev = udev_new();
+	if (!udev) {
+		  fprintf(stderr, "Can't create udev\n");
+		  return -ENODEV;
+	}
+
+	enumerate = udev_enumerate_new(udev);
+	/* block device and partitions get identified by subsystem in subtree */
+	udev_enumerate_add_match_parent(enumerate, dev);
+	udev_enumerate_add_match_subsystem(enumerate, "block");
+	udev_enumerate_scan_devices(enumerate);
+	devices = udev_enumerate_get_list_entry(enumerate);
+	udev_list_entry_foreach(dev_list_entry, devices) {
+		const char *path, *devtype;
+		path = udev_list_entry_get_name(dev_list_entry);
+		part = udev_device_new_from_syspath(udev, path);
+		/* distinguish device (disk) from partitions */
+		devtype = udev_device_get_devtype(part);
+		if (!devtype)
+			continue;
+		if (!strcmp(devtype, "disk")) {
+			outpath = udev_device_get_devnode(part);
+			*devpath = strdup(outpath);
+			ret = 0;
+			goto out;
+		}
+	}
+	ret = -ENODEV;
+
+out:
+	udev_enumerate_unref(enumerate);
+	udev_unref(udev);
+
+	return ret;
+}
+
+/*
  * of_parse_partition - extract offset and size from a partition device_node
  *
  * returns true for success, negative error code otherwise
@@ -2209,10 +2264,11 @@ out:
  * This function takes a device_node which represents a partition.
  * For this partition the function returns the device path and the offset
  * and size in the device. For mtd devices the path will be /dev/mtdx, for
- * EEPROMs it will be /sys/.../eeprom. For mtd devices the device path returned
- * will be the partition itself. Since EEPROMs do not have partitions under
- * Linux @offset and @size will describe the offset and size inside the full
- * device.
+ * EEPROMs it will be /sys/.../eeprom and for block devices it will be /dev/...
+ * For mtd devices the device path returned will be the partition itself.
+ * Since EEPROMs do not have partitions under Linux @offset and @size will
+ * describe the offset and size inside the full device. The same applies to
+ * block devices.
  *
  * returns 0 for success or negative error value on failure.
  */
@@ -2234,11 +2290,20 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 	 * an out-of-tree kernel patch.
 	 */
 	dev = of_find_device_by_node_path(partition_node->full_name);
-	if (dev)
-		if (udev_device_is_eeprom(dev))
+	if (dev) {
+		if (udev_device_is_eeprom(dev)) {
 			return udev_parse_eeprom(dev, devpath);
-		else
-			return udev_parse_mtd(dev, devpath, size);
+		} else {
+			/* try to find a block device */
+			ret = udev_parse_mtd(dev, devpath, size);
+			if (ret) {
+				ret = device_find_block_device(dev, devpath);
+				if (ret)
+					return ret;
+				return of_parse_partition(partition_node, offset, size);
+			}
+		}
+	}
 
 	/*
 	 * Ok, the partition node has no udev_device. Try parent node.
