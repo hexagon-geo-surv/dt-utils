@@ -1,3 +1,8 @@
+dt-utils 2016.07.2
+==================
+barebox-state: Restore backwards compatibility with older versions and add
+blockdevice detection.
+
 dt-utils 2016.07.1
 ==================
 barebox-state: Support to use multiple state frameworks at for the same call.
