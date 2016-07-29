@@ -581,6 +581,7 @@ int main(int argc, char *argv[])
 				ret = 1;
 				goto out_unlock;
 			}
+			printf("%s\n", val);
 
 		} else {
 			char *var, *val;
