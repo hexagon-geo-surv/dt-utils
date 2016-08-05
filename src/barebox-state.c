@@ -475,6 +475,12 @@ int main(int argc, char *argv[])
 			++nr_states;
 			break;
 		}
+		case ':':
+		case '?':
+		default:
+			exit(1);
+			break;
+
 		}
 	}
 
