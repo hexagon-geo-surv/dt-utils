@@ -1,3 +1,8 @@
+dt-utils 2016.08.0
+==================
+barebox-state: Fix printing variable on get.
+barebox-state: Fix exit code for missing or invalid argument.
+
 dt-utils 2016.07.2
 ==================
 barebox-state: Restore backwards compatibility with older versions and add
