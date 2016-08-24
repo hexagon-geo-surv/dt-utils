@@ -1976,7 +1976,10 @@ static void of_scan_udev_devices(void)
 	}
 
 	enumerate = udev_enumerate_new(udev);
-	udev_enumerate_add_match_property(enumerate, "OF_FULLNAME", of_full_path);
+	udev_enumerate_add_match_subsystem(enumerate, "platform");
+	udev_enumerate_add_match_subsystem(enumerate, "i2c");
+	udev_enumerate_add_match_subsystem(enumerate, "spi");
+	udev_enumerate_add_match_subsystem(enumerate, "mtd");
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
 
