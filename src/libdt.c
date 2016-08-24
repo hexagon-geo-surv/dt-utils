@@ -1953,17 +1953,26 @@ struct device_node *of_read_proc_devicetree(void)
 	return ERR_PTR(ret);
 }
 
-struct udev_device *of_find_device_by_node_path(const char *of_full_path)
+struct udev_of_path {
+	const char *of_path;
+	struct udev_device *udev;
+	struct list_head list;
+};
+
+static LIST_HEAD(udev_of_devices);
+
+static void of_scan_udev_devices(void)
 {
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *dev_list_entry;
 	struct udev_device *dev;
+	struct udev_of_path *udev_of_path;
 
 	udev = udev_new();
 	if (!udev) {
 		fprintf(stderr, "Can't create udev\n");
-		return NULL;
+		return;
 	}
 
 	enumerate = udev_enumerate_new(udev);
@@ -1972,7 +1981,7 @@ struct udev_device *of_find_device_by_node_path(const char *of_full_path)
 	devices = udev_enumerate_get_list_entry(enumerate);
 
 	udev_list_entry_foreach(dev_list_entry, devices) {
-		const char *path;
+		const char *path, *of_path;
 
 		/*
 		 * Get the filename of the /sys entry for the device
@@ -1981,15 +1990,33 @@ struct udev_device *of_find_device_by_node_path(const char *of_full_path)
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
 
-		goto out;
+		of_path = udev_device_get_property_value(dev, "OF_FULLNAME");
+		if (!of_path)
+			continue;
+
+		udev_of_path = malloc(sizeof(*udev_of_path));
+		udev_of_path->of_path = strdup(of_path);
+		udev_of_path->udev = dev;
+		list_add_tail(&udev_of_path->list, &udev_of_devices);
+	}
+}
+
+struct udev_device *of_find_device_by_node_path(const char *of_full_path)
+{
+	struct udev_of_path *udev_of_path;
+	struct udev_device *ret = NULL;
+
+	if (list_empty(&udev_of_devices))
+		of_scan_udev_devices();
+
+	list_for_each_entry(udev_of_path, &udev_of_devices, list) {
+		if (!strcmp(udev_of_path->of_path, of_full_path)) {
+			ret = udev_of_path->udev;
+			break;
+		}
 	}
 
-	dev = NULL;
-out:
-	udev_enumerate_unref(enumerate);
-	udev_unref(udev);
-
-	return dev;
+	return ret;
 }
 
 static struct udev_device *device_find_mtd_partition(struct udev_device *dev,
