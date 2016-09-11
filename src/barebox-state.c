@@ -429,7 +429,6 @@ int main(int argc, char *argv[])
 	int lock_fd;
 	int nr_states = 0;
 	bool readonly = true;
-	const char *default_state = "state";
 
 	INIT_LIST_HEAD(&sg_list);
 	INIT_LIST_HEAD(&state_list.list);
@@ -488,7 +487,7 @@ int main(int argc, char *argv[])
 		struct state_list *new_state;
 
 		new_state = xzalloc(sizeof(*new_state));
-		new_state->name = default_state;
+		new_state->name = NULL;
 
 		list_add_tail(&new_state->list, &state_list.list);
 		++nr_states;
