@@ -92,7 +92,7 @@ static int state_uint32_import(struct state_variable *sv,
 static int state_uint8_set(struct param_d *p, void *priv)
 {
 	struct state_uint32 *su32 = priv;
-	struct state *state = su32->state;
+	struct state *state = su32->var.state;
 
 	if (su32->value > 255)
 		return -ERANGE;
@@ -123,7 +123,7 @@ static struct state_variable *state_uint8_create(struct state *state,
 #else
 	su32->var.raw = &su32->value + 3;
 #endif
-	su32->state = state;
+	su32->var.state = state;
 
 	return &su32->var;
 }
@@ -147,6 +147,7 @@ static struct state_variable *state_uint32_create(struct state *state,
 	su32->param = param;
 	su32->var.size = sizeof(uint32_t);
 	su32->var.raw = &su32->value;
+	su32->var.state = state;
 
 	return &su32->var;
 }
@@ -236,6 +237,7 @@ static struct state_variable *state_enum32_create(struct state *state,
 	enum32->num_names = num_names;
 	enum32->var.size = sizeof(uint32_t);
 	enum32->var.raw = &enum32->value;
+	enum32->var.state = state;
 
 	for (i = 0; i < num_names; i++) {
 		const char *name;
@@ -308,6 +310,7 @@ static struct state_variable *state_mac_create(struct state *state,
 
 	mac->var.size = ARRAY_SIZE(mac->value);
 	mac->var.raw = mac->value;
+	mac->var.state = state;
 
 	mac->param = dev_add_param_mac(&state->dev, name, state_set_dirty,
 				       NULL, mac->value, state);
@@ -374,7 +377,7 @@ static int state_string_import(struct state_variable *sv,
 static int state_string_set(struct param_d *p, void *priv)
 {
 	struct state_string *string = priv;
-	struct state *state = string->state;
+	struct state *state = string->var.state;
 	int ret;
 
 	ret = state_string_copy_to_raw(string, string->value);
@@ -419,7 +422,7 @@ static struct state_variable *state_string_create(struct state *state,
 	string = xzalloc(sizeof(*string) + start_size[1]);
 	string->var.size = start_size[1];
 	string->var.raw = &string->raw;
-	string->state = state;
+	string->var.state = state;
 
 	string->param = dev_add_param_string(&state->dev, name,
 					     state_string_set, state_string_get,
