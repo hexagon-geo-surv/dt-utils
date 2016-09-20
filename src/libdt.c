@@ -2373,6 +2373,11 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 			return ret;
 
 		return of_parse_partition(partition_node, offset, size);
+	} else {
+		ret = device_find_block_device(dev, devpath);
+		if (ret)
+			return ret;
+		return of_parse_partition(partition_node, offset, size);
 	}
 
 	return -EINVAL;
