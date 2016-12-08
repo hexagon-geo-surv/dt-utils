@@ -365,7 +365,7 @@ struct state *state_get(const char *name, bool readonly)
 
 	state = state_new_from_node(node, devpath, offset, size, readonly);
 	if (IS_ERR(state)) {
-		fprintf(stderr, "unable to initlialize state: %s\n",
+		fprintf(stderr, "unable to initialize state: %s\n",
 				strerror(PTR_ERR(state)));
 		return ERR_CAST(state);
 	}
