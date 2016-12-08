@@ -1,3 +1,11 @@
+dt-utils 2016.12.0
+==================
+libdt: cache udev scan results
+libdt: limit device enumeration
+barebox-state: fall back to /state if there is no alias defined
+backend_storage: fix missing include
+libdt: take the parent to search for block devices
+
 dt-utils 2016.08.0
 ==================
 barebox-state: Fix printing variable on get.
