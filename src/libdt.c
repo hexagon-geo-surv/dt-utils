@@ -2190,7 +2190,6 @@ static int udev_device_is_eeprom(struct udev_device *dev)
  */
 static int udev_parse_mtd(struct udev_device *dev, char **devpath, size_t *size)
 {
-	const char *devtype;
 	const char *sizestr;
 	const char *outpath;
 
@@ -2307,7 +2306,7 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 {
 	struct device_node *node;
 	struct udev_device *dev, *partdev, *mtd;
-	const char *outpath, *partname;
+	const char *partname;
 	int ret;
 
 	*offset = 0;
