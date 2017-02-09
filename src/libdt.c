@@ -2323,6 +2323,7 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 		if (udev_device_is_eeprom(dev)) {
 			return udev_parse_eeprom(dev, devpath);
 		} else if (!udev_parse_mtd(dev, devpath, size)) {
+			return 0;
 		} else {
 			/* try to find a block device */
 			ret = device_find_block_device(dev, devpath);
