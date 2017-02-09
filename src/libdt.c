@@ -2314,9 +2314,9 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 
 	/*
 	 * simplest case: This nodepath can directly be translated into
-	 * a mtd or eeprom device. A mtd device requires that the mtd
-	 * partitions have a device_node set in the kernel. This requires
-	 * an out-of-tree kernel patch.
+	 * an eeprom, mtd or block device. Note that for the mtd case an
+	 * out-of-tree kernel patch is required
+	 * (https://patchwork.ozlabs.org/patch/726037/).
 	 */
 	dev = of_find_device_by_node_path(partition_node->full_name);
 	if (dev) {
