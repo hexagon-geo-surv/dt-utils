@@ -2324,13 +2324,14 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 			return udev_parse_eeprom(dev, devpath);
 		} else if (!udev_parse_mtd(dev, devpath, size)) {
 			return 0;
-		} else {
-			/* try to find a block device */
-			ret = device_find_block_device(dev, devpath);
-			if (ret)
-				return ret;
+		} else if (device_find_block_device(dev, devpath)) {
 			return of_parse_partition(partition_node, offset, size);
 		}
+
+		/*
+		 * If we found a device but couldn't classify it above, we fall
+		 * through.
+		 */
 	}
 
 	/*
