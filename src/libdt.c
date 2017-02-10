@@ -94,7 +94,7 @@ void of_print_property(const void *data, int len)
 		while (j < len) {
 			if (j > 0)
 				printf("\", \"");
-			printf("%s", data);
+			printf("%s", (const char *)data);
 			j    += strlen(data) + 1;
 			data += strlen(data) + 1;
 		}
