@@ -261,13 +261,8 @@ static int backend_format_raw_init_digest(struct state_backend_format_raw *raw,
 	}
 
 	ret = keystore_get_secret(secret_name, &key, &key_len);
-	if (ret == -ENOENT) {	/* -ENOENT == does not exist */
-		dev_info(raw->dev, "Could not get secret '%s' - probe deferred\n",
-			 secret_name);
-		return -EPROBE_DEFER;
-	} else if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	digest = digest_alloc(algo);
 	if (!digest) {
