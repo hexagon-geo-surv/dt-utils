@@ -2,6 +2,7 @@ LIBDT_1 {
 global:
 	crc32;
 	crc32_no_comp;
+	dev_printf;
 	device_find_partition;
 	of_alias_get;
 	of_alias_get_id;
@@ -70,6 +71,9 @@ global:
 	of_set_property;
 	of_set_root_node;
 	of_unflatten_dtb;
+	pr_level_get;
+	pr_level_set;
+	pr_printf;
 local:
         *;
 };

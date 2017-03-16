@@ -35,19 +35,31 @@ typedef uint64_t u64;
 #undef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
-#ifdef DEBUG
-#define pr_debug(fmt, arg...)       fprintf(stderr, fmt, ##arg)
-#else
-#define pr_debug(fmt, arg...)
-#endif
+struct device_d;
 
-#define pr_err(fmt, arg...)       fprintf(stderr, fmt, ##arg)
-#define pr_warn(fmt, arg...)      pr_err(fmt, ##arg)
-#define pr_info(fmt, arg...)      pr_err(fmt, ##arg)
-#define dev_err(dev, fmt, arg...) pr_err(fmt, ##arg)
-#define dev_warn(dev, fmt, arg...) pr_err(fmt, ##arg)
-#define dev_info(dev, fmt, arg...) pr_err(fmt, ##arg)
-#define dev_dbg(dev, fmt, arg...) pr_debug(fmt, ##arg)
+void pr_level_set(int level);
+int pr_level_get(void);
+
+int pr_printf(int level, const char *format, ...)
+        __attribute__ ((format(__printf__, 2, 3)));
+int dev_printf(int level, const struct device_d *dev, const char *format, ...)
+        __attribute__ ((format(__printf__, 3, 4)));
+
+#define pr_err(fmt, arg...)	pr_printf(3, fmt, ##arg)
+#define pr_warn(fmt, arg...)	pr_printf(4, fmt, ##arg)
+#define pr_notice(fmt, arg...)	pr_printf(5, fmt, ##arg)
+#define pr_info(fmt, arg...)	pr_printf(6, fmt, ##arg)
+#define pr_debug(fmt, arg...)	pr_printf(7, fmt, ##arg)
+#define dev_err(dev, format, arg...)            \
+	dev_printf(3, (dev) , format , ## arg)
+#define dev_warn(dev, format, arg...)           \
+	dev_printf(4, (dev) , format , ## arg)
+#define dev_notice(dev, format, arg...)         \
+	dev_printf(5, (dev) , format , ## arg)
+#define dev_info(dev, format, arg...)           \
+	dev_printf(6, (dev) , format , ## arg)
+#define dev_dbg(dev, format, arg...)            \
+	dev_printf(7, (dev) , format , ## arg)
 
 #define __WARN() do { 								\
 	printf("WARNING: at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__);	\

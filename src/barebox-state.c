@@ -37,8 +37,6 @@
 #include <dt/dt.h>
 #include <state.h>
 
-static int verbose;
-
 struct state_variable;
 
 static int __state_uint8_set(struct state_variable *var, const char *val);
@@ -323,7 +321,7 @@ struct state *state_get(const char *name, bool readonly)
 
 	root = of_read_proc_devicetree();
 	if (IS_ERR(root)) {
-		fprintf(stderr, "Unable to read devicetree. %s\n",
+		pr_err("Unable to read devicetree. %s\n",
 				strerror(-PTR_ERR(root)));
 		return ERR_CAST(root);
 	}
@@ -333,7 +331,7 @@ struct state *state_get(const char *name, bool readonly)
 	if (name) {
 		node = of_find_node_by_path_or_alias(root, name);
 		if (!node) {
-			fprintf(stderr, "no such node: %s\n", name);
+			pr_err("no such node: %s\n", name);
 			return ERR_PTR(-ENOENT);
 		}
 	} else {
@@ -341,31 +339,30 @@ struct state *state_get(const char *name, bool readonly)
 		if (!node)
 			node = of_find_node_by_path_or_alias(root, "/state");
 		if (!node) {
-			fprintf(stderr, "Neither /aliases/state nor /state found\n");
+			pr_err("Neither /aliases/state nor /state found\n");
 			return ERR_PTR(-ENOENT);
 		}
 	}
 
-	if (verbose > 1) {
-		printf("found state node %s:\n", node->full_name);
+	pr_debug("found state node %s:\n", node->full_name);
+	if (pr_level_get() > 6)
 		of_print_nodes(node, 0);
-	}
 
         partition_node = of_parse_phandle(node, "backend", 0);
         if (!partition_node) {
-                fprintf(stderr, "cannot find backend node in %s\n", node->full_name);
+                pr_err("cannot find backend node in %s\n", node->full_name);
                 exit (1);
         }
 
         ret = of_get_devicepath(partition_node, &devpath, &offset, &size);
         if (ret) {
-                fprintf(stderr, "Cannot find backend path in %s\n", node->full_name);
+                pr_err("Cannot find backend path in %s\n", node->full_name);
                 return ERR_PTR(ret);
         }
 
 	state = state_new_from_node(node, devpath, offset, size, readonly);
 	if (IS_ERR(state)) {
-		fprintf(stderr, "unable to initialize state: %s\n",
+		pr_err("unable to initialize state: %s\n",
 				strerror(PTR_ERR(state)));
 		return ERR_CAST(state);
 	}
@@ -398,6 +395,7 @@ static void usage(char *name)
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
 "-v, --verbose                             increase verbosity\n"
+"-q, --quiet                               decrease verbosity\n"
 "--help                                    this help\n",
 	name);
 }
@@ -429,12 +427,13 @@ int main(int argc, char *argv[])
 	int lock_fd;
 	int nr_states = 0;
 	bool readonly = true;
+	int pr_level = 5;
 
 	INIT_LIST_HEAD(&sg_list);
 	INIT_LIST_HEAD(&state_list.list);
 
 	while (1) {
-		c = getopt_long(argc, argv, "hg:s:dvn:", long_options, &option_index);
+		c = getopt_long(argc, argv, "hg:s:dvn:q", long_options, &option_index);
 		if (c < 0)
 			break;
 		switch (c) {
@@ -461,7 +460,10 @@ int main(int argc, char *argv[])
 			do_dump_shell = 1;
 			break;
 		case 'v':
-			verbose++;
+			pr_level++;
+			break;
+		case 'q':
+			pr_level--;
 			break;
 		case 'n':
 		{
@@ -483,6 +485,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	pr_level_set(pr_level);
+
 	if (nr_states == 0) {
 		struct state_list *new_state;
 
@@ -495,13 +499,13 @@ int main(int argc, char *argv[])
 
 	lock_fd = open("/var/lock/barebox-state", O_CREAT | O_RDWR, 0600);
 	if (lock_fd < 0) {
-		fprintf(stderr, "Failed to open lock-file /var/lock/barebox-state\n");
+		pr_err("Failed to open lock-file /var/lock/barebox-state\n");
 		exit(1);
 	}
 
 	ret = flock(lock_fd, LOCK_EX | LOCK_NB);
 	if (ret < 0) {
-		fprintf(stderr, "Failed to lock. Already locked by other process /var/lock/barebox-state.\n");
+		pr_err("Failed to lock. Already locked by other process /var/lock/barebox-state.\n");
 		close(lock_fd);
 		exit(1);
 	}
@@ -523,7 +527,7 @@ int main(int argc, char *argv[])
 				vtype = state_find_type(v->type);
 
 				if (!vtype) {
-					fprintf(stderr, "no such type: %d\n", v->type);
+					pr_err("no such type: %d\n", v->type);
 					ret = 1;
 					goto out_unlock;
 				}
@@ -533,7 +537,7 @@ int main(int argc, char *argv[])
 					       vtype->get(v));
 				else
 					printf("%s=%s", v->name, vtype->get(v));
-				if (verbose) {
+				if (pr_level_get() > 5) {
 					printf(", type=%s", vtype->type_name);
 					if (vtype->info)
 						vtype->info(v);
@@ -584,7 +588,7 @@ int main(int argc, char *argv[])
 		if (sg->get) {
 			char *val = state_get_var(state->state, arg);
 			if (!val) {
-				fprintf(stderr, "no such variable: %s\n", arg);
+				pr_err("no such variable: %s\n", arg);
 				ret = 1;
 				goto out_unlock;
 			}
@@ -596,14 +600,14 @@ int main(int argc, char *argv[])
 			var = arg;
 			val = index(arg, '=');
 			if (!val) {
-				fprintf(stderr, "usage: -s var=val\n");
+				pr_err("usage: -s var=val\n");
 				ret = 1;
 				goto out_unlock;
 			}
 			*val++ = '\0';
 			ret = state_set_var(state->state, var, val);
 			if (ret) {
-				fprintf(stderr, "Failed to set variable %s in state %s to %s: %s\n",
+				pr_err("Failed to set variable %s in state %s to %s: %s\n",
 						var, state->name, val,
 						strerror(-ret));
 				ret = 1;
@@ -616,7 +620,7 @@ int main(int argc, char *argv[])
 		if (state->state->dirty) {
 			ret = state_save(state->state);
 			if (ret) {
-				fprintf(stderr, "Failed to save state: %s\n", strerror(-ret));
+				pr_err("Failed to save state: %s\n", strerror(-ret));
 				ret = 1;
 				goto out_unlock;
 			}

@@ -35,6 +35,60 @@
 #include <libudev.h>
 #include <dt.h>
 
+static int pr_level = 5;
+
+void pr_level_set(int level)
+{
+	pr_level = level;
+}
+
+int pr_level_get(void)
+{
+	return pr_level;
+}
+
+int pr_printf(int level, const char *format, ...)
+{
+	va_list args;
+	int ret = 0;
+	char printbuffer[1025] = {};
+
+	if (level > pr_level)
+		return 0;
+
+	va_start(args, format);
+
+	ret += vsnprintf(printbuffer + ret, 1024 - ret, format, args);
+
+	va_end(args);
+
+	fprintf(stderr, "%s", printbuffer);
+
+	return ret;
+}
+
+int dev_printf(int level, const struct device_d *dev, const char *format, ...)
+{
+	va_list args;
+	int ret = 0;
+	char printbuffer[1025] = {};
+
+	if (level > pr_level)
+		return 0;
+
+	ret += sprintf(printbuffer + ret, "%s: ", dev->name);
+
+	va_start(args, format);
+
+	ret += vsnprintf(printbuffer + ret, 1024 - ret, format, args);
+
+	va_end(args);
+
+	fprintf(stderr, "%s", printbuffer);
+
+	return ret;
+}
+
 static int is_printable_string(const void *data, int len)
 {
 	const char *s = data;
