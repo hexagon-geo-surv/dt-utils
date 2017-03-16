@@ -101,13 +101,14 @@ out:
 
 static int state_format_init(struct state_backend *backend,
 			     struct device_d *dev, const char *backend_format,
-			     struct device_node *node, const char *state_name)
+			     struct device_node *node, const char *state_name,
+			     int force)
 {
 	int ret;
 
 	if (!strcmp(backend_format, "raw")) {
 		ret = backend_format_raw_create(&backend->format, node,
-						state_name, dev);
+						state_name, dev, force);
 	} else if (!strcmp(backend_format, "dtb")) {
 		ret = backend_format_dtb_create(&backend->format, dev);
 	} else {
@@ -145,17 +146,18 @@ static void state_format_free(struct state_backend_format *format)
  * For blockdevices it makes sense to align them on blocksize.
  * @param storagetype Type of the storage backend. This may be NULL where we
  * autoselect some backwardscompatible backend options
+ * @param force If true, ignore errors like missing hmac
  * @return 0 on success, -errno otherwise
  */
 int state_backend_init(struct state_backend *backend, struct device_d *dev,
 		       struct device_node *node, const char *backend_format,
 		       const char *storage_path, const char *state_name, const
 		       char *of_path, off_t offset, size_t max_size,
-		       uint32_t stridesize, const char *storagetype)
+		       uint32_t stridesize, const char *storagetype, int force)
 {
 	int ret;
 
-	ret = state_format_init(backend, dev, backend_format, node, state_name);
+	ret = state_format_init(backend, dev, backend_format, node, state_name, force);
 	if (ret)
 		return ret;
 

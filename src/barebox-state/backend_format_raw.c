@@ -285,7 +285,7 @@ static int backend_format_raw_init_digest(struct state_backend_format_raw *raw,
 
 int backend_format_raw_create(struct state_backend_format **format,
 			      struct device_node *node, const char *secret_name,
-			      struct device_d *dev)
+			      struct device_d *dev, int force)
 {
 	struct state_backend_format_raw *raw;
 	int ret;
@@ -301,8 +301,12 @@ int backend_format_raw_create(struct state_backend_format **format,
 	} else if (ret) {
 		dev_err(raw->dev, "Failed initializing digest for raw format, %d\n",
 			ret);
-		free(raw);
-		return ret;
+		if (force) {
+			dev_warn(raw->dev, "Continuing anyway (forced)\n");
+		} else {
+			free(raw);
+			return ret;
+		}
 	}
 
 	raw->format.pack = backend_format_raw_pack;
