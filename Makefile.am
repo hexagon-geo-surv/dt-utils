@@ -53,7 +53,6 @@ barebox_state_SOURCES = \
 	src/base64.c \
 	src/barebox-state/backend_bucket_circular.c \
 	src/barebox-state/backend_bucket_direct.c \
-	src/barebox-state/backend_bucket_cached.c \
 	src/barebox-state/backend_format_dtb.c \
 	src/barebox-state/backend_format_raw.c \
 	src/barebox-state/backend_storage.c \
