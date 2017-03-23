@@ -202,10 +202,7 @@ const int desired_copies = 3;
  * state_storage_mtd_buckets_init - Creates storage buckets for mtd devices
  * @param storage Storage object
  * @param meminfo Info about the mtd device
- * @param path Path to the device
  * @param circular If false, use non-circular mode to write data that is compatible with the old on-flash format
- * @param dev_offset Offset to start at in the device.
- * @param max_size Maximum size to use for data. May be 0 for infinite.
  * @return 0 on success, -errno otherwise
  *
  * Starting from offset 0 this function tries to create circular buckets on
@@ -215,12 +212,10 @@ const int desired_copies = 3;
  * Circular buckets write new data always in the next free space.
  */
 static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
-					  struct mtd_info_user *meminfo,
-					  const char *path, bool circular,
-					  off_t dev_offset, size_t max_size)
+					  struct mtd_info_user *meminfo, bool circular)
 {
 	struct state_backend_storage_bucket *bucket;
-	ssize_t end = dev_offset + max_size;
+	ssize_t end = storage->offset + storage->max_size;
 	int nr_copies = 0;
 	off_t offset;
 	ssize_t writesize;
@@ -228,9 +223,9 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 	if (!end || end > meminfo->size)
 		end = meminfo->size;
 
-	if (!IS_ALIGNED(dev_offset, meminfo->erasesize)) {
+	if (!IS_ALIGNED(storage->offset, meminfo->erasesize)) {
 		dev_err(storage->dev, "Offset within the device is not aligned to eraseblocks. Offset is %ld, erasesize %zu\n",
-			dev_offset, meminfo->erasesize);
+			storage->offset, meminfo->erasesize);
 		return -EINVAL;
 	}
 
@@ -239,18 +234,18 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 	else
 		writesize = meminfo->erasesize;
 
-	for (offset = dev_offset; offset < end; offset += meminfo->erasesize) {
+	for (offset = storage->offset; offset < end; offset += meminfo->erasesize) {
 		int ret;
 		unsigned int eraseblock = offset / meminfo->erasesize;
 
-		ret = state_backend_bucket_circular_create(storage->dev, path,
+		ret = state_backend_bucket_circular_create(storage->dev, storage->path,
 							   &bucket,
 							   eraseblock,
 							   writesize,
 							   meminfo);
 		if (ret) {
 			dev_warn(storage->dev, "Failed to create bucket at '%s' eraseblock %u\n",
-				 path, eraseblock);
+				 storage->path, eraseblock);
 			continue;
 		}
 
@@ -276,24 +271,19 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 /**
  * state_storage_file_buckets_init - Create buckets for a conventional file descriptor
  * @param storage Storage object
- * @param path Path to file/device
- * @param dev_offset Offset in the device to start writing at.
- * @param max_size Maximum size of the data. May be 0 for infinite.
- * @param stridesize How far apart the different data copies are placed. If
- * stridesize is 0, only one copy can be created.
  * @return 0 on success, -errno otherwise
  *
  * For blockdevices and other regular files we create direct buckets beginning
  * at offset 0. Direct buckets are simple and write data always to offset 0.
  */
-static int state_storage_file_buckets_init(struct state_backend_storage *storage,
-					   const char *path, off_t dev_offset,
-					   size_t max_size, uint32_t stridesize)
+static int state_storage_file_buckets_init(struct state_backend_storage *storage)
 {
 	struct state_backend_storage_bucket *bucket;
 	int ret, n;
 	off_t offset;
 	int nr_copies = 0;
+	uint32_t stridesize = storage->stridesize;
+	size_t max_size = storage->max_size;
 
 	if (!stridesize) {
 		dev_err(storage->dev, "stridesize unspecified\n");
@@ -306,13 +296,13 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 	}
 
 	for (n = 0; n < desired_copies; n++) {
-		offset = dev_offset + n * stridesize;
-		ret = state_backend_bucket_direct_create(storage->dev, path,
+		offset = storage->offset + n * stridesize;
+		ret = state_backend_bucket_direct_create(storage->dev, storage->path,
 							 &bucket, offset,
 							 stridesize);
 		if (ret) {
 			dev_warn(storage->dev, "Failed to create direct bucket at '%s' offset %ld\n",
-				 path, offset);
+				 storage->path, offset);
 			continue;
 		}
 
@@ -360,6 +350,9 @@ int state_storage_init(struct state *state, const char *path,
 	storage->dev = &state->dev;
 	storage->name = storagetype;
 	storage->stridesize = stridesize;
+	storage->offset = offset;
+	storage->max_size = max_size;
+	storage->path = xstrdup(path);
 
 	ret = mtd_get_meminfo(path, &meminfo);
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE)) {
@@ -371,12 +364,9 @@ int state_storage_init(struct state *state, const char *path,
 				 storagetype);
 			circular = false;
 		}
-		return state_storage_mtd_buckets_init(storage, &meminfo, path,
-						      circular, offset,
-						      max_size);
+		return state_storage_mtd_buckets_init(storage, &meminfo, circular);
 	} else {
-		return state_storage_file_buckets_init(storage, path, offset,
-						       max_size, stridesize);
+		return state_storage_file_buckets_init(storage);
 	}
 
 	dev_err(storage->dev, "storage init done\n");
@@ -404,4 +394,6 @@ void state_storage_free(struct state_backend_storage *storage)
 		list_del(&bucket->bucket_list);
 		bucket->free(bucket);
 	}
+
+	free(storage->path);
 }
