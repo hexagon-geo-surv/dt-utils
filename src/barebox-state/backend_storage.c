@@ -90,7 +90,11 @@ refresh:
 	ret = bucket->write(bucket, buf, len);
 
 	if (ret)
-		dev_warn(storage->dev, "Failed to restore bucket\n");
+		dev_warn(storage->dev, "Failed to restore bucket %d@0x%08lx\n",
+			 bucket->num, bucket->offset);
+	else
+		dev_info(storage->dev, "restored bucket %d@0x%08lx\n",
+			 bucket->num, bucket->offset);
 
 	return ret;
 }
@@ -123,13 +127,10 @@ int state_storage_read(struct state_backend_storage *storage,
 	 */
 	list_for_each_entry(bucket, &storage->buckets, bucket_list) {
 		ret = bucket->read(bucket, &bucket->buf, &bucket->len);
-		if (ret == -EUCLEAN) {
+		if (ret == -EUCLEAN)
 			bucket->needs_refresh = 1;
-		} else if (ret) {
-			dev_warn(storage->dev, "Failed to read from state backend bucket, trying next, %d\n",
-				 ret);
+		else if (ret)
 			continue;
-		}
 
 		/*
 		 * Verify the buffer crcs. The buffer length is passed in the len argument,
@@ -138,10 +139,6 @@ int state_storage_read(struct state_backend_storage *storage,
 		ret = format->verify(format, magic, bucket->buf, &bucket->len);
 		if (!ret && !bucket_used)
 			bucket_used = bucket;
-
-		if (ret)
-			dev_warn(storage->dev, "Failed to verify read copy, trying next bucket, %d\n",
-				 ret);
 	}
 
 	if (!bucket_used) {
@@ -149,6 +146,8 @@ int state_storage_read(struct state_backend_storage *storage,
 
 		return -ENOENT;
 	}
+
+	dev_info(storage->dev, "Using bucket %d@0x%08lx\n", bucket_used->num, bucket_used->offset);
 
 	/*
 	 * Restore/refresh all buckets except the one we currently use (in case
@@ -255,6 +254,9 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 			continue;
 		}
 
+		bucket->offset = offset;
+		bucket->num = nr_copies;
+
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
 		++nr_copies;
 		if (nr_copies >= desired_copies)
@@ -313,6 +315,9 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 				 path, offset);
 			continue;
 		}
+
+		bucket->offset = offset;
+		bucket->num = nr_copies;
 
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
 		++nr_copies;
