@@ -236,7 +236,7 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 {
 	struct state_backend_storage_bucket *bucket;
 	ssize_t end = storage->offset + storage->max_size;
-	int nr_copies = 0;
+	int n_buckets = 0;
 	off_t offset;
 	ssize_t writesize;
 
@@ -267,21 +267,21 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 			continue;
 
 		bucket->offset = offset;
-		bucket->num = nr_copies;
+		bucket->num = n_buckets;
 
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
-		++nr_copies;
-		if (nr_copies >= desired_copies)
+		++n_buckets;
+		if (n_buckets >= desired_copies)
 			return 0;
 	}
 
-	if (!nr_copies) {
+	if (!n_buckets) {
 		dev_err(storage->dev, "Failed to initialize any state storage bucket\n");
 		return -EIO;
 	}
 
 	dev_warn(storage->dev, "Failed to initialize desired amount of buckets, only %d of %d succeeded\n",
-		 nr_copies, desired_copies);
+		 n_buckets, desired_copies);
 	return 0;
 }
 
@@ -298,7 +298,7 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 	struct state_backend_storage_bucket *bucket;
 	int ret, n;
 	off_t offset;
-	int nr_copies = 0;
+	int n_buckets = 0;
 	uint32_t stridesize = storage->stridesize;
 	size_t max_size = storage->max_size;
 
@@ -324,20 +324,20 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 		}
 
 		bucket->offset = offset;
-		bucket->num = nr_copies;
+		bucket->num = n_buckets;
 
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
-		++nr_copies;
+		++n_buckets;
 	}
 
-	if (!nr_copies) {
+	if (!n_buckets) {
 		dev_err(storage->dev, "Failed to initialize any state direct storage bucket\n");
 		return -EIO;
 	}
 
-	if (nr_copies < desired_copies)
+	if (n_buckets < desired_copies)
 		dev_warn(storage->dev, "Failed to initialize desired amount of direct buckets, only %d of %d succeeded\n",
-			nr_copies, desired_copies);
+			n_buckets, desired_copies);
 
 	return 0;
 }
