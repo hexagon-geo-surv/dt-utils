@@ -217,8 +217,8 @@ static int mtd_get_meminfo(const char *path, struct mtd_info_user *meminfo)
 	return ret;
 }
 
-/* Number of copies that should be allocated */
-const int desired_copies = 3;
+/* Number of buckets that should be used */
+static const int desired_buckets = 3;
 
 /**
  * state_storage_mtd_buckets_init - Creates storage buckets for mtd devices
@@ -271,7 +271,7 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 
 		list_add_tail(&bucket->bucket_list, &storage->buckets);
 		++n_buckets;
-		if (n_buckets >= desired_copies)
+		if (n_buckets >= desired_buckets)
 			return 0;
 	}
 
@@ -281,7 +281,7 @@ static int state_storage_mtd_buckets_init(struct state_backend_storage *storage,
 	}
 
 	dev_warn(storage->dev, "Failed to initialize desired amount of buckets, only %d of %d succeeded\n",
-		 n_buckets, desired_copies);
+		 n_buckets, desired_buckets);
 	return 0;
 }
 
@@ -307,12 +307,12 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 		return -EINVAL;
 	}
 
-	if (max_size && max_size < desired_copies * stridesize) {
-		dev_err(storage->dev, "device is too small to hold %d copies\n", desired_copies);
+	if (max_size && max_size < desired_buckets * stridesize) {
+		dev_err(storage->dev, "device is too small to hold %d copies\n", desired_buckets);
 		return -EINVAL;
 	}
 
-	for (n = 0; n < desired_copies; n++) {
+	for (n = 0; n < desired_buckets; n++) {
 		offset = storage->offset + n * stridesize;
 		ret = state_backend_bucket_direct_create(storage->dev, storage->path,
 							 &bucket, offset,
@@ -335,9 +335,9 @@ static int state_storage_file_buckets_init(struct state_backend_storage *storage
 		return -EIO;
 	}
 
-	if (n_buckets < desired_copies)
+	if (n_buckets < desired_buckets)
 		dev_warn(storage->dev, "Failed to initialize desired amount of direct buckets, only %d of %d succeeded\n",
-			n_buckets, desired_copies);
+			n_buckets, desired_buckets);
 
 	return 0;
 }
