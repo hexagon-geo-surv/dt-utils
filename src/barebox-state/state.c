@@ -425,8 +425,7 @@ void state_release(struct state *state)
  *		there are no repairs done.
  */
 struct state *state_new_from_node(struct device_node *node, char *path,
-				  off_t offset, size_t max_size, bool readonly,
-				  int force)
+				  off_t offset, size_t max_size, bool readonly)
 {
 	struct state *state;
 	int ret = 0;
@@ -491,7 +490,7 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 
 	ret = state_backend_init(&state->backend, &state->dev, node,
 				 backend_type, path, alias, of_path, offset,
-				 max_size, stridesize, storage_type, force);
+				 max_size, stridesize, storage_type);
 	if (ret)
 		goto out_release_state;
 

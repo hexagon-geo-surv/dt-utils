@@ -197,7 +197,7 @@ struct device_node *state_to_node(struct state *state,
 				  enum state_convert conv);
 int backend_format_raw_create(struct state_backend_format **format,
 			      struct device_node *node, const char *secret_name,
-			      struct device_d *dev, int force);
+			      struct device_d *dev);
 int backend_format_dtb_create(struct state_backend_format **format,
 			      struct device_d *dev);
 int state_storage_init(struct state_backend_storage *storage,
@@ -223,8 +223,7 @@ int state_backend_init(struct state_backend *backend, struct device_d *dev,
 		       struct device_node *node, const char *backend_format,
 		       const char *storage_path, const char *state_name, const
 		       char *of_path, off_t offset, size_t max_size,
-		       uint32_t stridesize, const char *storagetype,
-		       int force);
+		       uint32_t stridesize, const char *storagetype);
 void state_backend_set_readonly(struct state_backend *backend);
 void state_backend_free(struct state_backend *backend);
 void state_storage_free(struct state_backend_storage *storage);

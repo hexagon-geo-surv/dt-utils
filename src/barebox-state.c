@@ -37,8 +37,6 @@
 #include <dt/dt.h>
 #include <state.h>
 
-static int force;
-
 struct state_variable;
 
 static int __state_uint8_set(struct state_variable *var, const char *val);
@@ -362,7 +360,7 @@ struct state *state_get(const char *name, bool readonly)
                 return ERR_PTR(ret);
         }
 
-	state = state_new_from_node(node, devpath, offset, size, readonly, force);
+	state = state_new_from_node(node, devpath, offset, size, readonly);
 	if (IS_ERR(state)) {
 		pr_err("unable to initialize state: %s\n",
 				strerror(PTR_ERR(state)));
@@ -382,7 +380,6 @@ static struct option long_options[] = {
 	{"name",	required_argument,	0,	'n' },
 	{"dump",	no_argument,		0,	'd' },
 	{"dump-shell",	no_argument,		0,	OPT_DUMP_SHELL },
-	{"force",	no_argument,		0,	'f' },
 	{"verbose",	no_argument,		0,	'v' },
 	{"help",	no_argument,		0,	'h' },
 };
@@ -397,7 +394,6 @@ static void usage(char *name)
 "-n, --name <name>                         specify the state to use (default=\"state\"). Multiple states are allowed.\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
-"-f, --force                               ignore errors (like missing hmac algo)\n"
 "-v, --verbose                             increase verbosity\n"
 "-q, --quiet                               decrease verbosity\n"
 "--help                                    this help\n",
@@ -480,9 +476,6 @@ int main(int argc, char *argv[])
 			++nr_states;
 			break;
 		}
-		case 'f':
-			force = 1;
-			break;
 		case ':':
 		case '?':
 		default:
