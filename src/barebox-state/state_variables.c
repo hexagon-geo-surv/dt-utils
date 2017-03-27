@@ -39,7 +39,6 @@ static int state_set_dirty(struct param_d *p, void *priv)
 	struct state_variable *sv = priv;
 
 	sv->state->dirty = 1;
-	sv->state->state_default = 0;
 
 	return 0;
 }

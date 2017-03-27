@@ -71,6 +71,7 @@ struct state_backend_storage {
 	struct device_d *dev;
 
 	const char *name;
+
 	uint32_t stridesize;
 
 	bool readonly;
@@ -98,8 +99,8 @@ struct state {
 	uint32_t magic;
 
 	struct list_head variables; /* Sorted list of variables */
-	unsigned int dirty; /* State is different from stored state */
-	unsigned int state_default; /* State has default values  */
+	unsigned int dirty;
+	unsigned int save_on_shutdown;
 
 	struct state_backend backend;
 };

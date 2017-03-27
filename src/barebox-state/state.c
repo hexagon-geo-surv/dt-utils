@@ -33,11 +33,6 @@
 /* list of all registered state instances */
 static LIST_HEAD(state_list);
 
-static int state_set_deny(struct param_d *p, void *priv)
-{
-	return -EROFS;
-}
-
 static struct state *state_new(const char *name)
 {
 	struct state *state;
@@ -57,10 +52,11 @@ static struct state *state_new(const char *name)
 	}
 
 	state->dirty = 1;
-	dev_add_param_bool(&state->dev, "dirty", state_set_deny, NULL, &state->dirty,
+	dev_add_param_bool(&state->dev, "dirty", NULL, NULL, &state->dirty,
 			   NULL);
-	dev_add_param_bool(&state->dev, "default", state_set_deny, NULL, &state->state_default,
-			   NULL);
+	state->save_on_shutdown = 1;
+	dev_add_param_bool(&state->dev, "save_on_shutdown", NULL, NULL,
+			   &state->save_on_shutdown, NULL);
 
 	list_add_tail(&state->list, &state_list);
 
@@ -515,7 +511,6 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 	ret = state_load(state);
 	if (ret) {
 		dev_warn(&state->dev, "Failed to load persistent state, continuing with defaults, %d\n", ret);
-		state->state_default = 1;
 	}
 
 	dev_info(&state->dev, "New state registered '%s'\n", alias);
