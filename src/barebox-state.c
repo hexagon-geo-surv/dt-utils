@@ -308,7 +308,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 }
 
 
-struct state *state_get(const char *name, bool readonly)
+struct state *state_get(const char *name, bool readonly, bool auth)
 {
 	struct device_node *root, *node, *partition_node;
 	char *path;
@@ -368,7 +368,11 @@ struct state *state_get(const char *name, bool readonly)
 		return ERR_CAST(state);
 	}
 
-	ret = state_load(state);
+	if (auth)
+		ret = state_load(state);
+	else
+		ret = state_load_no_auth(state);
+
 	if (ret)
 		pr_err("Failed to load persistent state, continuing with defaults, %d\n", ret);
 
@@ -433,12 +437,13 @@ int main(int argc, char *argv[])
 	int nr_states = 0;
 	bool readonly = true;
 	int pr_level = 5;
+	int auth = 1;
 
 	INIT_LIST_HEAD(&sg_list);
 	INIT_LIST_HEAD(&state_list.list);
 
 	while (1) {
-		c = getopt_long(argc, argv, "hg:s:dvn:q", long_options, &option_index);
+		c = getopt_long(argc, argv, "hg:s:dvn:qf", long_options, &option_index);
 		if (c < 0)
 			break;
 		switch (c) {
@@ -457,6 +462,9 @@ int main(int argc, char *argv[])
 			sg->arg = optarg;
 			list_add_tail(&sg->list, &sg_list);
 			readonly = false;
+			break;
+		case 'f':
+			auth = 0;
 			break;
 		case 'd':
 			do_dump = 1;
