@@ -368,6 +368,10 @@ struct state *state_get(const char *name, bool readonly)
 		return ERR_CAST(state);
 	}
 
+	ret = state_load(state);
+	if (ret)
+		pr_err("Failed to load persistent state, continuing with defaults, %d\n", ret);
+
 	return state;
 }
 
