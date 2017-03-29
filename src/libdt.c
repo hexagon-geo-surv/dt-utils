@@ -2391,8 +2391,14 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 	/*
 	 * Ok, the partition node has no udev_device. Try parent node.
 	 */
-
 	node = partition_node->parent;
+
+	/*
+	 * Respect flash "partitions" subnode. Use parent of parent in this
+	 * case.
+	 */
+	if (!strcmp(node->name, "partitions"))
+		node = node->parent;
 
 	dev = of_find_device_by_node_path(node->full_name);
 	if (!dev) {
