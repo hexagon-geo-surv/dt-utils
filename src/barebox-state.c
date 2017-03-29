@@ -34,6 +34,7 @@
 #include <mtd/mtd-abi.h>
 
 #include <barebox-state/state.h>
+#include <barebox-state.h>
 #include <dt/dt.h>
 #include <state.h>
 
@@ -511,7 +512,7 @@ int main(int argc, char *argv[])
 	}
 
 	list_for_each_entry(state, &state_list.list, list) {
-		state->state = state_get(state->name, readonly);
+		state->state = state_get(state->name, readonly, auth);
 		if (!IS_ERR(state->state) && !state->name)
 			state->name = state->state->name;
 		if (IS_ERR(state->state)) {
