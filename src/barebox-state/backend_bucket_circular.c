@@ -171,9 +171,6 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 	dev_dbg(circ->dev, "Read state from %ld length %zd\n", offset,
 		len);
 
-	ret = ioctl(circ->fd, ECCGETSTATS, &stat1);
-	if (ret)
-		nostats = true;
 
 	ret = read_full(circ->fd, buf, len);
 	if (ret < 0) {
@@ -183,24 +180,7 @@ static int state_mtd_peb_read(struct state_backend_storage_bucket_circular *circ
 		return ret;
 	}
 
-	if (nostats)
-		return 0;
-
-	ret = ioctl(circ->fd, ECCGETSTATS, &stat2);
-	if (ret)
-		return 0;
-
-	if (stat2.failed - stat1.failed > 0) {
-		ret = -EUCLEAN;
-		dev_dbg(circ->dev, "PEB %u has ECC error, forcing rewrite\n",
-			circ->eraseblock);
-	} else if (stat2.corrected - stat1.corrected > 0) {
-		ret = -EUCLEAN;
-		dev_dbg(circ->dev, "PEB %u is unclean, forcing rewrite\n",
-			circ->eraseblock);
-	}
-
-	return ret;
+	return 0;
 }
 
 static int state_mtd_peb_write(struct state_backend_storage_bucket_circular *circ,
