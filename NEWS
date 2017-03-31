@@ -1,3 +1,10 @@
+dt-utils 2017.03.0
+==================
+barebox-state: Support new OF partition binding with partitions node
+barebox-state: Support reading state even when it can't be authenticated (-f)
+barebox-state: Fix -EUCLEAN handling: Data is valid when -EUCLEAN is returned
+barebox-state: Sync with barebox codebase
+
 dt-utils 2016.12.0
 ==================
 libdt: cache udev scan results
