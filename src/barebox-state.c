@@ -391,6 +391,7 @@ static struct option long_options[] = {
 	{"dump-shell",	no_argument,		0,	OPT_DUMP_SHELL },
 	{"verbose",	no_argument,		0,	'v' },
 	{"help",	no_argument,		0,	'h' },
+	{ }
 };
 
 static void usage(char *name)
