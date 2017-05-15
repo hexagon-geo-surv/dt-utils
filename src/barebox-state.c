@@ -499,6 +499,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (optind < argc) {
+		pr_err("Invalid argument: %s\n", argv[optind]);
+		exit(1);
+	}
+
 	pr_level_set(pr_level);
 
 	if (nr_states == 0) {
