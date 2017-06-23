@@ -168,7 +168,7 @@ static inline char *barebox_asprintf(const char *fmt, ...)
 #define basprintf(fmt, arg...) barebox_asprintf(fmt, ##arg)
 
 /**
- * strlcpy - Copy a %NUL terminated string into a sized buffer
+ * DT_strlcpy - Copy a %NUL terminated string into a sized buffer
  * @dest: Where to copy the string to
  * @src: Where to copy the string from
  * @size: size of destination buffer
@@ -178,7 +178,7 @@ static inline char *barebox_asprintf(const char *fmt, ...)
  * of course, the buffer size is zero). It does not pad
  * out the result like strncpy() does.
  */
-static inline size_t strlcpy(char *dest, const char *src, size_t size)
+static inline size_t DT_strlcpy(char *dest, const char *src, size_t size)
 {
 	size_t ret = strlen(src);
 

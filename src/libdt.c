@@ -1503,7 +1503,7 @@ int of_modalias_node(struct device_node *node, char *modalias, int len)
 	if (!compatible || strlen(compatible) > cplen)
 		return -ENODEV;
 	p = strchr(compatible, ',');
-	strlcpy(modalias, p ? p + 1 : compatible, len);
+	DT_strlcpy(modalias, p ? p + 1 : compatible, len);
 	return 0;
 }
 
