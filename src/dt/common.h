@@ -13,6 +13,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <mtd/mtd-abi.h>
 
