@@ -308,7 +308,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 }
 
 
-struct state *state_get(const char *name, bool readonly, bool auth)
+struct state *state_get(const char *name, const char *filename, bool readonly, bool auth)
 {
 	struct device_node *root, *node, *partition_node;
 	char *path;
@@ -320,11 +320,19 @@ struct state *state_get(const char *name, bool readonly, bool auth)
 	off_t offset;
 	size_t size;
 
-	root = of_read_proc_devicetree();
-	if (IS_ERR(root)) {
-		pr_err("Unable to read devicetree. %s\n",
-				strerror(-PTR_ERR(root)));
-		return ERR_CAST(root);
+	if (filename) {
+		void *fdt;
+
+		fdt = read_file(filename, NULL);
+		if (fdt)
+			root = of_unflatten_dtb(fdt);
+	} else {
+		root = of_read_proc_devicetree();
+		if (IS_ERR(root)) {
+			pr_err("Unable to read devicetree. %s\n",
+			       strerror(-PTR_ERR(root)));
+			return ERR_CAST(root);
+		}
 	}
 
 	of_set_root_node(root);
@@ -387,6 +395,7 @@ static struct option long_options[] = {
 	{"get",		required_argument,	0,	'g' },
 	{"set",		required_argument,	0,	's' },
 	{"name",	required_argument,	0,	'n' },
+	{"input",	required_argument,	0,	'i' },
 	{"dump",	no_argument,		0,	'd' },
 	{"dump-shell",	no_argument,		0,	OPT_DUMP_SHELL },
 	{"verbose",	no_argument,		0,	'v' },
@@ -402,6 +411,7 @@ static void usage(char *name)
 "-g, --get <variable>                      get the value of a variable\n"
 "-s, --set <variable>=<value>              set the value of a variable\n"
 "-n, --name <name>                         specify the state to use (default=\"state\"). Multiple states are allowed.\n"
+"-i, --input <name>                        load the devicetree from a file instead of using the system devicetree.\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
 "-v, --verbose                             increase verbosity\n"
@@ -439,12 +449,13 @@ int main(int argc, char *argv[])
 	bool readonly = true;
 	int pr_level = 5;
 	int auth = 1;
+	const char *dtb = NULL;
 
 	INIT_LIST_HEAD(&sg_list);
 	INIT_LIST_HEAD(&state_list.list);
 
 	while (1) {
-		c = getopt_long(argc, argv, "hg:s:dvn:qf", long_options, &option_index);
+		c = getopt_long(argc, argv, "hg:s:i:dvn:qf", long_options, &option_index);
 		if (c < 0)
 			break;
 		switch (c) {
@@ -490,6 +501,9 @@ int main(int argc, char *argv[])
 			++nr_states;
 			break;
 		}
+		case 'i':
+			dtb = strdup(optarg);
+			break;
 		case ':':
 		case '?':
 		default:
@@ -530,7 +544,7 @@ int main(int argc, char *argv[])
 	}
 
 	list_for_each_entry(state, &state_list.list, list) {
-		state->state = state_get(state->name, readonly, auth);
+		state->state = state_get(state->name, dtb, readonly, auth);
 		if (!IS_ERR(state->state) && !state->name)
 			state->name = state->state->name;
 		if (IS_ERR(state->state)) {
