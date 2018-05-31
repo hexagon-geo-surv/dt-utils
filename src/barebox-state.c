@@ -522,9 +522,9 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	ret = flock(lock_fd, LOCK_EX | LOCK_NB);
+	ret = flock(lock_fd, LOCK_EX);
 	if (ret < 0) {
-		pr_err("Failed to lock. Already locked by other process /var/lock/barebox-state.\n");
+		pr_err("Failed to lock /var/lock/barebox-state: %m\n");
 		close(lock_fd);
 		exit(1);
 	}
