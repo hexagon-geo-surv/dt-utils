@@ -31,6 +31,14 @@ SED_PROCESS = \
 %.pc: %.pc.in Makefile
 	$(SED_PROCESS)
 
+# If the library source code has changed at all since the last release,
+#   then increment revision (‘c:r:a’ becomes ‘c:r+1:a’).
+# If any interfaces have been added/removed/changed since the last release,
+#   then increment current, and set revision to 0.
+# If any public interfaces have been added since the last public release,
+#   then increment age.
+# If any interfaces have been removed or changed since the last release,
+#   then set age to 0.
 LIBDT_CURRENT=2
 LIBDT_REVISION=1
 LIBDT_AGE=2
