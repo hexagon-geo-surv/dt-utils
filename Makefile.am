@@ -39,9 +39,9 @@ SED_PROCESS = \
 #   then increment age.
 # If any interfaces have been removed or changed since the last release,
 #   then set age to 0.
-LIBDT_CURRENT=2
-LIBDT_REVISION=1
-LIBDT_AGE=2
+LIBDT_CURRENT=3
+LIBDT_REVISION=0
+LIBDT_AGE=0
 
 pkginclude_HEADERS = \
 	src/dt/dt.h \

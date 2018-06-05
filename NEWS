@@ -1,3 +1,13 @@
+dt-utils 2018.05.0
+==================
+
+barebox-state: block while waiting for file lock
+barebox-state: Fail for unhandled arguments
+barebox-state: fix termination of long_options[] to fix segfault
+common: Include sys/types.h header to fix build with musl
+common: Rename strlcpy to DT_strlcpy to fix build with uClibc
+barebox-state: backend_raw: init digest earlier
+
 dt-utils 2017.03.0
 ==================
 barebox-state: Support new OF partition binding with partitions node
