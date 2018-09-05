@@ -21,7 +21,7 @@
 #include <malloc.h>
 #include <fs.h>
 #include <fcntl.h>
-#include <linux/stat.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <module.h>
 #include <linux/err.h>
