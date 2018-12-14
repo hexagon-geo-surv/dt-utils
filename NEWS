@@ -1,3 +1,9 @@
+dt-utils 2018.05.1
+==================
+change project mail to oss-tools@pengutronix.de
+fix compilation for glibc version 2.27.9000-36.fc29 and newer ("redefinition of 'struct statx'")
+fix compiler warnings on gcc >= 6 about wrong type conversion in messages
+
 dt-utils 2018.05.0
 ==================
 
