@@ -79,6 +79,7 @@ int main(int argc, const char *argv[])
 	}
 
 	root = of_unflatten_dtb(fdt);
+	free(fdt);
 	if (IS_ERR(root)) {
 		fprintf(stderr, "failed to unflatten device tree (%ld)\n",
 			PTR_ERR(root));

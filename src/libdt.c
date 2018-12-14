@@ -2012,6 +2012,7 @@ struct device_node *of_read_proc_devicetree(void)
 	fdt = read_file("/sys/firmware/fdt", NULL);
 	if (fdt) {
 		root = of_unflatten_dtb(fdt);
+		free(fdt);
 		return root;
 	}
 
