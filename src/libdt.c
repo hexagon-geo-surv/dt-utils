@@ -2416,6 +2416,18 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 	 */
 	node = partition_node->parent;
 
+	if (of_device_is_compatible(node, "fixed-partitions")) {
+		const char *uuid;
+
+		/* when partuuid is specified short-circuit the search for the cdev */
+		ret = of_property_read_string(partition_node, "partuuid", &uuid);
+		if (!ret) {
+			*devpath = basprintf("/dev/disk/by-partuuid/%s", uuid);
+
+			return 0;
+		}
+	}
+
 	/*
 	 * Respect flash "partitions" subnode. Use parent of parent in this
 	 * case.
