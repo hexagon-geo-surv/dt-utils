@@ -63,28 +63,28 @@ struct variable_str_type {
 
 static struct variable_str_type types[] =  {
 	{
-		.type = STATE_TYPE_U8,
+		.type = STATE_VARIABLE_TYPE_UINT8,
 		.type_name = "uint8",
 		.set = __state_uint8_set,
 		.get = __state_uint32_get,
 	}, {
-		.type = STATE_TYPE_U32,
+		.type = STATE_VARIABLE_TYPE_UINT32,
 		.type_name = "uint32",
 		.set = __state_uint32_set,
 		.get = __state_uint32_get,
 	}, {
-		.type = STATE_TYPE_ENUM,
+		.type = STATE_VARIABLE_TYPE_ENUM32,
 		.type_name = "enum32",
 		.set = __state_enum32_set,
 		.get = __state_enum32_get,
 		.info = __state_enum32_info,
 	}, {
-		.type = STATE_TYPE_MAC,
+		.type = STATE_VARIABLE_TYPE_MAC,
 		.type_name = "mac",
 		.set = __state_mac_set,
 		.get = __state_mac_get,
 	}, {
-		.type = STATE_TYPE_STRING,
+		.type = STATE_VARIABLE_TYPE_STRING,
 		.type_name = "string",
 		.set = __state_string_set,
 		.get = __state_string_get,
@@ -274,7 +274,7 @@ char *state_get_var(struct state *state, const char *var)
 	if (IS_ERR(sv))
 		return NULL;
 
-	vtype = state_find_type(sv->type);
+	vtype = state_find_type(sv->type->type);
 	if (!vtype)
 		return NULL;
 
@@ -291,7 +291,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 	if (IS_ERR(sv))
 		return PTR_ERR(sv);
 
-	vtype = state_find_type(sv->type);
+	vtype = state_find_type(sv->type->type);
 	if (!vtype)
 		return -ENODEV;
 
@@ -543,10 +543,10 @@ int main(int argc, char *argv[])
 		list_for_each_entry(state, &state_list.list, list) {
 			state_for_each_var(state->state, v) {
 				struct variable_str_type *vtype;
-				vtype = state_find_type(v->type);
+				vtype = state_find_type(v->type->type);
 
 				if (!vtype) {
-					pr_err("no such type: %d\n", v->type);
+					pr_err("no such type: %d\n", v->type->type);
 					ret = 1;
 					goto out_unlock;
 				}
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
 				while ((ptr = strchr(ptr, '.')))
 					*ptr++ = '_';
 
-				vtype = state_find_type(v->type);
+				vtype = state_find_type(v->type->type);
 				printf("%s_%s=\"%s\"\n", state->name, name, vtype->get(v));
 			}
 		}
