@@ -20,7 +20,6 @@
 #include <linux/list.h>
 #include <linux/mtd/mtd-abi.h>
 #include <sys/stat.h>
-#include <linux/fs.h>
 #include <malloc.h>
 #include <printk.h>
 
