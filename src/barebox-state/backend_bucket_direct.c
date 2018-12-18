@@ -69,6 +69,8 @@ static int state_backend_bucket_direct_read(struct state_backend_storage_bucket
 	if (meta.magic == direct_magic) {
 		read_len = meta.written_length;
 	} else {
+		if (meta.magic != ~0 && !!meta.magic)
+			bucket->wrong_magic = 1;
 		read_len = direct->max_size;
 		ret = lseek(direct->fd, direct->offset, SEEK_SET);
 		if (ret < 0) {
