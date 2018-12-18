@@ -357,14 +357,6 @@ struct device_d {
 	struct device_node *device_node;
 };
 
-static inline struct param_d *dev_add_param_int(struct device_d *dev, const char *name,
-		int (*set)(struct param_d *p, void *priv),
-		int (*get)(struct param_d *p, void *priv),
-		int *value, const char *format, void *priv)
-{
-	return NULL;
-}
-
 static inline struct param_d *dev_add_param_enum(struct device_d *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
@@ -394,6 +386,14 @@ static inline struct param_d *dev_add_param_string(struct device_d *dev, const c
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		char **value, void *priv)
+{
+	return NULL;
+}
+
+static inline struct param_d *dev_add_param_uint32(struct device_d *dev, const char *name,
+		int (*set)(struct param_d *p, void *priv),
+		int (*get)(struct param_d *p, void *priv),
+		int *value, const char *format, void *priv)
 {
 	return NULL;
 }
