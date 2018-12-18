@@ -566,17 +566,10 @@ void state_release(struct state *state)
 /*
  * state_new_from_node - create a new state instance from a device_node
  *
- * @node	The device_node describing the new state instance
- * @path	Path to the backend device. If NULL the path is constructed
- *		using the path in the backend property of the DT.
- * @offset	Offset in the device path. May be 0 to start at the beginning.
- * @max_size	Maximum size of the area used. This may be 0 to use the full
- *		size.
  * @readonly	This is a read-only state. Note that with this option set,
  *		there are no repairs done.
  */
-struct state *state_new_from_node(struct device_node *node, char *path,
-				  off_t offset, size_t max_size, bool readonly)
+struct state *state_new_from_node(struct device_node *node, bool readonly)
 {
 	struct state *state;
 	int ret = 0;
@@ -584,6 +577,9 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 	const char *storage_type = NULL;
 	const char *alias;
 	uint32_t stridesize;
+	struct device_node *partition_node;
+	off_t offset = 0;
+	size_t size = 0;
 
 	alias = of_alias_get(node);
 	if (!alias) {
@@ -595,26 +591,24 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 	if (IS_ERR(state))
 		return state;
 
-	if (!path) {
-		struct device_node *partition_node;
-
-		partition_node = of_parse_phandle(node, "backend", 0);
-		if (!partition_node) {
-			dev_err(&state->dev, "Cannot resolve \"backend\" phandle\n");
-			ret = -EINVAL;
-			goto out_release_state;
-		}
-
-		ret = of_find_path_by_node(partition_node, &path, 0);
-		if (ret) {
-			if (ret != -EPROBE_DEFER)
-				dev_err(&state->dev, "state failed to parse path to backend: %s\n",
-				       strerror(-ret));
-			goto out_release_state;
-		}
+	partition_node = of_parse_phandle(node, "backend", 0);
+	if (!partition_node) {
+		dev_err(&state->dev, "Cannot resolve \"backend\" phandle\n");
+		ret = -EINVAL;
+		goto out_release_state;
 	}
 
-	state->backend_path = xstrdup(path);
+#ifdef __BAREBOX__
+	ret = of_find_path_by_node(partition_node, &state->backend_path, 0);
+#else
+	ret = of_get_devicepath(partition_node, &state->backend_path, &offset, &size);
+#endif
+	if (ret) {
+		if (ret != -EPROBE_DEFER)
+			dev_err(&state->dev, "state failed to parse path to backend: %s\n",
+			       strerror(-ret));
+		goto out_release_state;
+	}
 
 	ret = of_property_read_string(node, "backend-type", &backend_type);
 	if (ret) {
@@ -634,8 +628,8 @@ struct state *state_new_from_node(struct device_node *node, char *path,
 	if (ret)
 		goto out_release_state;
 
-	ret = state_storage_init(state, path, offset,
-				 max_size, stridesize, storage_type);
+	ret = state_storage_init(state, state->backend_path, offset,
+				 size, stridesize, storage_type);
 	if (ret)
 		goto out_release_state;
 

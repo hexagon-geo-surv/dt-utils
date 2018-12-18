@@ -310,15 +310,12 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 
 struct state *state_get(const char *name, bool readonly, bool auth)
 {
-	struct device_node *root, *node, *partition_node;
+	struct device_node *root, *node;
 	char *path;
 	struct state *state;
 	int ret;
 	const char *backend_type = NULL;
 	struct state_variable *v;
-	char *devpath;
-	off_t offset;
-	size_t size;
 
 	root = of_read_proc_devicetree();
 	if (IS_ERR(root)) {
@@ -349,19 +346,7 @@ struct state *state_get(const char *name, bool readonly, bool auth)
 	if (pr_level_get() > 6)
 		of_print_nodes(node, 0);
 
-        partition_node = of_parse_phandle(node, "backend", 0);
-        if (!partition_node) {
-                pr_err("cannot find backend node in %s\n", node->full_name);
-                exit (1);
-        }
-
-        ret = of_get_devicepath(partition_node, &devpath, &offset, &size);
-        if (ret) {
-                pr_err("Cannot find backend path in %s\n", node->full_name);
-                return ERR_PTR(ret);
-        }
-
-	state = state_new_from_node(node, devpath, offset, size, readonly);
+	state = state_new_from_node(node, readonly);
 	if (IS_ERR(state)) {
 		pr_err("unable to initialize state: %s\n",
 				strerror(PTR_ERR(state)));
