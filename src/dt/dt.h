@@ -370,8 +370,13 @@ static inline struct device_node *of_find_root_node(struct device_node *node)
 
 struct device_node *of_read_proc_devicetree(void);
 
-static inline struct device_node *of_find_node_by_devpath(struct device_node *root,
-							  const char *path)
+static inline struct device_node *of_find_node_by_reproducible_name(struct device_node *from,
+								    const char *name)
+{
+	return NULL;
+}
+
+static inline char *of_get_reproducible_name(struct device_node *node)
 {
 	return NULL;
 }
