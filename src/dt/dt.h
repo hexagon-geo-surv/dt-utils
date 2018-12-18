@@ -376,4 +376,10 @@ static inline int of_find_path_by_node(struct device_node *node, char **outpath,
 	return -ENOSYS;
 }
 
+static inline struct device_node *of_find_node_by_devpath(struct device_node *root,
+							  const char *path)
+{
+	return NULL;
+}
+
 #endif /* __DT_DT_H */
