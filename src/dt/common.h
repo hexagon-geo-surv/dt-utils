@@ -406,6 +406,32 @@ static inline struct param_d *dev_add_param_uint32(struct device_d *dev, const c
 	return NULL;
 }
 
+/**
+ * dev_set_name - set a device name
+ * @dev: device
+ * @fmt: format string for the device's name
+ */
+static inline int dev_set_name(struct device_d *dev, const char *fmt, ...)
+{
+	char newname[MAX_DRIVER_NAME];
+	va_list vargs;
+	int err;
+
+	va_start(vargs, fmt);
+	err = vsnprintf(newname, MAX_DRIVER_NAME, fmt, vargs);
+	va_end(vargs);
+
+	/*
+	 * Copy new name into dev structure, we do this after vsnprintf call in
+	 * case old device name was in one of vargs
+	 */
+	safe_strncpy(dev->name, newname, MAX_DRIVER_NAME);
+
+	WARN_ON(err < 0);
+
+	return err;
+}
+
 struct driver_d;
 
 static inline int register_driver(struct driver_d *d)
