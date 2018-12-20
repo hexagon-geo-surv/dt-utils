@@ -26,6 +26,9 @@
 Questions, feedback, patches please email:
         oss-tools@pengutronix.de
 
+For patches, please prefix your subject with "[PATCH dt-utils]" (for example,
+see the git-config manpage for the option format.subjectPrefix).
+
 Why bother?
   - To make things easy for library users, distribution packagers and
     developers of library bindings for other programming languages. If
