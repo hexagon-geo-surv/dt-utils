@@ -85,7 +85,15 @@ int dev_printf(int level, const struct device_d *dev, const char *format, ...)
 
 static inline void *xzalloc(size_t size)
 {
-	return calloc(1, size);
+	void * buf = calloc(1, size);
+	if (!buf || errno == ENOMEM) {
+		/* although the glibc variant of calloc sets errno, not all
+		 * variants do, but should still return NULL. */
+		errno = ENOMEM;
+		perror("xzalloc");
+		exit(1);
+	}
+	return buf;
 }
 
 static inline void *xmalloc(size_t size)
