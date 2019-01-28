@@ -1,3 +1,45 @@
+dt-utils 2019.01.0
+==================
+This release includes contributions from Andrey Smirnov, Antony Pavlov, Daniel Schultz, Enrico
+Jorns, Ian Abbott, Juergen Borleis, Ladislav Michl, Lucas Stach, Michael Olbrich, Philipp Zabel,
+Roland Hieber, Sam Ravnborg, Sascha Hauer, Ulrich Ölmann, and Uwe Kleine-König. Thanks to all
+contributors!
+
+Changes:
+* libdt: fix leaks of memory returned by read_file() calls
+* libdt: xzalloc: die on failure, like the similar-named kernel function
+* libdt: add of_property_write_string() as a convenience function to set a property to a string
+* libdt: add dev_set_name() as a convenience function to set a device's name
+* state: harmonize our implementation with upstream barebox:
+  - Fixes:
+    . backend_bucket_circular: fix the case when write size is not a power of 2
+    . backend_bucket_circular: fix length check when reading old state format
+    . backend_bucket_circular: fix two memory leaks
+    . backend_storage: don't refresh the storage needlessly
+    . fix error return value when state_new_from_node() cannot resolve a phandle
+    . fix use-after-free in state_backend_format_dtb_pack()
+    . make finding the backend node more robust by using its reproducible name
+    . remove checks for xzalloc() returning NULL, which cannot happen
+    . do not complain about missing backend-storage-type, which is irrelevant for mtd devices
+  - Potentially breaking changes:
+    . make pointing to the backend using a phandle the only supported method
+    . state nodes without an alias in the /aliases/ node now lead to an error. barebox already creates
+      a missing alias in the fixupped device tree automatically since v2017.06.0.
+    . refuse to set the read-only 'dirty' state variable
+    . remove unused arguments from state_new_from_node()
+  - New features:
+    . add new 'init_from_defaults' state variable to allow detection whether a state has been
+      initialized from default values, i.e. state_load() failed.
+    . add an internal variable to protect existing data in a state bucket and make updates of the
+      state implementation more robust
+    . add new function state_read_mac() to read a MAC address from state
+    . notify when the old state format is detected (this was previously a debugging message)
+    . provide an error message when an error occurs in state_convert_node_variable()
+    . add more debugging messages
+  - port several changes to barebox's fixup functions, but since device trees are already fixupped at
+    boot time, this code is never used by dt-utils
+  - some further minor refactoring as well fixing some typos and documentation comments
+
 dt-utils 2018.05.1
 ==================
 change project mail to oss-tools@pengutronix.de
