@@ -349,7 +349,7 @@ struct state *state_get(const char *name, bool readonly, bool auth)
 	state = state_new_from_node(node, readonly);
 	if (IS_ERR(state)) {
 		pr_err("unable to initialize state: %s\n",
-				strerror(PTR_ERR(state)));
+				strerror(-PTR_ERR(state)));
 		return ERR_CAST(state);
 	}
 
