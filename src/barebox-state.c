@@ -581,9 +581,10 @@ int main(int argc, char *argv[])
 
 			list_for_each_entry(state, &state_list.list, list) {
 				if (strlen(state->name) == statename_len &&
-				    !strncmp(state->name, sg->arg, statename_len))
+				    !strncmp(state->name, sg->arg, statename_len)) {
 					arg = statename_end + 1;
 					break;
+				}
 			}
 		}
 		if (state == &state_list) {
