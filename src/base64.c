@@ -31,7 +31,6 @@ static const char const uuenc_tbl_base64[65 + 1] = {
  */
 int decode_base64(char *p_dst, int dst_len, const char *src)
 {
-	const char *src_tail;
 	char *dst = p_dst;
 	int length = 0;
 
@@ -40,7 +39,6 @@ int decode_base64(char *p_dst, int dst_len, const char *src)
 		int count = 0;
 
 		/* Fetch up to four 6-bit values */
-		src_tail = src;
 		while (count < 4) {
 			const char *table_ptr;
 			int ch;
@@ -54,18 +52,9 @@ int decode_base64(char *p_dst, int dst_len, const char *src)
 			 */
 			do {
 				ch = *src;
-				if (ch == '\0') {
-					/*
-					 * Example:
-					 * If we decode "QUJD <NUL>", we want
-					 * to return ptr to NUL, not to ' ',
-					 * because we did fully decode
-					 * the string (to "ABC").
-					 */
-					if (count == 0)
-						src_tail = src;
+				if (ch == '\0')
 					goto ret;
-				}
+
 				src++;
 				table_ptr = strchr(uuenc_tbl_base64, ch);
 			} while (!table_ptr);
