@@ -374,7 +374,9 @@ static struct option long_options[] = {
 	{"name",	required_argument,	0,	'n' },
 	{"dump",	no_argument,		0,	'd' },
 	{"dump-shell",	no_argument,		0,	OPT_DUMP_SHELL },
+	{"force",	no_argument,		0,	'f' },
 	{"verbose",	no_argument,		0,	'v' },
+	{"quiet",	no_argument,		0,	'q' },
 	{"help",	no_argument,		0,	'h' },
 	{ }
 };
@@ -389,9 +391,10 @@ static void usage(char *name)
 "-n, --name <name>                         specify the state to use (default=\"state\"). Multiple states are allowed.\n"
 "-d, --dump                                dump the state\n"
 "--dump-shell                              dump the state suitable for shell sourcing\n"
+"-f, --force                               do not check for state manipulation via the HMAC\n"
 "-v, --verbose                             increase verbosity\n"
 "-q, --quiet                               decrease verbosity\n"
-"--help                                    this help\n",
+"-h, --help                                this help\n",
 	name);
 }
 
