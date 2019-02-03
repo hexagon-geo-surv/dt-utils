@@ -368,7 +368,7 @@ struct device_d {
 static inline struct param_d *dev_add_param_enum(struct device_d *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
-		int *value, const char **names, int max, void *priv)
+		uint32_t *value, const char * const *names, int max, void *priv)
 
 {
 	return NULL;
@@ -377,7 +377,7 @@ static inline struct param_d *dev_add_param_enum(struct device_d *dev, const cha
 static inline struct param_d *dev_add_param_bool(struct device_d *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
-		int *value, void *priv)
+		uint32_t *value, void *priv)
 {
 	return NULL;
 }
@@ -385,7 +385,7 @@ static inline struct param_d *dev_add_param_bool(struct device_d *dev, const cha
 static inline struct param_d *dev_add_param_mac(struct device_d *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
-		uint8_t *mac, void *priv)
+		u8 *mac, void *priv)
 {
 	return NULL;
 }
@@ -401,7 +401,7 @@ static inline struct param_d *dev_add_param_string(struct device_d *dev, const c
 static inline struct param_d *dev_add_param_uint32(struct device_d *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
-		int *value, const char *format, void *priv)
+		uint32_t *value, const char *format, void *priv)
 {
 	return NULL;
 }
