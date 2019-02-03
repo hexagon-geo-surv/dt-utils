@@ -41,7 +41,6 @@
 struct state_variable;
 
 static int __state_uint8_set(struct state_variable *var, const char *val);
-static char *__state_uint8_get(struct state_variable *var);
 static int __state_uint32_set(struct state_variable *var, const char *val);
 static char *__state_uint32_get(struct state_variable *var);
 static int __state_enum32_set(struct state_variable *sv, const char *val);
