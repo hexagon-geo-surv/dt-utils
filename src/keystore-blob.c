@@ -22,7 +22,7 @@ static struct state *state;
 int keystore_get_secret(const char *name, const unsigned char **key, int *key_len)
 {
 	FILE *fp;
-	char *blob, *modifier, *payload;
+	char *blob, *payload;
 	u8 *blob_bin, *payload_bin;
 	ssize_t len;
 	int fd, ret;
