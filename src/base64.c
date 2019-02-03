@@ -12,7 +12,7 @@
 #include <base64.h>
 
 /* Conversion table.  for base 64 */
-static const char const uuenc_tbl_base64[65 + 1] = {
+static const char uuenc_tbl_base64[65 + 1] = {
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
 	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
