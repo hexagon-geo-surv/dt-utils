@@ -366,6 +366,7 @@ struct state *state_get(const char *name, bool readonly, bool auth)
 
 enum opt {
 	OPT_DUMP_SHELL = UCHAR_MAX + 1,
+	OPT_VERSION    = UCHAR_MAX + 2,
 };
 
 static struct option long_options[] = {
@@ -377,6 +378,7 @@ static struct option long_options[] = {
 	{"force",	no_argument,		0,	'f' },
 	{"verbose",	no_argument,		0,	'v' },
 	{"quiet",	no_argument,		0,	'q' },
+	{"version",	no_argument,		0,	OPT_VERSION },
 	{"help",	no_argument,		0,	'h' },
 	{ }
 };
@@ -394,6 +396,7 @@ static void usage(char *name)
 "-f, --force                               do not check for state manipulation via the HMAC\n"
 "-v, --verbose                             increase verbosity\n"
 "-q, --quiet                               decrease verbosity\n"
+"--version                                 display version\n"
 "-h, --help                                this help\n",
 	name);
 }
@@ -438,6 +441,9 @@ int main(int argc, char *argv[])
 		switch (c) {
 		case 'h':
 			usage(argv[0]);
+			exit(0);
+		case OPT_VERSION:
+			printf(PACKAGE_STRING "\n");
 			exit(0);
 		case 'g':
 			sg = xzalloc(sizeof(*sg));
