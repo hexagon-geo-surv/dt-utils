@@ -251,7 +251,6 @@ static char *__state_string_get(struct state_variable *var)
 {
 	struct state_string *string = to_state_string(var);
 	char *str;
-	int ret;
 
 	if (string->raw[0])
 		str = strndup(string->raw, string->var.size);
@@ -310,11 +309,8 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 struct state *state_get(const char *name, bool readonly, bool auth)
 {
 	struct device_node *root, *node;
-	char *path;
 	struct state *state;
 	int ret;
-	const char *backend_type = NULL;
-	struct state_variable *v;
 
 	root = of_read_proc_devicetree();
 	if (IS_ERR(root)) {
@@ -564,7 +560,6 @@ int main(int argc, char *argv[])
 			state_for_each_var(state->state, v) {
 				struct variable_str_type *vtype;
 				char *name, *ptr;
-				int i;
 
 				/* replace "." by "_" to make it var name shell compatible */
 				name = strdup(v->name);
