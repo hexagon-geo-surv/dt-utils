@@ -2391,9 +2391,10 @@ int of_get_devicepath(struct device_node *partition_node, char **devpath, off_t 
 
 	/*
 	 * simplest case: This nodepath can directly be translated into
-	 * an eeprom, mtd or block device. Note that for the mtd case an
-	 * out-of-tree kernel patch is required
-	 * (https://patchwork.ozlabs.org/patch/726037/).
+	 * an eeprom, mtd or block device. Note that for the mtd case a
+	 * kernel >= v4.11 is required as it includes the needed commit
+	 * 42e9401bd146 ("mtd: Add partition device node to mtd partition
+	 * devices").
 	 */
 	dev = of_find_device_by_node_path(partition_node->full_name);
 	if (dev) {
