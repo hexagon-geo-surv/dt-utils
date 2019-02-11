@@ -4385,9 +4385,9 @@ static int parse_function(struct device_node *funcnode,
 				       padinfo->swpad_reset_default &
 				       padinfo->swpad_writeable_mask,
 				       padinfo->padname);
-			} else if (config & ~padinfo->swpad_writeable_mask) {
-				printf("E: config value specified for reserved bit (%s, %" PRIx32 ")\n",
-				       padinfo->padname, config & ~padinfo->swpad_writeable_mask);
+			} else if ((config ^ padinfo->swpad_reset_default) & ~padinfo->swpad_writeable_mask) {
+				printf("E: config value specified for reserved bit differ from reset value (%s, %" PRIx32 ")\n",
+				       padinfo->padname, (config ^ padinfo->swpad_reset_default) & ~padinfo->swpad_writeable_mask);
 			}
 		}
 	}
