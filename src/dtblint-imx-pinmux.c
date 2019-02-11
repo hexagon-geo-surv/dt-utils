@@ -1638,7 +1638,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x514,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_D17",
@@ -1646,7 +1646,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x518,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_D18",
@@ -1654,7 +1654,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x51c,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_D19",
@@ -1662,7 +1662,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x520,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_D20",
@@ -1670,7 +1670,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x00000017,
 		.swpad_regoffset = 0x524,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_D21",
