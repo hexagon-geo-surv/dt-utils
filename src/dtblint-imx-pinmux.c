@@ -4382,8 +4382,7 @@ static int parse_function(struct device_node *funcnode,
 		} else {
 			if (config == 0x80000000) {
 				printf("S: explicitly use 0x%08x as config value for %s\n",
-				       padinfo->swpad_reset_default &
-				       padinfo->swpad_writeable_mask,
+				       padinfo->swpad_reset_default,
 				       padinfo->padname);
 			} else if ((config ^ padinfo->swpad_reset_default) & ~padinfo->swpad_writeable_mask) {
 				printf("E: config value specified for reserved bit differ from reset value (%s, %" PRIx32 ")\n",
