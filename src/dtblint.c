@@ -62,6 +62,53 @@ static void fsl_fec_reset_polarity(void)
 	}
 }
 
+static const char * const fsl_pcie_compatibles[] = {
+        "fsl,imx6q-pcie",
+        "fsl,imx6sx-pcie",
+        "fsl,imx6qp-pcie",
+        "fsl,imx7d-pcie",
+};
+
+static void fsl_pcie_reset_polarity(void)
+{
+	size_t i;
+	/*
+	 * For historical reasons the gpio flag in the reset-gpio property
+	 * isn't evaluated and the gpio is assumed to be active low. Inversion
+	 * can be accomplished by adding the property reset-gpio-active-high.
+	 * The gpio flag should match the presence of this property.
+	 */
+	struct device_node *np;
+	int ret;
+
+	for (i = 0; i < ARRAY_SIZE(fsl_pcie_compatibles); ++i) {
+		for_each_compatible_node(np, NULL, fsl_pcie_compatibles[i]) {
+			struct of_phandle_args out_args[MAX_PHANDLE_ARGS];
+
+			bool active_high_property =
+				of_property_read_bool(np,
+						      "reset-gpio-active-high");
+			bool active_high_gpio_flag;
+
+			ret = of_parse_phandle_with_args(np, "reset-gpio",
+							 "#gpio-cells", 0,
+							 out_args);
+			if (ret < 0)
+				continue;
+
+			if (out_args->args_count < 2)
+				continue;
+
+			active_high_gpio_flag = out_args->args[1] == 0;
+
+			if (active_high_gpio_flag != active_high_property) {
+				printf("E: reset-gpios flags don't match presence of reset-gpio-active-high property (%s)\n",
+				       np->full_name);
+			}
+		}
+	}
+}
+
 int main(int argc, const char *argv[])
 {
 	void *fdt;
@@ -89,4 +136,5 @@ int main(int argc, const char *argv[])
 
 	dtblint_imx_pinmux();
 	fsl_fec_reset_polarity();
+	fsl_pcie_reset_polarity();
 }
