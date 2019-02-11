@@ -1949,9 +1949,9 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_regoffset = 0x1e0,
 		.swmux_reset_default = 0x00000000,
 		.swmux_writeable_mask = 0x00000017,
-		.swpad_reset_default = 0xb060,
-		.swpad_writeable_mask = 0x0f8f9,
-		.swpad_regoffset = 0x15b0,
+		.swpad_regoffset = 0x5b0,
+		.swpad_reset_default = 0x0b060,
+		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "ENET_CRS_DV",
 		.swmux_regoffset = 0x1e4,
