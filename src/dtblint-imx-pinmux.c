@@ -1910,7 +1910,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x59c,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_EB3",
@@ -1918,7 +1918,7 @@ static const struct padinfo imx6dl_iomux_padinfo[] = {
 		.swmux_reset_default = 0x00000005,
 		.swmux_writeable_mask = 0x0000001f,
 		.swpad_regoffset = 0x5a0,
-		.swpad_reset_default = 0x1b0b1,
+		.swpad_reset_default = 0x1b0b0,
 		.swpad_writeable_mask = 0x1f8f9,
 	}, {
 		.padname = "EIM_LBA",
