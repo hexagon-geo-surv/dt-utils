@@ -19,18 +19,6 @@ AM_LDFLAGS = \
 	-Wl,--gc-sections \
 	-Wl,--as-needed
 
-SED_PROCESS = \
-	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(SED) \
-	-e 's,@VERSION\@,$(VERSION),g' \
-	-e 's,@prefix\@,$(prefix),g' \
-	-e 's,@exec_prefix\@,$(exec_prefix),g' \
-	-e 's,@libdir\@,$(libdir),g' \
-	-e 's,@includedir\@,$(includedir),g' \
-	< $< > $@ || rm $@
-
-%.pc: %.pc.in Makefile
-	$(SED_PROCESS)
-
 # If the library source code has changed at all since the last release,
 #   then increment revision (‘c:r:a’ becomes ‘c:r+1:a’).
 # If any interfaces have been added/removed/changed since the last release,
@@ -117,10 +105,5 @@ src_libdt_utils_la_LDFLAGS = $(AM_LDFLAGS) \
 	-version-info $(LIBDT_CURRENT):$(LIBDT_REVISION):$(LIBDT_AGE) \
 	-Wl,--version-script=$(top_srcdir)/src/libdt-utils.sym
 src_libdt_utils_la_DEPENDENCIES = ${top_srcdir}/src/libdt-utils.sym
-
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = src/libdt-utils.pc
-EXTRA_DIST += src/libdt-utils.pc.in
-CLEANFILES += src/libdt-utils.pc
 
 EXTRA_DIST += scripts/barebox-mark-successful-boot.sh
