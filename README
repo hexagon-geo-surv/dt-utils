@@ -3,3 +3,13 @@ Questions, feedback, patches please email:
 
 For patches, please prefix your subject with "[PATCH dt-utils]" (for example,
 see the git-config manpage for the option format.subjectPrefix).
+
+This project uses the Developer's Certificate of Origin, as stated in the file
+DCO in this repository, with the same process as used for the Linux kernel:
+<https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin>
+By adding a Signed-off-by line (e.g. using `git commit -s`) saying
+
+  Signed-off-by: Random J Developer <random@developer.example.org>
+
+(using your real name and e-mail address), you state that your contributions
+are in line with the DCO.
