@@ -3,5 +3,3 @@
 .libs/
 *.la
 *.lo
-libabc.pc
-test-libabc
