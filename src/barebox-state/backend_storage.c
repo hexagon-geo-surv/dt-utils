@@ -369,7 +369,7 @@ int state_storage_init(struct state *state, const char *path,
 		       const char *storagetype)
 {
 	struct state_backend_storage *storage = &state->storage;
-	int ret;
+	int ret = -ENODEV;
 	struct mtd_info_user meminfo;
 
 	INIT_LIST_HEAD(&storage->buckets);
@@ -380,7 +380,9 @@ int state_storage_init(struct state *state, const char *path,
 	storage->max_size = max_size;
 	storage->path = xstrdup(path);
 
-	ret = mtd_get_meminfo(path, &meminfo);
+	if (IS_ENABLED(CONFIG_MTD))
+		ret = mtd_get_meminfo(path, &meminfo);
+
 	if (!ret && !(meminfo.flags & MTD_NO_ERASE)) {
 		bool circular;
 		if (!storagetype || !strcmp(storagetype, "circular")) {

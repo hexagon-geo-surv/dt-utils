@@ -41,6 +41,8 @@ AS_IF([test "x${enable_state_backward_compatibility}" = "xyes"], [
         AC_DEFINE(CONFIG_STATE_BACKWARD_COMPATIBLE, [0])
 ])
 
+AC_DEFINE(CONFIG_MTD, [1], [Statically define to be enabled to harmonize barebox' & dt-utils' code base.])
+
 AC_CHECK_FUNCS([__secure_getenv secure_getenv])
 
 my_CFLAGS="-Wall \
