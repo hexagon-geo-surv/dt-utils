@@ -18,13 +18,6 @@ AC_PREFIX_DEFAULT([/usr])
 AC_PROG_SED
 AC_PROG_MKDIR_P
 
-AC_ARG_ENABLE([debug],
-        AS_HELP_STRING([--enable-debug], [enable debug messages @<:@default=disabled@:>@]),
-        [], [enable_debug=no])
-AS_IF([test "x$enable_debug" = "xyes"], [
-        AC_DEFINE(DEBUG, [1], [Debug messages.])
-])
-
 AC_ARG_ENABLE([state-backward-compatibility],
         AS_HELP_STRING([--enable-state-backward-compatibility], [keep the 'direct' storage backend backward compatible @<:@default=disabled@:>@]),
         [], [enable_state_backward_compatibility=no])
@@ -68,6 +61,5 @@ AC_MSG_RESULT([
         cflags:                         ${CFLAGS}
         ldflags:                        ${LDFLAGS}
 
-        debug:                          ${enable_debug}
         state-backward-compatibility:   ${enable_state_backward_compatibility}
 ])
