@@ -439,6 +439,8 @@ int main(int argc, char *argv[])
 			exit(0);
 		case OPT_VERSION:
 			printf(PACKAGE_STRING "\n");
+			printf("Configured with build-time option '--%s-state-backward-compatibility'.\n",
+			       (CONFIG_STATE_BACKWARD_COMPATIBLE) ? "enable" : "disable");
 			exit(0);
 		case 'g':
 			sg = xzalloc(sizeof(*sg));

@@ -32,6 +32,15 @@ AS_IF([test "x$enable_debug" = "xyes"], [
         AC_DEFINE(DEBUG, [1], [Debug messages.])
 ])
 
+AC_ARG_ENABLE([state-backward-compatibility],
+        AS_HELP_STRING([--enable-state-backward-compatibility], [keep the 'direct' storage backend backward compatible @<:@default=disabled@:>@]),
+        [], [enable_state_backward_compatibility=no])
+AS_IF([test "x${enable_state_backward_compatibility}" = "xyes"], [
+        AC_DEFINE(CONFIG_STATE_BACKWARD_COMPATIBLE, [1], ['direct' storage backend backward compatibility.])
+], [
+        AC_DEFINE(CONFIG_STATE_BACKWARD_COMPATIBLE, [0])
+])
+
 AC_CHECK_FUNCS([__secure_getenv secure_getenv])
 
 my_CFLAGS="-Wall \
@@ -53,15 +62,16 @@ AC_MSG_RESULT([
         $PACKAGE $VERSION
         =====
 
-        prefix:                 ${prefix}
-        sysconfdir:             ${sysconfdir}
-        libdir:                 ${libdir}
-        includedir:             ${includedir}
+        prefix:                         ${prefix}
+        sysconfdir:                     ${sysconfdir}
+        libdir:                         ${libdir}
+        includedir:                     ${includedir}
 
-        compiler:               ${CC}
-        cflags:                 ${CFLAGS}
-        ldflags:                ${LDFLAGS}
+        compiler:                       ${CC}
+        cflags:                         ${CFLAGS}
+        ldflags:                        ${LDFLAGS}
 
-        logging:                ${enable_logging}
-        debug:                  ${enable_debug}
+        logging:                        ${enable_logging}
+        debug:                          ${enable_debug}
+        state-backward-compatibility:   ${enable_state_backward_compatibility}
 ])
