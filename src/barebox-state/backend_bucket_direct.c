@@ -56,10 +56,9 @@ static int state_backend_bucket_direct_read(struct state_backend_storage_bucket
 	void *buf;
 	int ret;
 
-	ret = lseek(direct->fd, direct->offset, SEEK_SET);
-	if (ret < 0) {
-		dev_err(direct->dev, "Failed to seek file, %d\n", ret);
-		return ret;
+	if (lseek(direct->fd, direct->offset, SEEK_SET) != direct->offset) {
+		dev_err(direct->dev, "Failed to seek file, %d\n", -errno);
+		return -errno;
 	}
 	ret = read_full(direct->fd, &meta, sizeof(meta));
 	if (ret < 0) {
@@ -72,10 +71,11 @@ static int state_backend_bucket_direct_read(struct state_backend_storage_bucket
 		if (meta.magic != ~0 && !!meta.magic)
 			bucket->wrong_magic = 1;
 		read_len = direct->max_size;
-		ret = lseek(direct->fd, direct->offset, SEEK_SET);
-		if (ret < 0) {
-			dev_err(direct->dev, "Failed to seek file, %d\n", ret);
-			return ret;
+		if (lseek(direct->fd, direct->offset, SEEK_SET) !=
+		    direct->offset) {
+			dev_err(direct->dev, "Failed to seek file, %d\n",
+				-errno);
+			return -errno;
 		}
 	}
 
