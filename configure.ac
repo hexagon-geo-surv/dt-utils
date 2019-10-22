@@ -19,7 +19,7 @@ AC_PROG_SED
 AC_PROG_MKDIR_P
 
 AC_ARG_ENABLE([state-backward-compatibility],
-        AS_HELP_STRING([--enable-state-backward-compatibility], [keep the 'direct' storage backend backward compatible @<:@default=disabled@:>@]),
+        AS_HELP_STRING([--enable-state-backward-compatibility], [barebox-state: when using the 'direct' storage backend, keep the on-disk format readable by barebox <= v2016.08.0 @<:@default=disabled@:>@])
         [], [enable_state_backward_compatibility=no])
 AS_IF([test "x${enable_state_backward_compatibility}" = "xyes"], [
         AC_DEFINE(CONFIG_STATE_BACKWARD_COMPATIBLE, [1], ['direct' storage backend backward compatibility.])
