@@ -38,6 +38,8 @@
 #include <dt/dt.h>
 #include <state.h>
 
+#define BAREBOX_STATE_LOCKFILE "/run/barebox-state.lock"
+
 struct state_variable;
 
 static int __state_uint8_set(struct state_variable *var, const char *val);
@@ -541,15 +543,15 @@ int main(int argc, char *argv[])
 		++nr_states;
 	}
 
-	lock_fd = open("/var/lock/barebox-state", O_CREAT | O_RDWR, 0600);
+	lock_fd = open(BAREBOX_STATE_LOCKFILE, O_CREAT | O_RDWR, 0600);
 	if (lock_fd < 0) {
-		pr_err("Failed to open lock-file /var/lock/barebox-state\n");
+		pr_err("Failed to open lock-file " BAREBOX_STATE_LOCKFILE "\n");
 		exit(1);
 	}
 
 	ret = flock(lock_fd, LOCK_EX);
 	if (ret < 0) {
-		pr_err("Failed to lock /var/lock/barebox-state: %m\n");
+		pr_err("Failed to lock " BAREBOX_STATE_LOCKFILE ": %m\n");
 		close(lock_fd);
 		exit(1);
 	}
