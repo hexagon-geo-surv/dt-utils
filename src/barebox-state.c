@@ -283,6 +283,7 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 {
 	struct state_variable *sv;
 	struct variable_str_type *vtype;
+	char *oldval;
 	int ret;
 
 	sv = state_find_var(state, var);
@@ -295,6 +296,14 @@ static int state_set_var(struct state *state, const char *var, const char *val)
 
 	if (!vtype->set)
 		return -EPERM;
+
+	oldval = vtype->get(sv);
+	if (!IS_ERR(oldval)) {
+		bool equal = strcmp(oldval, val) == 0;
+		free(oldval);
+		if (equal)
+			return 0;
+	}
 
 	ret = vtype->set(sv, val);
 	if (ret)
