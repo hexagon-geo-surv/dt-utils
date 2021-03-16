@@ -1,3 +1,124 @@
+dt-utils 2021.03.0
+==================
+
+This release includes contributions from Ahmad Fatoum, Andrey Smirnov, Enrico
+Jorns, Jan Luebbe, Jan Remmet, Jookia, Juergen Borleis, Kim Christensen, Lucas
+Stach, Roland Hieber, Sascha Hauer, Stefan Agner, Steffen Trumtrar, Ulrich
+Ölmann, Uwe Kleine-König and Xogium. Thanks to all contributors!
+
+Possibly breaking changes
+-------------------------
+
+* commit a6ca873a368d "Don't install a pkg-config file for libdt"
+  libdt isn't supposed to be installed as a system library as nobody wants to care about things like
+  a stable API. Also the generated .pc file was completely bogus as it added "-labc" to the linker
+  instead of -ldt-utils.
+
+* commit 2dbca4c3284b "state: keep backward compatibility"
+  This changes barebox-state's default behaviour.
+  Previous variants of the state variable set did not contain metadata. The read function in the
+  'direct' storage backend honors this, but the write function doesn't, which makes an update of the
+  state variable set impossible.
+  This commit introduces the new compile time option '--enable-state-backward-compatibility' to
+  ./configure, which is disabled by default. If this compile time option is enabled, barebox-state
+  will keep the storage in a format that can be read by barebox <= v2016.08.0 when writing variables
+  into a 'direct' storage backend, or fail if this requirement cannot be guaranteed.
+
+* commit d1e4783c0051 "follow the Developer's Certificate of Origin",
+  commit 886f13aa31a6 "Makefile: add ./DCO to the dist tarball"
+  (see files README and DCO)
+
+New features
+------------
+
+* libdt:
+  - commit af85ab844b1d "libdt: support finding devices by partuuid",
+    commit 9f3915824bc7 "libdt: support upper-case hexadecimals in value of partuuid property"
+    This allows specifying partitions in devicetree that are actually not described in the
+    devicetree to allow referencing them, e.g.:
+        partitions {
+                compatible = "fixed-partitions";
+                #address-cells = <1>;
+                #size-cells = <1>;
+                state_part: state {
+                        partuuid = "21367da7-c51f-499f-9aad-e1f366992365";
+                };
+        };
+  - commit 4826dcbce749 "libdt: enumerate amba bus as well"
+    Make barebox-state usable on STM32MP1, which probes the SD/MMC host controller over amba, not
+    the platform bus as most other ARM systems.
+
+* barebox-state:
+  - add new options --quiet, --force, and --version
+    . commit 52221e50b0df "barebox-state: complete cmdline options"
+    . commit 15786485ab8b "barebox-state: add cmdline option "--version""
+  - commit 74cd46affa37 "barebox-state: get devicetree from file"
+    Adds an -i/--input argument to barebox-state to allow passing a devicetree as a file instead of
+    using it from the system. This can be used for example on systems that do not use device trees
+    (such as x86) but where we want to use a dtb blob for describing the state storage and format.
+  - commit 0a75604bc61f "barebox-state: have the --set option to avoid writes if possible"
+    Previously, barebox-state --set would always dirty the state when successful. Users seeking to
+    conserve write cycles thus have to --get the variable in question first to check whether to
+    write it. Make life of such users easier by having barebox-state support this out-of-the-box.
+
+* dtblint:
+  - commit 38d7af00e6cb "dtblint: check reset-gpio-active-high + reset-gpio for matching polarity"
+  - commit 8498644efe82 "dtblint: add support for fsl,imx6dl-iomuxc"
+  - commit a75ea34157c5 "dtblint: fsl,iomuxc: improve check for reserved bits"
+
+Bug Fixes
+---------
+
+* barebox-state:
+  - commit 99918b8f3ad2 "barebox-state: fix usage of multiple state instances"
+    This makes concurrent calls to barebox-state with the following syntax possible:
+    $ barebox-state --get blue.x &
+    $ barebox-state --get yellow.y &
+  - commit 634317cc9120 "state: backend_bucket_circular: fix double free()"
+  - commit ef7355cccc3a "state: Fix lseek error check in state_backend_bucket_direct_read()"
+  - commit d59af7f22ab4 "state: Fix lseek error check in state_backend_bucket_direct_write()"
+  - commit f234f3ec9498 "state: Fix lseek error check in state_mtd_peb_read()"
+  - commit b85142e1cbd4 "state: Fix lseek error check in state_mtd_peb_write()"
+  - commit a1fe3159ca2a "state: check length"
+  - commit b548f61a0460 "state: backend_bucket_circular: mark block as bad if mtd_peb_torture() failed"
+  - commit fd48fe4efb40 "state: use /run to store lockfile"
+    The old location /var/lock is considered legacy, and might no longer exist on all systems.
+
+* dtblint:
+  - commit 1ec150f6927f "dtblint-imx-pinmux: fix wrong table entry"
+  - commit 218b148b284c "dtblint-imx-pinmux: fix another set of wrong table entries"
+  - commit 186ff7702c66 "dtblint-imx-pinmux: fix swmux suggested values"
+  - commit 5b58e1fc72e9 "dtblint-imx-pinmux: fix another set of wrong table entries"
+
+Refactoring
+-----------
+
+* state: harmonise our code with barebox
+  - commit 6ae166207bc8 "common: align declarations of dev_add_param_*() functions with barebox"
+
+* several smaller bugfixes, typo fixes, and cleanup:
+  - commit 0cd8a9b06523 "of_get_devicepath: again correct comment"
+  - commit 8c3b39c89307 "barebox-state: fix error message"
+  - commit a927ee527036 "state: fix typo"
+  - commit 9106360a3c85 "barebox-state: remove declaration of __state_uint8_get()"
+  - commit e210e3b79be8 "barebox-state: remove unused variables"
+  - commit 338b9962e28a "keystore-blob: remove unused variable"
+  - commit 949bab33700e "base64: remove unused variable"
+  - commit fc86ad03b4dc "base64: remove duplicate ‘const’ declaration specifier"
+  - commit 89d033284cb6 "state: fix formatting of "off_t" variables"
+  - commit 5588a6c32d54 "state: fix formatting of "uint32_t" variables"
+  - commit 4bfd158f068d "remove leftovers from libabc skeleton"
+  - commit baee943b2c98 "state: drop unused code and declarations for non-existing functions"
+  - commit 20fb10ce5d55 "state: backend_storage: harmonize code with barebox"
+  - commit e267c877e2ee "state: harmonize code with barebox"
+  - commit 1aeb1e4fdff0 "state: harmonize code with barebox"
+  - commit 81c542966f99 "configure: remove build time option '--disable-logging'"
+    (which wasn't used anywhere)
+  - commit 8874600851ac "configure: remove build time option '--enable-debug'"
+    (which wasn't used anywhere)
+  - commit 5f1eb84d2364 "configure: update repository URL"
+
+
 dt-utils 2019.01.0
 ==================
 This release includes contributions from Andrey Smirnov, Antony Pavlov, Daniel Schultz, Enrico
