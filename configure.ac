@@ -3,7 +3,7 @@ AC_INIT([dt-utils],
         [2019.01.0],
         [oss-tools@pengutronix.de],
         [dt-utils],
-        [http://git.pengutronix.de/?p=tools/dt-utils.git;a=summary])
+        [https://git.pengutronix.de/cgit/tools/dt-utils])
 AC_CONFIG_SRCDIR([src/libdt.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([check-news foreign 1.11 -Wall -Wno-portability silent-rules tar-pax no-dist-gzip dist-xz subdir-objects])
