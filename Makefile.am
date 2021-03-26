@@ -107,3 +107,8 @@ src_libdt_utils_la_LDFLAGS = $(AM_LDFLAGS) \
 src_libdt_utils_la_DEPENDENCIES = ${top_srcdir}/src/libdt-utils.sym
 
 EXTRA_DIST += scripts/barebox-mark-successful-boot.sh
+
+filesums: $(distdir).tar.xz
+	md5sum $(distdir).tar.xz > $(distdir).tar.xz.md5
+	sha1sum $(distdir).tar.xz > $(distdir).tar.xz.sha1
+	sha256sum $(distdir).tar.xz > $(distdir).tar.xz.sha256
