@@ -23,6 +23,9 @@ The Git repository for this software can be found at
 Any patches should be sent to the mailing list above. Please prefix your
 subject with "[PATCH dt-utils]" (when sending patches with Git, see the
 git-config manpage for the option format.subjectPrefix).
+Mails sent to this mailing list are also archived at
+
+  <https://lore.pengutronix.de/oss-tools/>
 
 This project uses the Developer's Certificate of Origin, as stated in the file
 DCO bundled with this software, using the same process as for the Linux kernel:
