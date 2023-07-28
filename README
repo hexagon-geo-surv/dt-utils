@@ -16,9 +16,9 @@ sending an empty mail to <oss-tools-subscribe@pengutronix.de>.
 Building from Sources
 ---------------------
 
-Check out the latest git state:
+Check out the latest state from Git:
 
-    git clone https://github.com/barebox/dt-utils
+    git clone https://git.pengutronix.de/git/tools/dt-utils
     cd dt-utils
 
 And then build using autotools:
@@ -37,7 +37,7 @@ The intention is to deprecate autotools eventually in its favor. To build:
 Contributing
 ------------
 
-The Git repository for this software can be found at
+The Git web view for this software can be found at:
 
   <https://git.pengutronix.de/cgit/tools/dt-utils>
 
