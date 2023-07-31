@@ -43,7 +43,7 @@ AM_LDFLAGS = \
 #   then increment age.
 # If any interfaces have been removed or changed since the last release,
 #   then set age to 0.
-LIBDT_CURRENT=5
+LIBDT_CURRENT=6
 LIBDT_REVISION=0
 LIBDT_AGE=0
 

@@ -1,6 +1,129 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright 2013-2023 The DT-Utils Authors <oss-tools@pengutronix.de>
 
+dt-utils 2023.08.0
+==================
+
+This release includes contributions by Ahmad Fatoum, Alexander Shiyan,
+Christian Eggers, Marco Felsch, Michael Olbrich, Roland Hieber, Sascha Hauer,
+Ulrich Ölmann, Uwe Kleine-König, and Yegor Yefremov.
+
+Possibly breaking changes
+-------------------------
+
+(none known)
+
+New features
+------------
+
+* commit f80d96b15978 "libdt: add support for barebox,storage-by-uuid" added
+  support for specifying barebox-state backend nodes in the device tree using
+  the 'barebox,storage-by-uuid' compatible. The similarly-named Barebox driver
+  looks for a storage device matching the given UUID, and when found registers a
+  new device for it. This makes it possible to use GPT and MBR partitions as
+  state backends without re-stating their respective partition tables in the
+  device tree.
+
+* commit bfa8e8eab135 "state: automatically find state.dtb in the ESP"
+  implemented auto-detection of device trees on the EFI System Partition in
+  /boot or /efi (the usual ESP mount points on most Linux distributions).
+
+* barebox-state can now auto-detect state partitions on GPT if they have the
+  Partition Type GUID 4778ed65-bf42-45fa-9c5b-287a1dc4aab1, which corresponds to
+  a feature merged in Barebox v2023.07.0 (see commits leading up to
+  <https://git.pengutronix.de/cgit/barebox/commit/?id=776714d9570253c46635>).
+  - commit 2bab30b7d653 "libdt: add of_property_write_strings support"
+  - commit c4ea02e5fb6e "libdt: generalize of_find_device_by_uuid for scoped lookup of all UUIDs"
+  - commit 7de908382bed "libdt: fix of_get_devicepath looking up sibling if device unavailable"
+  - commit 03a6d0146f5a "state: backend: direct: open block device in read-only mode if possible"
+  - commit 86233cfe9ba5 "libdt: factor out u64 sysattr parsing into helper"
+  - commit c458361777ab "libdt: drop broken if-branch"
+  - commit cff3f1c19d78 "libdt: factor out __of_cdev_find helper"
+  - commit 7a71beff497e "libdt: use block device partition instead of parent if found"
+  - commit 72970a627990 "state: align with barebox use of of_cdev_find"
+  - commit 5059165acd2b "libdt: use of_find_device_by_uuid for partuuid lookup"
+  - commit b32cb1c15c42 "state: allow lookup of barebox state partition by Type GUID"
+
+* commit 0976c48731ef "state: add option to lock device node" implemented
+  locking the device node directly via flock() in the barebox-state tool instead
+  of writing a lock file to the /run directory. This helps on systems that don't
+  have a world-writeable /run. Currently the behaviour is disabled by default
+  and can be enabled by the ./configure --enable-lock-device option and the
+  'lock-device' option in meson.
+
+* Meson was added as a build system. The support is currently experimental, but
+  the plan is to phase out autotools in the future, but for now the old way of
+  building the project will stay in place. See the updated instruction in the
+  README for how to build dt-utils and run the new unit tests.
+  - commit bc6e5d24916f "Add meson as build system"
+  - commit 4e7ad815b856 "meson: options: use defaults of type boolean for boolean options"
+  - commit 6dc8b1a948cf "meson: set optimization level to -O2 by default"
+  - commit fc97420e830c "Makefile: include meson files in the dist tarball"
+
+* There is now an initial set of unit tests, see the README on how to run them.
+  - commit e5c524875a91 "meson: add simple integration test"
+  - commit be44af10aa91 "libdt: add CONFIG_TEST_LOOPBACK"
+  - commit 69a223619e28 "test: add barebox-state loop block device tests"
+  - commit 885bb2feac99 "test: add test case with non-existent /dev/file"
+
+* All files now have machine-readable license and copyright information, and the
+  project conforms to the REUSE specification (see <https://reuse.software/>).
+  You can build a Software Bill of Materials in SPDX format by running the
+  'reuse spdx' command.
+  - commit 893c6c9f628f "treewide: add SPDX identifiers to files with GPL-2.0-only license"
+  - commit c1880166d1e3 "treewide: add SPDX identifiers to files with GPL-2.0-or-later license"
+  - commit af84fa465d69 "treewide: add SPDX identifiers to files with GPL-3.0-or-later license"
+  - commit fa56be74c3bd "treewide: add SPDX identifier to file with Zlib license"
+  - commit 6c7ccb22ea30 "treewide: add CC0-1.0 SPDX identifiers for trivial files"
+  - commit 75b7b2bce1d9 "treewide: add GPL-2.0-only SPDX identifiers to files without license"
+  - commit 95d6b5c4c95d "treewide: add trivial copyright headers"
+  - commit 18416bd75b83 "DCO: add SPDX license information"
+  - commit 681180373d82 "README: mention compatibility with the REUSE specification"
+
+Bug fixes
+---------
+
+* commit 81d5a909d690 "configure: pass -fno-strict-aliasing to GCC"
+* commit 10743d54b420 "libdt: fix issues of external function without prototype"
+* commit 6fd6d7ffff6d "libdt: use memcpy instead of strncpy"
+* commit f4f3b62ad229 "barebox-state: fix use after free in error path"
+
+* Bug fixes ported from Barebox:
+   - commit 624ef0ec9a83 "state: backend_raw: fix ignoring unpack failures"
+   - commit 39d574a4147e "state: backend_storage: deal gracefully with runtime bucket corruption"
+   - commit 5944ccf83477 "state: treat state with all-invalid buckets as dirty"
+   - commit 2524cbe1a879 "state: propagate failure to fixup enum32 into DT"
+   - commit 74d1803dd3b2 "common: xstrdup: don't panic on xstrdup(NULL)"
+
+Refactoring
+-----------
+
+* commit 5a9036656149 "libdt: only requires a partname for mtd"
+
+General maintenance and housekeeping
+------------------------------------
+
+* commit 1872584786ca "Makefile: add a helpful 'filesums' target"
+* commit 50f7f71f81da "treewide: remove references to CREDITS file"
+* commit b30a3162f2f9 "update README"
+* commit 181479122870 "configure: improve state-backward-compatibility help text"
+* commit 89701c0867eb "README: add link to lore mail archive"
+* commit 783a1c00de61 "configure: fix state-backward-compatibility help text"
+* commit 37a46daa6302 "sizes.h: remove unreferenced file"
+* commit db54c5f4be08 "libdt: don't use old-style function definition"
+* commit 6d60e2d68c1f "README: fix Git repository URL"
+* commit 0b194c865e3f "README: clarify the need for "real names" with the DCO process"
+* commit 3ed8bc213a82 "Makefile: include missing files in the dist tarball"
+
+* Maintenance changes ported from Barebox:
+  - commit b5ae056f25c5 "state: Remove duplicate incudes"
+  - commit 78346955f4a1 "state: remove param member from struct state_string"
+  - commit af4951b6f36a "state: remove param member from state_uint32, state_enum32, state_mac"
+  - commit a761f9ba04d9 "state: remove unused function"
+  - commit fb3452fca971 "state: add SPDX-License-Identifier for files without explicit license"
+  - commit 5fb31b446022 "state: fix typos found with codespell"
+
+
 dt-utils 2021.03.0
 ==================
 

@@ -5,7 +5,7 @@
 project(
   'dt-utils',
   'c',
-  version : '2021.03.0',
+  version : '2023.08.0',
   meson_version : '>=0.51',
   default_options: [
     'c_std=gnu11',
