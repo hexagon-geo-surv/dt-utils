@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright 2013-2023 The DT-Utils Authors <oss-tools@pengutronix.de> */
 #define PACKAGE_STRING "dt-utils @VCS_TAG@"
 
 #define PACKAGE_VERSION "@VCS_TAG@"

@@ -1,5 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-only
+# Copyright 2015-2023 The DT-Utils Authors <oss-tools@pengutronix.de>
 
 DEFAULT_REMAINING_ATTEMPTS=3
 DEFAULT_PRIORITY=20
