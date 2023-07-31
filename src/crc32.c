@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Zlib */
 /*
  * This file is derived from crc32.c from the zlib-1.1.3 distribution
  * by Jean-loup Gailly and Mark Adler.
@@ -5,7 +6,6 @@
 
 /* crc32.c -- compute the CRC-32 of a data stream
  * Copyright (C) 1995-1998 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
 #include <dt/common.h>
