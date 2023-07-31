@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 #define PACKAGE_STRING "dt-utils @VCS_TAG@"
 
 #define PACKAGE_VERSION "@VCS_TAG@"

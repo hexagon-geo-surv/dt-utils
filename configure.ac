@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
 AC_PREREQ(2.60)
 AC_INIT([dt-utils],
         [2021.03.0],

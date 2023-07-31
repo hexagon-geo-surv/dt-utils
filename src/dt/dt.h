@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 #ifndef __DT_DT_H
 #define __DT_DT_H
 

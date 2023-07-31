@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
 EXTRA_DIST = DCO
 CLEANFILES =
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}

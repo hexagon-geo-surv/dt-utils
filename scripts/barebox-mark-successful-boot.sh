@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only
 
 DEFAULT_REMAINING_ATTEMPTS=3
 DEFAULT_PRIORITY=20

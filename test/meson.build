@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
 if not get_option('tests')
   subdir_done()
 endif
