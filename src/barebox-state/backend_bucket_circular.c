@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (C) 2016 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
  *
