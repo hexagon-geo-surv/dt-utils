@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Code based on busybox-1.23.2
  *
  * Copyright 2003, Glenn McGrath
  * Copyright 2006, Rob Landley <rob@landley.net>
  * Copyright 2010, Denys Vlasenko
- *
- * Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
  */
 
 #include <common.h>

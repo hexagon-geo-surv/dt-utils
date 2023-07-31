@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # Copyright (c) 2011-2012 Mathias Lafeldt
 # Copyright (c) 2005-2012 Git project
