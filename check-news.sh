@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2019 Red Hat, Inc.
 # Author: Bastien Nocera <hadess@hadess.net>
 #
