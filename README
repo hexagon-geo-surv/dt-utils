@@ -57,8 +57,8 @@ By adding a Signed-off-by line (e.g. using `git commit -s`) saying
 
   Signed-off-by: Random J Developer <random@developer.example.org>
 
-(using your real name and e-mail address), you state that your contributions
-are in line with the DCO.
+(using your known identity), you state that your contributions are in line with
+the DCO.
 
 License
 -------
