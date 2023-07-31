@@ -75,3 +75,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU General Public License (the file COPYING
 bundled with this software) for more details.
+
+The dt-utils project conforms to the REUSE specification. You can use the
+'reuse' tool to get a Software Bill of Materials in SPDX format. For more
+information, see <https://reuse.software/>.
