@@ -1,7 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright 2013-2023 The DT-Utils Authors <oss-tools@pengutronix.de>
 
+MESON_FILES = \
+	check-news.sh \
+	meson.build \
+	meson_options.txt \
+	version-gen \
+	version.h.in
+
 EXTRA_DIST = \
+	$(MESON_FILES) \
 	autogen.sh \
 	DCO \
 	LICENSES/* \
