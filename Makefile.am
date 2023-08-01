@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright 2013-2023 The DT-Utils Authors <oss-tools@pengutronix.de>
 
-EXTRA_DIST = DCO
+EXTRA_DIST = \
+	autogen.sh \
+	DCO \
+	LICENSES/* \
+	test/*
+
 CLEANFILES =
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 AM_MAKEFLAGS = --no-print-directory
@@ -38,7 +43,8 @@ pkginclude_HEADERS = \
 	src/dt/dt.h \
 	src/dt/fdt.h \
 	src/dt/list.h \
-	src/dt/common.h
+	src/dt/common.h \
+	src/linux/uuid.h
 lib_LTLIBRARIES = src/libdt-utils.la
 
 bin_PROGRAMS = barebox-state dtblint fdtdump
