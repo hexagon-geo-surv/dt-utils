@@ -2301,7 +2301,7 @@ static int cdev_from_block_device(struct udev_device *dev,
 		devtype = udev_device_get_devtype(part);
 		if (!devtype)
 			continue;
-		if (!strcmp(devtype, "disk")) {
+		if (!strcmp(devtype, "disk") && !best_match) {
 			best_match = part;
 
 			/* Should we try to find a matching partition first? */
