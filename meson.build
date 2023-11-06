@@ -122,6 +122,18 @@ versiondep = declare_dependency(sources: version_h)
 
 meson.add_dist_script('version-gen', meson.project_version())
 
+# If the library source code has changed at all since the last release,
+#   then increment revision (‘c:r:a’ becomes ‘c:r+1:a’).
+# If any interfaces have been added/removed/changed since the last release,
+#   then increment current, and set revision to 0.
+# If any public interfaces have been added since the last public release,
+#   then increment age.
+# If any interfaces have been removed or changed since the last release,
+#   then set age to 0.
+lt_current = 6
+lt_revision = 0
+lt_age = 0
+
 mapfile = 'src/libdt-utils.sym'
 libdt_ld_flags = '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), mapfile)
 
@@ -133,6 +145,7 @@ libdt = shared_library('dt-utils',
   c_args : ['-include', meson.current_build_dir() / 'version.h'],
   dependencies : [udevdep, versiondep],
   gnu_symbol_visibility : 'default',
+  version: '@0@.@1@.@2@'.format(lt_current - lt_age, lt_age, lt_revision),
   install : true)
 
 executable('barebox-state',
