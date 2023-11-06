@@ -44,8 +44,10 @@ The Git web view for this software can be found at:
   <https://git.pengutronix.de/cgit/tools/dt-utils>
 
 Any patches should be sent to the mailing list above. Please prefix your
-subject with "[PATCH dt-utils]" (when sending patches with Git, see the
-git-config manpage for the option format.subjectPrefix).
+subject with "[PATCH dt-utils]". This can be configured in Git with:
+
+    git config format.subjectPrefix "PATCH dt-utils"
+
 Mails sent to this mailing list are also archived at
 
   <https://lore.pengutronix.de/oss-tools/>
