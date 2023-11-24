@@ -1,6 +1,29 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright 2013-2023 The DT-Utils Authors <oss-tools@pengutronix.de>
 
+dt-utils 2023.11.0
+==================
+
+A small bugfix release, mainly consisting of the following commit:
+
+* commit b67e96895f52 "libdt: prefer first found disk when looking for block
+  devices"
+  When using barebox-state on boards with a barbeox-state partition on an eMMC
+  device, it could happen that barebox-state tried to find a GPT partition on
+  /dev/mmcblkXbootN instead of /dev/mmcblkX, obviously failing to find a
+  matching partition there, and quitting without any further action. This commit
+  restores the old behaviour of using the first found MMC device (/dev/mmcblkX)
+  instead of the last one. Although this is not completely future-proof, it has
+  worked for years and serves a good stop-gap solution for now.
+
+A few more housekeeping and maintenance commits:
+
+* commit feca1c1ffdaa "README: provide git format.subjectPrefix line to copy"
+* commit 1cd62596dbd7 "meson: align libdt-utils version with autotools'"
+
+This release includes contributions by Ahmad Fatoum, Enrico Jörns, Leonard
+Göhrs, and Roland Hieber. Thank you to all contributors!
+
 dt-utils 2023.08.0
 ==================
 

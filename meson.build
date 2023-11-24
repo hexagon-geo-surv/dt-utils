@@ -5,7 +5,7 @@
 project(
   'dt-utils',
   'c',
-  version : '2023.08.0',
+  version : '2023.11.0',
   meson_version : '>=0.51',
   default_options: [
     'c_std=gnu11',
@@ -131,7 +131,7 @@ meson.add_dist_script('version-gen', meson.project_version())
 # If any interfaces have been removed or changed since the last release,
 #   then set age to 0.
 lt_current = 6
-lt_revision = 0
+lt_revision = 1
 lt_age = 0
 
 mapfile = 'src/libdt-utils.sym'

@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.60)
 AC_INIT([dt-utils],
-        [2023.08.0],
+        [2023.11.0],
         [oss-tools@pengutronix.de],
         [dt-utils],
         [https://git.pengutronix.de/cgit/tools/dt-utils])
