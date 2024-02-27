@@ -264,7 +264,8 @@ static struct state_variable *state_enum32_create(struct state *state,
 	}
 
 	return &enum32->var;
- out:	for (i--; i >= 0; i--)
+out:
+	for (i--; i >= 0; i--)
 		free((char *)enum32->names[i]);
 	free(enum32->names);
 	free(enum32);
@@ -330,7 +331,8 @@ static struct state_variable *state_mac_create(struct state *state,
 	}
 
 	return &mac->var;
- out:	free(mac);
+out:
+	free(mac);
 	return ERR_PTR(ret);
 }
 
@@ -445,7 +447,8 @@ static struct state_variable *state_string_create(struct state *state,
 	}
 
 	return &string->var;
- out:	free(string);
+out:
+	free(string);
 	return ERR_PTR(ret);
 }
 
