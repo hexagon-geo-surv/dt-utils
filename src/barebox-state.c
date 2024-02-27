@@ -409,7 +409,9 @@ struct state *state_get(const char *name, const char *filename, bool readonly, b
 	else
 		ret = state_load_no_auth(state);
 
-	if (ret)
+	if (ret == -ENOMEDIUM)
+		pr_info("Fresh state detected, continuing with defaults\n");
+	else if (ret)
 		pr_err("Failed to load persistent state, continuing with defaults, %d\n", ret);
 
 	return state;

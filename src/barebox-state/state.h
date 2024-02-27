@@ -290,3 +290,10 @@ static inline int open_exclusive(const char *path, int flags)
 
 	return fd;
 }
+
+#define dev_err_state_init(dev, ret, fmt, ...) ({ \
+	int __ret = (ret); \
+	dev_printf(__ret == -ENOMEDIUM ? 7 : 3, \
+		   (dev), "init error: %pe: " fmt, ERR_PTR(__ret), ##__VA_ARGS__); \
+	__ret; \
+})
