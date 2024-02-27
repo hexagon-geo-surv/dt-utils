@@ -165,8 +165,7 @@ static void state_backend_bucket_direct_free(struct
 
 int state_backend_bucket_direct_create(struct device_d *dev, const char *path,
 				       struct state_backend_storage_bucket **bucket,
-				       off_t offset, ssize_t max_size,
-				       bool readonly)
+				       off_t offset, ssize_t max_size, bool readonly)
 {
 	int fd;
 	struct state_backend_storage_bucket_direct *direct;
