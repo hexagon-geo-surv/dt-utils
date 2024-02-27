@@ -62,10 +62,10 @@ struct of_reserve_map *of_get_reserve_map(void);
 void of_clean_reserve_map(void);
 void fdt_add_reserve_map(void *fdt);
 
-struct device_d;
+struct device;
 struct driver_d;
 
-int of_match(struct device_d *dev, struct driver_d *drv);
+int of_match(struct device *dev, struct driver_d *drv);
 
 struct fdt_header *fdt_get_tree(void);
 
@@ -222,9 +222,9 @@ extern int of_set_root_node(struct device_node *node);
 
 extern int of_platform_populate(struct device_node *root,
 				const struct of_device_id *matches,
-				struct device_d *parent);
+				struct device *parent);
 
-int of_device_is_stdout_path(struct device_d *dev);
+int of_device_is_stdout_path(struct device *dev);
 const char *of_get_model(void);
 void *of_flatten_dtb(struct device_node *node);
 int of_add_memory(struct device_node *node, bool dump);

@@ -29,7 +29,7 @@ struct state_backend_format_dtb {
 	struct device_node *root;
 
 	/* For outputs */
-	struct device_d *dev;
+	struct device *dev;
 };
 
 static inline struct state_backend_format_dtb *get_format_dtb(struct
@@ -132,7 +132,7 @@ static void state_backend_format_dtb_free(struct state_backend_format *format)
 }
 
 int backend_format_dtb_create(struct state_backend_format **format,
-			      struct device_d *dev)
+			      struct device *dev)
 {
 	struct state_backend_format_dtb *dtb;
 

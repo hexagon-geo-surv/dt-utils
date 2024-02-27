@@ -45,14 +45,14 @@ typedef uint64_t u64;
 	(void) (&_min1 == &_min2);		\
 	_min1 < _min2 ? _min1 : _min2; })
 
-struct device_d;
+struct device;
 
 void pr_level_set(int level);
 int pr_level_get(void);
 
 int pr_printf(int level, const char *format, ...)
         __attribute__ ((format(__printf__, 2, 3)));
-int dev_printf(int level, const struct device_d *dev, const char *format, ...)
+int dev_printf(int level, const struct device *dev, const char *format, ...)
         __attribute__ ((format(__printf__, 3, 4)));
 
 #define pr_err(fmt, arg...)	pr_printf(3, fmt, ##arg)
@@ -372,13 +372,13 @@ static inline int is_zero_ether_addr(const u8 *addr)
 #define MAX_DRIVER_NAME		32
 #define DEVICE_ID_SINGLE	-1
 
-struct device_d {
+struct device {
 	char name[MAX_DRIVER_NAME];
 	int id;
 	struct device_node *device_node;
 };
 
-static inline struct param_d *dev_add_param_enum(struct device_d *dev, const char *name,
+static inline struct param_d *dev_add_param_enum(struct device *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		uint32_t *value, const char * const *names, int max, void *priv)
@@ -387,7 +387,7 @@ static inline struct param_d *dev_add_param_enum(struct device_d *dev, const cha
 	return NULL;
 }
 
-static inline struct param_d *dev_add_param_bool(struct device_d *dev, const char *name,
+static inline struct param_d *dev_add_param_bool(struct device *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		uint32_t *value, void *priv)
@@ -395,7 +395,7 @@ static inline struct param_d *dev_add_param_bool(struct device_d *dev, const cha
 	return NULL;
 }
 
-static inline struct param_d *dev_add_param_mac(struct device_d *dev, const char *name,
+static inline struct param_d *dev_add_param_mac(struct device *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		u8 *mac, void *priv)
@@ -403,7 +403,7 @@ static inline struct param_d *dev_add_param_mac(struct device_d *dev, const char
 	return NULL;
 }
 
-static inline struct param_d *dev_add_param_string(struct device_d *dev, const char *name,
+static inline struct param_d *dev_add_param_string(struct device *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		char **value, void *priv)
@@ -411,7 +411,7 @@ static inline struct param_d *dev_add_param_string(struct device_d *dev, const c
 	return NULL;
 }
 
-static inline struct param_d *dev_add_param_uint32(struct device_d *dev, const char *name,
+static inline struct param_d *dev_add_param_uint32(struct device *dev, const char *name,
 		int (*set)(struct param_d *p, void *priv),
 		int (*get)(struct param_d *p, void *priv),
 		uint32_t *value, const char *format, void *priv)
@@ -424,7 +424,7 @@ static inline struct param_d *dev_add_param_uint32(struct device_d *dev, const c
  * @dev: device
  * @fmt: format string for the device's name
  */
-static inline int dev_set_name(struct device_d *dev, const char *fmt, ...)
+static inline int dev_set_name(struct device *dev, const char *fmt, ...)
 {
 	char newname[MAX_DRIVER_NAME];
 	va_list vargs;
@@ -454,11 +454,11 @@ static inline int register_driver(struct driver_d *d)
 	return 0;
 }
 
-static inline int register_device(struct device_d *d)
+static inline int register_device(struct device *d)
 {
 	return 0;
 }
-static inline int unregister_device(struct device_d *d)
+static inline int unregister_device(struct device *d)
 {
 	return 0;
 }
