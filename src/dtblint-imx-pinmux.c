@@ -4312,6 +4312,1318 @@ static const struct socinfo imx6q_socinfo = {
 	.size_padinfo = ARRAY_SIZE(imx6q_iomux_padinfo),
 };
 
+static const struct padinfo imx8mp_iomux_padinfo[] = {
+	{
+		.padname = "BOOT_MODE0",
+		.swpad_regoffset = 0x250,
+		.swpad_reset_default = 0x00000194,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "BOOT_MODE1",
+		.swpad_regoffset = 0x254,
+		.swpad_reset_default = 0x00000194,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "BOOT_MODE2",
+		.swpad_regoffset = 0x258,
+		.swpad_reset_default = 0x00000194,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "BOOT_MODE3",
+		.swpad_regoffset = 0x25c,
+		.swpad_reset_default = 0x00000194,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "JTAG_MOD",
+		.swpad_regoffset = 0x260,
+		.swpad_reset_default = 0x00000114,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "JTAG_TDI",
+		.swpad_regoffset = 0x264,
+		.swpad_reset_default = 0x00000154,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "JTAG_TMS",
+		.swpad_regoffset = 0x268,
+		.swpad_reset_default = 0x00000154,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "JTAG_TCK",
+		.swpad_regoffset = 0x26c,
+		.swpad_reset_default = 0x00000154,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "JTAG_TDO",
+		.swpad_regoffset = 0x270,
+		.swpad_reset_default = 0x00000154,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO00",
+		.swmux_regoffset = 0x014,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x274,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO01",
+		.swmux_regoffset = 0x018,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x278,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO02",
+		.swmux_regoffset = 0x01c,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x27c,
+		.swpad_reset_default = 0x00000146,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO03",
+		.swmux_regoffset = 0x020,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x280,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO04",
+		.swmux_regoffset = 0x024,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x284,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO05",
+		.swmux_regoffset = 0x028,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x288,
+		.swpad_reset_default = 0x00000146,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO06",
+		.swmux_regoffset = 0x02c,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x28c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO07",
+		.swmux_regoffset = 0x030,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x290,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO08",
+		.swmux_regoffset = 0x034,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x294,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO09",
+		.swmux_regoffset = 0x038,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x298,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO10",
+		.swmux_regoffset = 0x03c,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x29c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO11",
+		.swmux_regoffset = 0x040,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2a0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO12",
+		.swmux_regoffset = 0x044,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2a4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO13",
+		.swmux_regoffset = 0x048,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2a8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO14",
+		.swmux_regoffset = 0x04c,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2ac,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "GPIO1_IO15",
+		.swmux_regoffset = 0x050,
+		.swmux_reset_default = 0x00000000,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2b0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_MDC",
+		.swmux_regoffset = 0x054,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2b4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_MDIO",
+		.swmux_regoffset = 0x058,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2b8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TD3",
+		.swmux_regoffset = 0x05c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2bc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TD2",
+		.swmux_regoffset = 0x060,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2c0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TD1",
+		.swmux_regoffset = 0x064,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2c4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TD0",
+		.swmux_regoffset = 0x068,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2c8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TX_CTL",
+		.swmux_regoffset = 0x06c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2cc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_TXC",
+		.swmux_regoffset = 0x070,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2d0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RX_CTL",
+		.swmux_regoffset = 0x074,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2d4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RXC",
+		.swmux_regoffset = 0x078,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2d8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RD0",
+		.swmux_regoffset = 0x07c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2dc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RD1",
+		.swmux_regoffset = 0x080,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2e0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RD2",
+		.swmux_regoffset = 0x084,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2e4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ENET_RD3",
+		.swmux_regoffset = 0x088,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2e8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_CLK",
+		.swmux_regoffset = 0x08c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2ec,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_CMD",
+		.swmux_regoffset = 0x090,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2f0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA0",
+		.swmux_regoffset = 0x094,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2f4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA1",
+		.swmux_regoffset = 0x098,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2f8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA2",
+		.swmux_regoffset = 0x09c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x2fc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA3",
+		.swmux_regoffset = 0x0a0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x300,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA4",
+		.swmux_regoffset = 0x0a4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x304,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA5",
+		.swmux_regoffset = 0x0a8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x308,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA6",
+		.swmux_regoffset = 0x0ac,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x30c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_DATA7",
+		.swmux_regoffset = 0x0b0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x310,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_RESET_B",
+		.swmux_regoffset = 0x0b4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x314,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD1_STROBE",
+		.swmux_regoffset = 0x0b8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x318,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_CD_B",
+		.swmux_regoffset = 0x0bc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x31c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_CLK",
+		.swmux_regoffset = 0x0c0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x320,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_CMD",
+		.swmux_regoffset = 0x0c4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x324,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_DATA0",
+		.swmux_regoffset = 0x0c8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x328,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_DATA1",
+		.swmux_regoffset = 0x0cc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x32c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_DATA2",
+		.swmux_regoffset = 0x0d0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x330,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_DATA3",
+		.swmux_regoffset = 0x0d4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x334,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_RESET_B",
+		.swmux_regoffset = 0x0d8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x338,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SD2_WP",
+		.swmux_regoffset = 0x0dc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x33c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_ALE",
+		.swmux_regoffset = 0x0e0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x340,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_CE0_B",
+		.swmux_regoffset = 0x0e4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x344,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_CE1_B",
+		.swmux_regoffset = 0x0e8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x348,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_CE2_B",
+		.swmux_regoffset = 0x0ec,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x34c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_CE3_B",
+		.swmux_regoffset = 0x0f0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x350,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_CLE",
+		.swmux_regoffset = 0x0f4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x354,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA00",
+		.swmux_regoffset = 0x0f8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x358,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA01",
+		.swmux_regoffset = 0x0fc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x35c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA02",
+		.swmux_regoffset = 0x100,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x360,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA03",
+		.swmux_regoffset = 0x104,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x364,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA04",
+		.swmux_regoffset = 0x108,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x368,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA05",
+		.swmux_regoffset = 0x10c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x36c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA06",
+		.swmux_regoffset = 0x110,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x370,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DATA07",
+		.swmux_regoffset = 0x114,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x374,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_DQS",
+		.swmux_regoffset = 0x118,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x378,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_RE_B",
+		.swmux_regoffset = 0x11c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x37c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_READY_B",
+		.swmux_regoffset = 0x120,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x380,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_WE_B",
+		.swmux_regoffset = 0x124,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x384,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "NAND_WP_B",
+		.swmux_regoffset = 0x128,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x388,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXFS",
+		.swmux_regoffset = 0x12c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x38c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXC",
+		.swmux_regoffset = 0x130,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x390,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXD0",
+		.swmux_regoffset = 0x134,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x394,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXD1",
+		.swmux_regoffset = 0x138,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x398,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXD2",
+		.swmux_regoffset = 0x13c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x39c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_RXD3",
+		.swmux_regoffset = 0x140,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3a0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI5_MCLK",
+		.swmux_regoffset = 0x144,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3a4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXFS",
+		.swmux_regoffset = 0x148,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3a8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXC",
+		.swmux_regoffset = 0x14c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3ac,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD0",
+		.swmux_regoffset = 0x150,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3b0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD1",
+		.swmux_regoffset = 0x154,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3b4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD2",
+		.swmux_regoffset = 0x158,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3b8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD3",
+		.swmux_regoffset = 0x15c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3bc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD4",
+		.swmux_regoffset = 0x160,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3c0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD5",
+		.swmux_regoffset = 0x164,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3c4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD6",
+		.swmux_regoffset = 0x168,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3c8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_RXD7",
+		.swmux_regoffset = 0x16c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3cc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXFS",
+		.swmux_regoffset = 0x170,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3d0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXC",
+		.swmux_regoffset = 0x174,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3d4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD0",
+		.swmux_regoffset = 0x178,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3d8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD1",
+		.swmux_regoffset = 0x17c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3dc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD2",
+		.swmux_regoffset = 0x180,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3e0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD3",
+		.swmux_regoffset = 0x184,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3e4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD4",
+		.swmux_regoffset = 0x188,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3e8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD5",
+		.swmux_regoffset = 0x18c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3ec,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD6",
+		.swmux_regoffset = 0x190,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3f0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_TXD7",
+		.swmux_regoffset = 0x194,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3f4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI1_MCLK",
+		.swmux_regoffset = 0x198,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3f8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_RXFS",
+		.swmux_regoffset = 0x19c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x3fc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_RXC",
+		.swmux_regoffset = 0x1a0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x400,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_RXD0",
+		.swmux_regoffset = 0x1a4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x404,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_TXFS",
+		.swmux_regoffset = 0x1a8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x408,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_TXC",
+		.swmux_regoffset = 0x1ac,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x40c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_TXD0",
+		.swmux_regoffset = 0x1b0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x410,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI2_MCLK",
+		.swmux_regoffset = 0x1b4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x414,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_RXFS",
+		.swmux_regoffset = 0x1b8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x418,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_RXC",
+		.swmux_regoffset = 0x1bc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x41c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_RXD",
+		.swmux_regoffset = 0x1c0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x420,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_TXFS",
+		.swmux_regoffset = 0x1c4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x424,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_TXC",
+		.swmux_regoffset = 0x1c8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x428,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_TXD",
+		.swmux_regoffset = 0x1cc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x42c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SAI3_MCLK",
+		.swmux_regoffset = 0x1d0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x430,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SPDIF_TX",
+		.swmux_regoffset = 0x1d4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x434,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SPDIF_RX",
+		.swmux_regoffset = 0x1d8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x438,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "SPDIF_EXT_CLK",
+		.swmux_regoffset = 0x1dc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x43c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI1_SCLK",
+		.swmux_regoffset = 0x1e0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x440,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI1_MOSI",
+		.swmux_regoffset = 0x1e4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x444,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI1_MISO",
+		.swmux_regoffset = 0x1e8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x448,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI1_SS0",
+		.swmux_regoffset = 0x1ec,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x44c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI2_SCLK",
+		.swmux_regoffset = 0x1f0,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x450,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI2_MOSI",
+		.swmux_regoffset = 0x1f4,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x454,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI2_MISO",
+		.swmux_regoffset = 0x1f8,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x458,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "ECSPI2_SS0",
+		.swmux_regoffset = 0x1fc,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x45c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C1_SCL",
+		.swmux_regoffset = 0x200,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x460,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C1_SDA",
+		.swmux_regoffset = 0x204,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x464,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C2_SCL",
+		.swmux_regoffset = 0x208,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x468,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C2_SDA",
+		.swmux_regoffset = 0x20c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x46c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C3_SCL",
+		.swmux_regoffset = 0x210,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x470,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C3_SDA",
+		.swmux_regoffset = 0x214,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x474,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C4_SCL",
+		.swmux_regoffset = 0x218,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x478,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "I2C4_SDA",
+		.swmux_regoffset = 0x21c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x47c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART1_RXD",
+		.swmux_regoffset = 0x220,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x480,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART1_TXD",
+		.swmux_regoffset = 0x224,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x484,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART2_RXD",
+		.swmux_regoffset = 0x228,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x488,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART2_TXD",
+		.swmux_regoffset = 0x22c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x48c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART3_RXD",
+		.swmux_regoffset = 0x230,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x490,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART3_TXD",
+		.swmux_regoffset = 0x234,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x494,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART4_RXD",
+		.swmux_regoffset = 0x238,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x498,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "UART4_TXD",
+		.swmux_regoffset = 0x23c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x49c,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "HDMI_DDC_SCL",
+		.swmux_regoffset = 0x240,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x4a0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "HDMI_DDC_SDA",
+		.swmux_regoffset = 0x244,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x4a4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "HDMI_CEC",
+		.swmux_regoffset = 0x248,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x4a8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "HDMI_HPD",
+		.swmux_regoffset = 0x24c,
+		.swmux_reset_default = 0x00000005,
+		.swmux_writeable_mask = 0x00000017,
+		.swpad_regoffset = 0x4ac,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "CLKIN1",
+		.swpad_regoffset = 0x4b0,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "CLKIN2",
+		.swpad_regoffset = 0x4b4,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "CLKOUT1",
+		.swpad_regoffset = 0x4b8,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	}, {
+		.padname = "CLKOUT2",
+		.swpad_regoffset = 0x4bc,
+		.swpad_reset_default = 0x00000106,
+		.swpad_writeable_mask = 0x000001f6,
+	},
+	/* regname="AUDIOMIX_PDM_MIC_PDM_BITSTREAM_SELECT_INPUT_0" regoffset=0x4c0 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_PDM_MIC_PDM_BITSTREAM_SELECT_INPUT_1" regoffset=0x4c4 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_PDM_MIC_PDM_BITSTREAM_SELECT_INPUT_2" regoffset=0x4c8 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_PDM_MIC_PDM_BITSTREAM_SELECT_INPUT_3" regoffset=0x4cc reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI1_RXSYNC_SELECT_INPUT" regoffset=0x4d0 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI1_TXBCLK_SELECT_INPUT" regoffset=0x4d4 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI1_TXSYNC_SELECT_INPUT" regoffset=0x4d8 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI2_RXDATA_SELECT_INPUT_1" regoffset=0x4dc reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI3_MCLK_SELECT_INPUT" regoffset=0x4e0 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI3_RXDATA_SELECT_INPUT_0" regoffset=0x4e4 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI3_TXBCLK_SELECT_INPUT" regoffset=0x4e8 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI3_TXSYNC_SELECT_INPUT" regoffset=0x4ec reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_MCLK_SELECT_INPUT" regoffset=0x4f0 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXBCLK_SELECT_INPUT" regoffset=0x4f4 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXDATA_SELECT_INPUT_0" regoffset=0x4f8 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXDATA_SELECT_INPUT_1" regoffset=0x4fc reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXDATA_SELECT_INPUT_2" regoffset=0x500 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXDATA_SELECT_INPUT_3" regoffset=0x504 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_RXSYNC_SELECT_INPUT" regoffset=0x508 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_TXBCLK_SELECT_INPUT" regoffset=0x50c reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI5_TXSYNC_SELECT_INPUT" regoffset=0x510 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_MCLK_SELECT_INPUT" regoffset=0x514 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_RXBCLK_SELECT_INPUT" regoffset=0x518 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_RXDATA_SELECT_INPUT_0" regoffset=0x51c reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_RXSYNC_SELECT_INPUT" regoffset=0x520 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_TXBCLK_SELECT_INPUT" regoffset=0x524 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI6_TXSYNC_SELECT_INPUT" regoffset=0x528 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_MCLK_SELECT_INPUT" regoffset=0x52c reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_RXBCLK_SELECT_INPUT" regoffset=0x530 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_RXDATA_SELECT_INPUT_0" regoffset=0x534 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_RXSYNC_SELECT_INPUT" regoffset=0x538 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_TXBCLK_SELECT_INPUT" regoffset=0x53c reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SAI7_TXSYNC_SELECT_INPUT" regoffset=0x540 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_EARC_PHY_SPDIF_IN_SELECT_INPUT" regoffset=0x544 reset_default=0x00000000 */
+	/* regname="AUDIOMIX_SPDIF_EXTCLK_SELECT_INPUT" regoffset=0x548 reset_default=0x00000000 */
+	/* regname="CAN1_CANRX_SELECT_INPUT" regoffset=0x54c reset_default=0x00000000 */
+	/* regname="CAN2_CANRX_SELECT_INPUT" regoffset=0x550 reset_default=0x00000000 */
+	/* regname="CCM_GPC_PMIC_VFUNCTIONAL_READY_SELECT_INPUT" regoffset=0x554 reset_default=0x00000000 */
+	/* regname="ECSPI1_CSPI_CLK_IN_SELECT_INPUT" regoffset=0x558 reset_default=0x00000000 */
+	/* regname="ECSPI1_MISO_SELECT_INPUT" regoffset=0x55c reset_default=0x00000000 */
+	/* regname="ECSPI1_MOSI_SELECT_INPUT" regoffset=0x560 reset_default=0x00000000 */
+	/* regname="ECSPI1_SS_B_SELECT_INPUT_0" regoffset=0x564 reset_default=0x00000000 */
+	/* regname="ECSPI2_CSPI_CLK_IN_SELECT_INPUT" regoffset=0x568 reset_default=0x00000000 */
+	/* regname="ECSPI2_MISO_SELECT_INPUT" regoffset=0x56c reset_default=0x00000000 */
+	/* regname="ECSPI2_MOSI_SELECT_INPUT" regoffset=0x570 reset_default=0x00000000 */
+	/* regname="ECSPI2_SS_B_SELECT_INPUT_0" regoffset=0x574 reset_default=0x00000000 */
+	/* regname="ENET1_IPG_CLK_RMII_SELECT_INPUT" regoffset=0x578 reset_default=0x00000000 */
+	/* regname="ENET1_MDIO_SELECT_INPUT" regoffset=0x57c reset_default=0x00000000 */
+	/* regname="ENET1_RXDATA_0_SELECT_INPUT" regoffset=0x580 reset_default=0x00000000 */
+	/* regname="ENET1_RXDATA_1_SELECT_INPUT" regoffset=0x584 reset_default=0x00000000 */
+	/* regname="ENET1_RXEN_SELECT_INPUT" regoffset=0x588 reset_default=0x00000000 */
+	/* regname="ENET1_RXERR_SELECT_INPUT" regoffset=0x58c reset_default=0x00000000 */
+	/* regname="ENET_QOS_GMII_MDI_I_SELECT_INPUT" regoffset=0x590 reset_default=0x00000000 */
+	/* regname="GPT1_CAPIN1_SELECT_INPUT" regoffset=0x594 reset_default=0x00000000 */
+	/* regname="GPT1_CAPIN2_SELECT_INPUT" regoffset=0x598 reset_default=0x00000000 */
+	/* regname="GPT1_CLKIN_SELECT_INPUT" regoffset=0x59c reset_default=0x00000000 */
+	/* regname="PCIE_CLKREQ_B_SELECT_INPUT" regoffset=0x5a0 reset_default=0x00000000 */
+	/* regname="I2C1_SCL_IN_SELECT_INPUT" regoffset=0x5a4 reset_default=0x00000000 */
+	/* regname="I2C1_SDA_IN_SELECT_INPUT" regoffset=0x5a8 reset_default=0x00000000 */
+	/* regname="I2C2_SCL_IN_SELECT_INPUT" regoffset=0x5ac reset_default=0x00000000 */
+	/* regname="I2C2_SDA_IN_SELECT_INPUT" regoffset=0x5b0 reset_default=0x00000000 */
+	/* regname="I2C3_SCL_IN_SELECT_INPUT" regoffset=0x5b4 reset_default=0x00000000 */
+	/* regname="I2C3_SDA_IN_SELECT_INPUT" regoffset=0x5b8 reset_default=0x00000000 */
+	/* regname="I2C4_SCL_IN_SELECT_INPUT" regoffset=0x5bc reset_default=0x00000000 */
+	/* regname="I2C4_SDA_IN_SELECT_INPUT" regoffset=0x5c0 reset_default=0x00000000 */
+	/* regname="I2C5_SCL_IN_SELECT_INPUT" regoffset=0x5c4 reset_default=0x00000000 */
+	/* regname="I2C5_SDA_IN_SELECT_INPUT" regoffset=0x5c8 reset_default=0x00000000 */
+	/* regname="I2C6_SCL_IN_SELECT_INPUT" regoffset=0x5cc reset_default=0x00000000 */
+	/* regname="I2C6_SDA_IN_SELECT_INPUT" regoffset=0x5d0 reset_default=0x00000000 */
+	/* regname="ISP_FL_TRIG_0_SELECT_INPUT" regoffset=0x5d4 reset_default=0x00000000 */
+	/* regname="ISP_FL_TRIG_1_SELECT_INPUT" regoffset=0x5d8 reset_default=0x00000000 */
+	/* regname="ISP_SHUTTER_TRIG_0_SELECT_INPUT" regoffset=0x5dc reset_default=0x00000000 */
+	/* regname="ISP_SHUTTER_TRIG_1_SELECT_INPUT" regoffset=0x5e0 reset_default=0x00000000 */
+	/* regname="UART1_UART_RTS_B_SELECT_INPUT" regoffset=0x5e4 reset_default=0x00000000 */
+	/* regname="UART1_UART_RXD_MUX_SELECT_INPUT" regoffset=0x5e8 reset_default=0x00000000 */
+	/* regname="UART2_UART_RTS_B_SELECT_INPUT" regoffset=0x5ec reset_default=0x00000000 */
+	/* regname="UART2_UART_RXD_MUX_SELECT_INPUT" regoffset=0x5f0 reset_default=0x00000000 */
+	/* regname="UART3_UART_RTS_B_SELECT_INPUT" regoffset=0x5f4 reset_default=0x00000000 */
+	/* regname="UART3_UART_RXD_MUX_SELECT_INPUT" regoffset=0x5f8 reset_default=0x00000000 */
+	/* regname="UART4_UART_RTS_B_SELECT_INPUT" regoffset=0x5fc reset_default=0x00000000 */
+	/* regname="UART4_UART_RXD_MUX_SELECT_INPUT" regoffset=0x600 reset_default=0x00000000 */
+	/* regname="USDHC3_CARD_CLK_IN_SELECT_INPUT" regoffset=0x604 reset_default=0x00000000 */
+	/* regname="USDHC3_CARD_DET_SELECT_INPUT" regoffset=0x608 reset_default=0x00000000 */
+	/* regname="USDHC3_CMD_IN_SELECT_INPUT" regoffset=0x60c reset_default=0x00000000 */
+	/* regname="USDHC3_DAT0_IN_SELECT_INPUT" regoffset=0x610 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT1_IN_SELECT_INPUT" regoffset=0x614 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT2_IN_SELECT_INPUT" regoffset=0x618 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT3_IN_SELECT_INPUT" regoffset=0x61c reset_default=0x00000000 */
+	/* regname="USDHC3_DAT4_IN_SELECT_INPUT" regoffset=0x620 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT5_IN_SELECT_INPUT" regoffset=0x624 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT6_IN_SELECT_INPUT" regoffset=0x628 reset_default=0x00000000 */
+	/* regname="USDHC3_DAT7_IN_SELECT_INPUT" regoffset=0x62c reset_default=0x00000000 */
+	/* regname="USDHC3_STROBE_SELECT_INPUT" regoffset=0x630 reset_default=0x00000000 */
+	/* regname="USDHC3_WP_ON_SELECT_INPUT" regoffset=0x634 reset_default=0x00000000 */
+};
+
+static const struct socinfo imx8mp_socinfo = {
+	.padinfo = imx8mp_iomux_padinfo,
+	.size_padinfo = ARRAY_SIZE(imx8mp_iomux_padinfo),
+};
+
 static const struct padinfo *find_padinfo(off_t swmux_regoffset,
 					  const struct socinfo *socinfo)
 {
@@ -4409,6 +5721,9 @@ static const struct iomux_id_t iomux_id[] = {
 	}, {
 		.compatible = "fsl,imx6q-iomuxc",
 		.socinfo = &imx6q_socinfo,
+	}, {
+		.compatible = "fsl,imx8mp-iomuxc",
+		.socinfo = &imx8mp_socinfo,
 	}
 };
 
